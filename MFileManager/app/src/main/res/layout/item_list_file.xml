@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="isMultiChoose"
+            type="boolean" />
+        <variable
+            name="isChoose"
+            type="boolean" />
+        <variable
+            name="path"
+            type="com.luckmerlin.file.Path" />
+        <variable
+            name="position"
+            type="int" />
+        <import type="android.view.View"/>
+        <import type="com.luckmerlin.file.Thumbs"/>
+        <import type="com.luckmerlin.file.util.FileSize"/>
+        <import type="com.luckmerlin.file.util.Time"/>
+    </data>
+    <RelativeLayout
+        android:clickable="true"
+        binding:background="@{path.accessible?@drawable/selector_round_dark_corner_small:@drawable/round_dark_corner_small_disable}"
+        android:layout_marginBottom="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/listItemNormal">
+
+            <ImageView
+                android:id="@+id/itemListFile_icon"
+                android:layout_alignParentLeft="true"
+                android:padding="2dp"
+                android:layout_margin="1dp"
+                android:layout_width="@dimen/listItemNormal"
+                android:layout_height="@dimen/listItemNormal"/>
+            <LinearLayout
+                android:layout_toRightOf="@id/itemListFile_icon"
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_margin="5dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:textSize="@dimen/textTitle"
+                    android:singleLine="true"
+                    android:text="@{path.name??``}"
+                    android:textColor="@color/textTitle"
+                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <View
+                        android:alpha="0.9"
+                        android:layout_marginTop="3dp"
+                        android:visibility="gone"
+                        android:layout_marginBottom="3dp"
+                        android:layout_width="3dp"
+                        android:layout_height="3dp"/>
+                    <TextView
+                        style="@style/titleSmallTextView"
+                        android:text="@{path.directory?`(`+(path.total)+`)`:FileSize.formatSizeText((double)path.length)+` `+(path.extension??``)}"/>
+                    <TextView
+                        style="@style/titleSmallTextView"
+                        android:text="@{Time.formatTime(path.modifyTime)}"/>
+                </LinearLayout>
+            </LinearLayout>
+            <CheckBox
+                android:id="@+id/itemListFile_selectCB"
+                android:layout_alignParentRight="true"
+                style="@style/checkboxStyle"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:visibility="@{isMultiChoose?View.VISIBLE:View.GONE}"
+                android:layout_centerVertical="true"
+                android:checked="@{isChoose}"
+                android:layout_width="@dimen/listIconNormal"
+                android:layout_height="@dimen/listIconNormal"/>
+        </RelativeLayout>
+    </layout>

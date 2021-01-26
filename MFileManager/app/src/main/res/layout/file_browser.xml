@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="vm" type="com.luckmerlin.model.BrowserModel" />
+        <import type="android.text.Html"/>
+        <import type="android.view.View"/>
+        <import type="com.luckmerlin.databinding.view.ImageResTag"/>
+        <import type="com.luckmerlin.file.util.FileSize"/>
+        <import type="com.luckmerlin.file.binding.PathTextViewBinding"/>
+        <import type="com.luckmerlin.file.Mode"/>
+    </data>
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:layout_marginLeft="20dp" android:layout_marginRight="20dp"
+            android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <ImageView binding:lmBinding="@{ImageResTag.image(@drawable/selector_back,null,null)}"
+                android:layout_width="@dimen/titleIconSize" android:layout_height="@dimen/titleIconSize"
+                android:layout_marginLeft="6dp" android:layout_marginRight="15dp"/>
+            <LinearLayout android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
+               <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                   <TextView android:text="@{vm.currentClient.name??``}" android:textSize="@dimen/textTitle" android:padding="5dp"
+                       android:minWidth="40dp" android:textStyle="bold" style="@style/titleNormalTextView"/>
+                   <TextView android:text="@{` (`+((null==vm.currentSelectSize||(vm.currentSelectSize&lt;0))?``:``+vm.currentSelectSize+`/`)+vm.currentFolder.total+')'}"
+                       style="@style/titleNormalTextView" android:textStyle="bold"
+                       android:visibility="@{(null==vm.currentClient&amp;&amp;null==vm.currentFolder)?View.GONE:View.VISIBLE}"
+                       android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+               </LinearLayout>
+               <LinearLayout android:layout_width="wrap_content" android:orientation="horizontal" android:layout_height="wrap_content">
+                    <ImageView android:src="@drawable/switch_thumb_activated" android:layout_gravity="center_vertical"
+                        android:layout_marginRight="5dp" android:layout_width="10dp" android:layout_height="10dp"/>
+                    <TextView android:text='@{""+FileSize.formatSizeText(vm.currentClient.available)+"/"+FileSize.formatSizeText(vm.currentClient.total)}'
+                        style="@style/titleSubNormalTextView" android:layout_width="wrap_content"
+                        android:visibility="@{null==vm.currentClient?View.GONE:View.VISIBLE}" android:singleLine="true"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </LinearLayout>
+            <Space android:layout_weight="1" android:layout_width="0dp" android:layout_height="wrap_content"/>
+            <ImageView binding:lmBinding="@{ImageResTag.image(@drawable/selector_menu,null,null)}"
+                android:visibility="@{(vm.browserMode==Mode.NONE||vm.browserMode==Mode.MODE_DOWNLOAD||vm.browserMode==Mode.MODE_UPLOAD||vm.browserMode==Mode.MODE_COPY||vm.browserMode==Mode.MODE_MOVE)?View.VISIBLE:View.GONE}"
+                android:layout_width="30dp" android:layout_height="30dp"/>
+        </LinearLayout>
+        <View android:paddingLeft="5dp" android:paddingRight="5dp" style="@style/horizontalDividerLine"/>
+        <HorizontalScrollView android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_marginLeft="5dp"
+            android:visibility="@{null==vm.currentClient?View.GONE:View.VISIBLE}"
+            android:scrollbars="none" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:layout_width="wrap_content" android:singleLine="true" android:textSize="@dimen/textSmall"
+                binding:lmBinding="@{PathTextViewBinding.bind(vm.currentFolder,vm)}" android:layout_height="wrap_content"
+                android:visibility="@{vm.currentFolder!=null?View.VISIBLE:View.GONE}" />
+        </HorizontalScrollView>
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_weight="1"
+            android:layout_width="match_parent" android:layout_height="match_parent">
+            <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent"
+                binding:adapter="@{vm.browserAdapter}" android:layout_height="match_parent"/>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </LinearLayout>
+</layout>
