@@ -2,13 +2,17 @@ package com.luckmerlin.model;
 
 import android.view.View;
 import androidx.databinding.ObservableField;
+
+import com.luckmerlin.adapter.recycleview.Section;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.Model;
 import com.luckmerlin.databinding.touch.OnViewClick;
 import com.luckmerlin.file.Client;
+import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.Mode;
 import com.luckmerlin.file.NasClient;
 import com.luckmerlin.file.Path;
+import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.adapter.FileBrowserAdapter;
 import com.luckmerlin.file.ui.OnPathSpanClick;
@@ -17,9 +21,15 @@ public class BrowserModel extends Model implements OnViewClick, OnPathSpanClick 
     private final ObservableField<Client> mCurrentClient=new ObservableField<Client>();
     private final ObservableField<Integer> mClientCount=new ObservableField<Integer>();
     private final ObservableField<Integer> mCurrentSelectSize=new ObservableField<>();
-    private final ObservableField<Path> mCurrentFolder=new ObservableField<>();
-    private final FileBrowserAdapter mBrowserAdapter=new FileBrowserAdapter();
+    private final ObservableField<Folder> mCurrentFolder=new ObservableField<>();
     private final ObservableField<Integer> mBrowserMode=new ObservableField<>(Mode.NONE);
+    private final FileBrowserAdapter mBrowserAdapter=new FileBrowserAdapter(){
+        @Override
+        protected void onReset(boolean succeed, Section<Query, Path> section) {
+            super.onReset(succeed, section);
+            mCurrentFolder.set(null!=section&&section instanceof Folder?(Folder)section:null);
+        }
+    };
 
     @Override
     protected void onRootAttached(View view) {
@@ -64,7 +74,7 @@ public class BrowserModel extends Model implements OnViewClick, OnPathSpanClick 
         return mCurrentSelectSize;
     }
 
-    public ObservableField<Path> getCurrentFolder() {
+    public ObservableField<Folder> getCurrentFolder() {
         return mCurrentFolder;
     }
 

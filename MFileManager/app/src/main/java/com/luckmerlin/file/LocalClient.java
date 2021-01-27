@@ -1,9 +1,10 @@
 package com.luckmerlin.file;
 
-import com.luckmerlin.adapter.OnSectionLoadFinish;
 import com.luckmerlin.core.Canceler;
+import com.luckmerlin.file.api.OnApiFinish;
+import com.luckmerlin.file.api.Reply;
 
-public final class LocalClient extends AbsClient{
+public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalPath>{
     private String mName;
     private long mTotal;
     private long mAvailable;
@@ -24,8 +25,9 @@ public final class LocalClient extends AbsClient{
         return mTotal;
     }
 
+
     @Override
-    protected Canceler query(Object path, long from, long to, OnSectionLoadFinish callback) {
+    protected Canceler query(Query path, long from, long to, OnApiFinish<Reply<LocalFolder<Query>>> callback) {
         return null;
     }
 }
