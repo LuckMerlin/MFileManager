@@ -16,12 +16,12 @@ import com.luckmerlin.core.Canceler;
 import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.R;
+import com.luckmerlin.file.Thumbs;
 import com.luckmerlin.file.databinding.ItemListFileBinding;
 
 import java.util.List;
 
-public final class FileBrowserAdapter<T extends Path> extends SectionListAdapter<String, T>
-        implements OnItemTouchResolver {
+public final class FileBrowserAdapter<T extends Path> extends SectionListAdapter<String, T> implements OnItemTouchResolver {
     private Client mClient;
 
     @Override
@@ -58,16 +58,13 @@ public final class FileBrowserAdapter<T extends Path> extends SectionListAdapter
         return new LinearLayoutManager(rv.getContext());
     }
 
-
     @Override
-    protected void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i, ViewDataBinding binding, int i1, T t, List<Object> list) {
-        super.onBindViewHolder(viewHolder, i, binding, i1, t, list);
+    protected void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i, ViewDataBinding binding, int i1, T data, List<Object> list) {
+        super.onBindViewHolder(viewHolder, i, binding, i1, data, list);
         if (null!=binding&&binding instanceof ItemListFileBinding){
             ItemListFileBinding fileBinding=(ItemListFileBinding)binding;
-            fileBinding.setPath(t);
+            fileBinding.setPath(data);
             fileBinding.setPosition(i+1);
-
-//            fileBinding.setThumbUrl(null!=data?data.isDirectory()?R.drawable.folder:mThumbs.getThumb(data.getPath(null)):null);
         }
     }
 

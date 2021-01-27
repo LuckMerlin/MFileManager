@@ -1,6 +1,6 @@
 package com.luckmerlin.file;
 
-public class NasPath extends Path{
+public final class NasPath extends Path{
     private String name;
     private String parent;
     private String host;
@@ -9,7 +9,9 @@ public class NasPath extends Path{
     private long length;
     private long modifyTime;
     private String extension;
+    private String mime;
     private String pathSep;
+    private int permissions;
 
     @Override
     public String getParent() {
@@ -37,18 +39,23 @@ public class NasPath extends Path{
     }
 
     @Override
+    public String getMime() {
+        return mime;
+    }
+
+    @Override
     public long getLength() {
         return length;
     }
 
     @Override
-    public boolean isDirectory() {
-        return false;
+    public int getPermission() {
+        return permissions;
     }
 
     @Override
-    public boolean accessible() {
-        return false;
+    public boolean isDirectory() {
+        return size>=0;
     }
 
     @Override

@@ -42,9 +42,6 @@ public final class NasClient extends AbsClient<Query,NasPath> {
                 (OnApiFinish<Reply<NasFolder<Query,NasPath>>>)(int what, String note, Reply<NasFolder<Query,NasPath>> data, Object arg)-> {
                     boolean succeed=what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess();
                     callback.onSectionLoadFinish(succeed,note,null!=data?data.getData():null);
-                    //
-                    NasFolder<Query,NasPath> folder=null!=data?data.getData():null;
-                    Debug.D("DDDDDDDDd "+folder.getData().get(0).getName());
                 }):null;
     }
 

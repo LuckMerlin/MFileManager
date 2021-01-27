@@ -35,15 +35,20 @@ public final class LocalPath extends Path {
     }
 
     @Override
-    public boolean accessible() {
+    public int getPermission() {
         File file=getFile();
-        if (null!=file&&file.canRead()){
-            if (file.isDirectory()){
-                return file.canExecute();
-            }
-            return true;
+        int permission=PERMISSION_NONE;
+        if (null!=file){
+            permission=permission|(file.canExecute()?PERMISSION_EXECUTE:permission);
+            permission=permission|(file.canRead()?PERMISSION_READ:permission);
+            permission=permission|(file.canWrite()?PERMISSION_WRITE:permission);
         }
-        return false;
+        return permission;
+    }
+
+    @Override
+    public String getMime() {
+        return null;
     }
 
     @Override

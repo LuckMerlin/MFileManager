@@ -2,21 +2,13 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:binding="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable
-            name="isMultiChoose"
-            type="boolean" />
-        <variable
-            name="isChoose"
-            type="boolean" />
-        <variable
-            name="path"
-            type="com.luckmerlin.file.Path" />
-        <variable
-            name="position"
-            type="int" />
+        <variable name="isMultiChoose" type="boolean" />
+        <variable name="isChoose" type="boolean" />
+        <variable name="path" type="com.luckmerlin.file.Path" />
+        <variable name="position" type="int" />
         <import type="android.view.View"/>
-        <import type="com.luckmerlin.file.Thumbs"/>
         <import type="com.luckmerlin.file.util.FileSize"/>
+        <import type="com.luckmerlin.file.binding.ImageBinding"/>
         <import type="com.luckmerlin.file.util.Time"/>
     </data>
     <RelativeLayout
@@ -28,6 +20,7 @@
 
             <ImageView
                 android:id="@+id/itemListFile_icon"
+                binding:lmBinding="@{ImageBinding.image(path)}"
                 android:layout_alignParentLeft="true"
                 android:padding="2dp"
                 android:layout_margin="1dp"

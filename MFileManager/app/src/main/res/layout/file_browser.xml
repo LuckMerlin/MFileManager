@@ -10,8 +10,10 @@
         <import type="com.luckmerlin.file.binding.PathTextViewBinding"/>
         <import type="com.luckmerlin.file.Mode"/>
     </data>
-    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout android:layout_marginLeft="20dp" android:layout_marginRight="20dp"
+    <LinearLayout android:background="@drawable/round_corner_gray" android:orientation="vertical"
+        android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:layout_marginLeft="10dp" android:layout_marginRight="10dp" android:paddingBottom="5dp"
+            android:layout_gravity="center_vertical" android:gravity="center_vertical"
             android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
             <ImageView binding:lmBinding="@{ImageResTag.image(@drawable/selector_back,null,null)}"
                 android:layout_width="@dimen/titleIconSize" android:layout_height="@dimen/titleIconSize"
@@ -47,9 +49,8 @@
                 binding:lmBinding="@{PathTextViewBinding.bind(vm.currentFolder,vm)}" android:layout_height="wrap_content"
                 android:visibility="@{vm.currentFolder!=null?View.VISIBLE:View.GONE}" />
         </HorizontalScrollView>
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_weight="1"
-            android:layout_width="match_parent" android:layout_height="match_parent">
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:paddingLeft="8dp" android:paddingRight="8dp"
+            android:layout_weight="1" android:layout_width="match_parent" android:layout_height="match_parent">
             <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent"
                 binding:adapter="@{vm.browserAdapter}" android:layout_height="match_parent"/>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

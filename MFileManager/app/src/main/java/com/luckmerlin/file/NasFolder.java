@@ -41,6 +41,12 @@ public class NasFolder<A,T extends NasPath> extends Path implements Section<A,T>
     }
 
     @Override
+    public String getMime() {
+        T current=folder;
+        return null!=current?current.getMime():null;
+    }
+
+    @Override
     public long getFrom() {
         return from;
     }
@@ -64,10 +70,11 @@ public class NasFolder<A,T extends NasPath> extends Path implements Section<A,T>
     }
 
     @Override
-    public boolean accessible() {
+    public int getPermission() {
         T current=folder;
-        return null!=current&&current.accessible();
+        return null!=current?current.getPermission():PERMISSION_NONE;
     }
+
 
     @Override
     public List<T> getData() {
