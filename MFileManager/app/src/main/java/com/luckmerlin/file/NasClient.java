@@ -24,9 +24,10 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
 
     private final Retrofit mRetrofit=new Retrofit();
 
-    public NasClient(String hostUrl,int hostPort){
+    public NasClient(String hostUrl,int hostPort,String name){
         mHostUrl=hostUrl;
         mHostPort=hostPort;
+        this.name=name;
     }
 
     @Override

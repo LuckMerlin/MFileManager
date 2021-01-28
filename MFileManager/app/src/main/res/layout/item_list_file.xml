@@ -10,9 +10,11 @@
         <import type="com.luckmerlin.file.util.FileSize"/>
         <import type="com.luckmerlin.file.binding.ImageBinding"/>
         <import type="com.luckmerlin.file.util.Time"/>
+        <import type="com.luckmerlin.databinding.view.Touch"/>
     </data>
     <RelativeLayout
         android:clickable="true"
+        binding:lmBinding="@{Touch.dispatch(Touch.CLICK,path)}"
         binding:background="@{path.accessible?@drawable/selector_round_dark_corner_small:@drawable/round_dark_corner_small_disable}"
         android:layout_marginBottom="4dp"
         android:layout_width="match_parent"

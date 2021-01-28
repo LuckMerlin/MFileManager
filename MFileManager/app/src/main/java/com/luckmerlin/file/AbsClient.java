@@ -7,7 +7,7 @@ import com.luckmerlin.file.api.Reply;
 
 public abstract class AbsClient<A extends Folder<T,V>,T,V extends Path> implements Client<A,T,V> {
 
-    protected abstract Canceler query(T path, long from, long to, OnApiFinish<Reply<A>> callback);
+    protected abstract Canceler query(T query, long from, long to, OnApiFinish<Reply<A>> callback);
 
     @Override
     public Canceler onNextSectionLoad(SectionRequest<T> request, OnApiFinish<Reply<A>> callback, String s) {

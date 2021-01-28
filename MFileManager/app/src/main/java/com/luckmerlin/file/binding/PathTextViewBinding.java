@@ -1,27 +1,35 @@
 package com.luckmerlin.file.binding;
 
+import android.content.res.ColorStateList;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
+import android.text.style.CharacterStyle;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.CustomBinding;
+import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.ui.OnPathSpanClick;
 
 import java.lang.ref.WeakReference;
 
 public final class PathTextViewBinding implements CustomBinding {
-    private final Path mPath;
+    private final Folder mPath;
     private WeakReference<OnPathSpanClick> mReference;
 
-    private PathTextViewBinding(Path path,OnPathSpanClick callback){
+    private PathTextViewBinding(Folder path,OnPathSpanClick callback){
         mPath=path;
         mReference=null!=callback?new WeakReference<>(callback):null;
     }
 
-    public static PathTextViewBinding bind(Path path, OnPathSpanClick callback){
+    public static PathTextViewBinding bind(Folder path, OnPathSpanClick callback){
         return new PathTextViewBinding(path,callback);
     }
 
@@ -30,7 +38,7 @@ public final class PathTextViewBinding implements CustomBinding {
         if (null!=view&&view instanceof TextView){
             CharSequence charSequence=null;
             TextView textView=(TextView)view;
-            Path path=mPath;
+            Folder path=mPath;
             if (null!=path){
                 String pathValue=path.getPath();
                 String pathSep=path.getSep();
@@ -53,6 +61,18 @@ public final class PathTextViewBinding implements CustomBinding {
                                         callback.onPathSpanClick(mPath,mStart,mEnd,mValue);
                                     }else{
                                         mReference=null;
+                                    }
+                                }
+
+                                @Override
+                                public void updateDrawState(@NonNull TextPaint textPaint) {
+                                    super.updateDrawState(textPaint);
+                                    if (null != textPaint) {
+                                        textPaint.setUnderlineText(false);
+                                        ColorStateList colorStateList = textView.getTextColors();
+                                        if (null != colorStateList) {
+                                            textPaint.setColor(colorStateList.getDefaultColor());
+                                        }
                                     }
                                 }
                             },startIndex,end,Spannable.SPAN_INCLUSIVE_EXCLUSIVE);

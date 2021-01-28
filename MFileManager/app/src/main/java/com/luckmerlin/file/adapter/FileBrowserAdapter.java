@@ -42,14 +42,30 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
          //Do nothing
     }
 
+    public final boolean browser(Query query,String debug){
+        Query current=getLatestSectionArg();
+        if (!((null==current&&null==query)||(null!=current&&null!=query&&current.equals(query)))){
+            return resetSection(query,null,null,"While browser path changed "+(null!=debug?debug:"."));
+        }
+        return false;
+    }
+
+    protected void onClientChanged(Client client){
+        //Do nothing
+    }
+
     public final boolean setClient(Client client, String debug) {
         Client current=mClient;
         if (null==client&&null!=current){
             mClient=null;
-            return reset(debug);
+            boolean succeed= reset(debug);
+            onClientChanged(null);
+            return succeed;
         }else if (null!=client&&!client.equals(current)){
             mClient=client;
-            return reset(debug);
+            boolean succeed= reset(debug);
+            onClientChanged(client);
+            return succeed;
         }
         return false;
     }

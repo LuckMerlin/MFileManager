@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="menu" type="com.luckmerlin.file.ui.ContextMenu" />
+        <import type="com.luckmerlin.databinding.view.Touch"/>
+    </data>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:background="@drawable/selector_round_dark_corner_small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            binding:lmBinding="@{Touch.textRes(menu.text,null,Touch.CLICK)}"
+            android:padding="10dp"
+            android:minWidth="150dp"
+            android:minHeight="20dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:textSize="@dimen/textTitle"
+            android:textColor="@color/textTitle"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+</layout>

@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">MFileManager</string>
+    <string name="transportManager">传输器</string>
+    <string name="multiChoose">多选</string>
+    <string name="goTo">前往</string>
+    <string name="terminal">终端</string>
+    <string name="upload">上传</string>
+    <string name="setAsHome">设置主页</string>
+    <string name="createFolder">创建文件夹</string>
+    <string name="createFile">创建文件</string>
+    <string name="exit">退出</string>
+    <string name="reboot">重启</string>
 </resources>
