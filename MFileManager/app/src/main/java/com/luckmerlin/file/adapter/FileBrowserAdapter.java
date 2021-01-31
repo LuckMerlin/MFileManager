@@ -1,5 +1,6 @@
 package com.luckmerlin.file.adapter;
 
+import android.content.Context;
 import android.view.ViewGroup;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,6 +25,14 @@ import java.util.List;
 
 public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implements OnItemTouchResolver {
     private Client mClient;
+
+    @Override
+    protected void onResolveFixedViewItem(RecyclerView recyclerView) {
+        Context context=null!=recyclerView?recyclerView.getContext():null;
+        if (null!=context){
+            setFixHolder(TYPE_EMPTY,generateViewHolder(context,R.layout.item_content_empty));
+        }
+    }
 
     @Override
     protected final Canceler onNextSectionLoad(SectionRequest<Query> request, OnSectionLoadFinish<Query, Path> callback, String s) {

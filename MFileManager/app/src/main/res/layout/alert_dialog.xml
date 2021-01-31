@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="vm" type="com.luckmerlin.model.DialogModel" />
+        <import type="android.content.res.Resources"/>
+        <import type="com.luckmerlin.file.binding.LayoutInflateBinding"/>
+        <import type="android.view.View"/>
+    </data>
+    <LinearLayout
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:background="@drawable/round_corner_black"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                binding:text="@{vm.titleText==null?``:vm.titleText}"
+                android:singleLine="true"
+                android:visibility="@{vm.titleText==null?View.GONE:View.VISIBLE}"
+                android:layout_marginBottom="15dp"
+                style="@style/titleNormalTextView"/>
+        <TextView
+            binding:text="@{vm.messageText==null?``:vm.messageText}"
+            android:visibility="@{vm.messageText==null?View.GONE:View.VISIBLE}"
+            style="@style/titleNormalTextView"/>
+            <FrameLayout
+                android:visibility="@{null!=vm.contentLayout?View.VISIBLE:View.GONE}"
+                binding:lmBinding="@{LayoutInflateBinding.layout(vm.contentLayout)}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:visibility="@{vm.leftText!=null||vm.rightText!=null?View.VISIBLE:View.GONE}"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    binding:text="@{vm.leftText==null?``:vm.leftText}"
+                    android:visibility="@{vm.leftText==null?View.GONE:View.VISIBLE}"
+                    android:background="@drawable/selector_round_dark_corner_small"
+                    style="@style/titleNormalTextView"/>
+                <TextView
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:layout_marginLeft="5dp"
+                    binding:text="@{vm.centerText==null?``:vm.centerText}"
+                    android:visibility="@{vm.centerText==null?View.GONE:View.VISIBLE}"
+                    android:background="@drawable/selector_round_dark_corner_small"
+                    style="@style/titleNormalTextView"/>
+                <TextView
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    binding:text="@{vm.rightText==null?``:vm.rightText}"
+                    android:visibility="@{vm.rightText==null?View.GONE:View.VISIBLE}"
+                    android:layout_marginLeft="5dp"
+                    android:background="@drawable/selector_round_dark_corner_small"
+                    style="@style/titleNormalTextView"/>
+            </LinearLayout>
+        </LinearLayout>
+</layout>

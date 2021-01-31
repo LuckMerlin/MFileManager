@@ -9,10 +9,20 @@ public abstract class AbsClient<A extends Folder<T,V>,T,V extends Path> implemen
 
     protected abstract Canceler query(T query, long from, long to, OnApiFinish<Reply<A>> callback);
 
+//    protected abstract
+
     @Override
     public Canceler onNextSectionLoad(SectionRequest<T> request, OnApiFinish<Reply<A>> callback, String s) {
         T arg=null!=request?request.getArg():null;
         long from=null!=request?request.getFrom():-1;
         return from>=0?query(arg,from,from+request.getLimit(),callback):null;
+    }
+
+    protected final boolean notifyApiFinish(int what, String note, Reply<A> data, Object arg,OnApiFinish<Reply<A>> callback){
+        if (null!=callback){
+            callback.onApiFinish(what,note,data,arg);
+            return true;
+        }
+        return false;
     }
 }

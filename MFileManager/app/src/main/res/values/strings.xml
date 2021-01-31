@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MFileManager</string>
+    <string name="app_name">LManager</string>
     <string name="transportManager">传输器</string>
     <string name="multiChoose">多选</string>
     <string name="goTo">前往</string>
@@ -10,4 +10,6 @@
     <string name="createFile">创建文件</string>
     <string name="exit">退出</string>
     <string name="reboot">重启</string>
+    <string name="local">本地</string>
+    <string name="emptyContent">内容为空</string>
 </resources>

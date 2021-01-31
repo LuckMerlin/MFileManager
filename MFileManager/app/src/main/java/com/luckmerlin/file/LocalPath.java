@@ -13,6 +13,32 @@ public final class LocalPath extends Path {
         mExtension=extension;
     }
 
+    public static LocalPath create(File file){
+        if (null!=file){
+            final String filePath=null!=file?file.getPath():null;
+            String extension=null;String name=null;String parent=null;
+            if (null!=filePath&&filePath.length()>0){
+                final int length=filePath.length();
+                final String fileDivider=File.separator;
+                int lastNameIndex=filePath.lastIndexOf(fileDivider);
+                if (lastNameIndex>=0&&lastNameIndex<length){
+                    parent=filePath.substring(0,lastNameIndex);
+                    lastNameIndex+=1;
+                    if (lastNameIndex>=0&&lastNameIndex<length){
+                        name=filePath.substring(lastNameIndex,length);
+                        final String extensionDivider=".";
+                        int lastExtensionIndex=filePath.lastIndexOf(extensionDivider,lastNameIndex);
+                        if (lastExtensionIndex>=0&&lastExtensionIndex<length){
+                            extension=filePath.substring(lastExtensionIndex);
+                        }
+                    }
+                }
+            }
+           return new LocalPath(parent,name,extension);
+        }
+        return null;
+    }
+
     @Override
     public String getParent() {
         return mParent;
