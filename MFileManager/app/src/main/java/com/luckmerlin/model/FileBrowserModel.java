@@ -1,8 +1,11 @@
 package com.luckmerlin.model;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.databinding.ObservableField;
@@ -26,16 +29,25 @@ import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.adapter.FileBrowserAdapter;
 import com.luckmerlin.file.databinding.AlertDialogBinding;
+import com.luckmerlin.file.service.TaskBinder;
+import com.luckmerlin.file.service.TaskService;
 import com.luckmerlin.file.ui.OnPathSpanClick;
 import com.luckmerlin.mvvm.activity.OnActivityBackPress;
+import com.luckmerlin.mvvm.service.OnModelServiceResolve;
+import com.luckmerlin.mvvm.service.OnServiceBindChange;
 
-public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanClick, OnActivityBackPress {
+import java.util.ArrayList;
+import java.util.List;
+
+public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanClick, OnActivityBackPress,
+        OnModelServiceResolve, OnServiceBindChange {
     private final ObservableField<Client> mCurrentClient=new ObservableField<Client>();
     private final ObservableField<Integer> mClientCount=new ObservableField<Integer>();
     private final ObservableField<Integer> mCurrentSelectSize=new ObservableField<>();
     private final ObservableField<Folder> mCurrentFolder=new ObservableField<>();
     private final ObservableField<Integer> mBrowserMode=new ObservableField<>(Mode.NONE);
     private final ObservableField<String> mSearchInput=new ObservableField<>();
+    private final ObservableField<String> mNotifyText=new ObservableField<>("正在上传 dsddddd.mp3");
     private final FileBrowserAdapter mBrowserAdapter=new FileBrowserAdapter(){
         @Override
         protected void onReset(boolean succeed, Section<Query, Path> section) {
@@ -49,6 +61,7 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
             mCurrentClient.set(client);
         }
     };
+    private TaskBinder mTaskBinder;
 
     public final boolean selectMode(int mode,String debug){
         Integer current=mBrowserMode.get();
@@ -64,7 +77,7 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
         super.onRootAttached(view);
 //        selectClient(new NasClient("http://192.168.0.6",2018,"NAS"),"While root attached.");
         selectClient(new LocalClient("/sdcard/android",getString(R.string.local,null)),"While root attached.");
-        showAlertDialog("是的发送到发",null);
+//        showAlertDialog("是的发送到发",null);
     }
 
     private boolean selectClient(Client client,String debug){
@@ -77,6 +90,13 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
         if (null!=value&&value.length()>0){
             browserPath(value,"After path span click.");
         }
+    }
+
+    @Override
+    public List<Intent> onServiceResolved(List<Intent> list) {
+        list=null!=list?list:new ArrayList<>(1);
+        list.add(new Intent(getContext(), TaskService.class));
+        return list;
     }
 
     @Override
@@ -140,20 +160,27 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
     }
 
     public final boolean showAlertDialog(Object title, TouchListener callback){
-        Context context=getContext();
-        Dialog dialog=new Dialog(context);
-        return showAtLocation();
+//        return showAtLocation();
+        return false;
     }
 
-    public ObservableField<Client> getCurrentClient() {
+    @Override
+    public void onServiceBindChanged(IBinder iBinder, ComponentName componentName) {
+        TaskBinder taskBinder=mTaskBinder=null!=iBinder&&iBinder instanceof TaskBinder?((TaskBinder)iBinder):null;
+        if (null!=taskBinder){
+            
+        }
+    }
+
+    public final ObservableField<Client> getCurrentClient() {
         return mCurrentClient;
     }
 
-    public ObservableField<Integer> getClientCount() {
+    public final ObservableField<Integer> getClientCount() {
         return mClientCount;
     }
 
-    public ObservableField<Integer> getCurrentSelectSize() {
+    public final ObservableField<Integer> getCurrentSelectSize() {
         return mCurrentSelectSize;
     }
 
@@ -161,12 +188,15 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
         return mCurrentFolder;
     }
 
-    public FileBrowserAdapter getBrowserAdapter() {
+    public final FileBrowserAdapter getBrowserAdapter() {
         return mBrowserAdapter;
     }
 
-    public ObservableField<Integer> getBrowserMode() {
+    public final ObservableField<Integer> getBrowserMode() {
         return mBrowserMode;
     }
 
+    public final ObservableField<String> getNotifyText() {
+        return mNotifyText;
+    }
 }

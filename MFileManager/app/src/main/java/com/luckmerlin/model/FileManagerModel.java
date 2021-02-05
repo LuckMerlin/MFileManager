@@ -1,7 +1,6 @@
 package com.luckmerlin.model;
 
 import android.content.Context;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.databinding.ViewDataBinding;
@@ -30,7 +29,7 @@ public class FileManagerModel extends FileBrowserModel {
         return false;
     }
 
-    private boolean showBrowserMenu(View view, String debug){
+    private boolean showBrowserMenu(View view, String debug) {
         Context context=null!=view?view.getContext():null;
         context=null!=context?context:getContext();
         ViewDataBinding binding=null!=context?DataBindingUtil.inflate(LayoutInflater.from(context),
