@@ -1,16 +1,19 @@
 package com.luckmerlin.task;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 public abstract class Task   {
     private Result mResult;
-    private boolean mExecuting;
+    private Future mFuture;
 
-    public final Result execute() {
-        if (mExecuting){//Check if already doing
-            return null;
+    public final boolean execute(ExecutorService executor) {
+        if (null!=mFuture){//Check if already doing
+            return false;
         }
-        mExecuting=true;
-        Result result=mResult=onExecute(this);
-        mExecuting=false;
+        mFuture=executor.submit(()->{
+            Result result=mResult=onExecute(this);
+        });
         return result;
     }
 
