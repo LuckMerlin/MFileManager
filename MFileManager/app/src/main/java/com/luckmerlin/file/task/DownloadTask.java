@@ -4,6 +4,7 @@ import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.util.Closer;
 import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.MD5;
+import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.task.OnTaskUpdate;
@@ -21,42 +22,44 @@ import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class DownloadTask extends FileTask {
+public final class DownloadTask extends FileTask<NasPath,LocalPath> {
     private long mPerSecondSize;
 
-    public DownloadTask(Path from,Path to){
+    public DownloadTask(NasPath from,LocalPath to){
         super(from,to);
     }
 
     @Override
     protected Result onExecute(Task task, OnTaskUpdate callback) {
-        final Path toPath=getTo();
-        final Path fromPath=getFrom();
-        if (null==toPath||!(toPath instanceof LocalPath)){
-            Debug.D("Can't download while to path invalid."+toPath);
+        final LocalPath toPath=getTo();
+        final NasPath fromPath=getFrom();
+        if (null==toPath||null==fromPath){
+            Debug.D("Can't download while path invalid.");
             return null;
         }
-        final String toPathValue=null!=toPath?toPath.getPath():null;
-        final String fromUriPath=null!=fromPath?fromPath.getPath():null;
+        final String toPathValue=toPath.getPath();
+        final String fromUriPath=fromPath.getPath();
         if (null==toPathValue||null==fromUriPath){
             Debug.D("Can't download while path value invalid."+toPath);
             return null;
         }
+        final String hostPort=fromPath.getHostPort();
         final File toFile=new File(toPathValue);
         final File parent=toFile.getParentFile();
         if (null==parent){
             Debug.D("Can't download while parent is NULL.");
             return null;
         }
-
         notifyTaskUpdate(Status.PREPARING,callback);
         OutputStream outputStream=null;
         InputStream inputStream=null;
         HttpURLConnection connection = null;
-        final long localLength=toFile.exists()?toFile.length():0;
+        long localLength=toFile.exists()?toFile.length():0;
         String localMd5=localLength>0?new MD5().getFileMD5(toFile):null;//Check md5
         try {
-            HttpURLConnection conn = connection=createHttpConnect(fromUriPath,HEAD);
+            Map<String,String> maps=new HashMap<>();
+            maps.put(Label.LABEL_PATH,fromUriPath);
+            HttpURLConnection conn = connection=createHttpConnect(hostPort,HEAD,maps);
             if (null==conn){
                 Debug.W("Fail create download connect to fetch file head.");
                 return null;
@@ -70,7 +73,7 @@ public final class DownloadTask extends FileTask {
                 return null;
             }
 //            final FileDownloadResult succeedResult=new FileDownloadResult(fromUriPath,toPath,fileLength,contentType);
-//            if (localLength>=fileLength){
+            if (localLength>=fileLength){
 //                int cover=getCover();
 //                if (cover!=Cover.COVER_REPLACE) {
 //                    Debug.D("File has been already downloaded. "+fileLength+" "+toPath);
@@ -86,11 +89,19 @@ public final class DownloadTask extends FileTask {
 //                        return null;
 //                    }
 //                }
-//            }
+                toFile.delete();
+                if (!toFile.exists()){
+                    Debug.D("Deleted already downloaded file while download with cover mode replace." + localLength + " " + toPath);
+                    localLength=0;
+                }else{
+                    Debug.W("Fail delete already downloaded."+fileLength);
+                    return null;
+                }
+            }
             conn.disconnect();//Disconnect head connection
             Map<String,String> map=new HashMap<>();
             map.put(Label.LABEL_MD5,localMd5);
-            conn=connection=createHttpConnect(fromUriPath,GET,map);
+            conn=connection=createHttpConnect(hostPort,GET,map);
             if (null==conn){
                 Debug.W("Fail open connection for download target path.");
                 return null;

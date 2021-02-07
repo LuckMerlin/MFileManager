@@ -4,7 +4,7 @@ import com.luckmerlin.core.debug.Debug;
 
 public abstract class Task{
     private Result mResult;
-    private int mStatus;
+    private int mStatus=Status.IDLE;
     private boolean mCanceled=false;
     private final String mName;
 
@@ -24,14 +24,14 @@ public abstract class Task{
         mResult=null;
         String name=mName;
         Debug.D("Start execute task "+(null!=name?name:"."));
-        notifyTaskUpdate(Status.START,callback);
+        notifyTaskUpdate(Status.STARTED,callback);
         Result result=mResult=onExecute(this,(Task task1, int status)-> {
-            if (Status.START!=status&&status!=Status.STOP){
+            if (Status.STARTED!=status&&status!=Status.STARTED){
                 notifyTaskUpdate(task1,status,callback);
             }
         });
         Debug.D("Finish execute task "+(null!=name?name:".")+" "+(null!=result&&result.isSucceed()));
-        notifyTaskUpdate(Status.STOP,callback);
+        notifyTaskUpdate(Status.IDLE,callback);
         return true;
     }
 
@@ -63,7 +63,7 @@ public abstract class Task{
     protected abstract Result onExecute(Task task,OnTaskUpdate update);
 
     public final boolean isStarted(){
-        return mStatus!=Status.STOP;
+        return mStatus!=Status.IDLE;
     }
 
     public final boolean isAnyStatus(int ...status) {

@@ -1,0 +1,50 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
+    defaultConfig {
+        applicationId "com.luckmerlin.file"
+        minSdkVersion 16
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles  'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled false
+            proguardFiles 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+}
+
+dependencies {
+    implementation 'com.luckmerlin.library:core:0.0.10'
+    implementation 'com.luckmerlin.library:databinding:0.0.65'
+    implementation 'com.luckmerlin.library:mvvm:0.0.37'
+    implementation 'com.luckmerlin.library:adapter:0.0.48'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.7.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.7.1'
+    implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.2'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+}

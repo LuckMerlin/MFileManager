@@ -70,19 +70,20 @@ public final class TaskService extends Service implements Tasker{
                 }
             }
         }
-        if (null!=child){
-            final TaskExecutor executor=mExecutor;
-            if (null==executor){
-                Debug.W("Can't start task while executor NULL.");
-                return false;
-            }
-            final Task finalTask=child;
-            if (null==finalTask||finalTask.isStarted()){
-                return false;
-            }
-            return null!=executor.submit(()-> { finalTask.execute(mInnerUpdate); });
+        final TaskExecutor executor=mExecutor;
+        if (null==executor){
+            Debug.W("Can't start task while executor NULL.");
+            return false;
         }
-        return false;
+        final Task finalTask=child;
+        if (null==finalTask){
+            Debug.W("Can't start task while NONE task matched");
+            return false;
+        }else if (finalTask.isStarted()){
+            Debug.W("Can't start task while task already started.");
+            return false;
+        }
+        return null!=executor.submit(()-> { finalTask.execute(mInnerUpdate); });
     }
 
     @Override

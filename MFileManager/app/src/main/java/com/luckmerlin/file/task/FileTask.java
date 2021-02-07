@@ -11,13 +11,13 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class FileTask extends FromToTask<Path,Path> implements ProgressTask {
+public abstract class FileTask<T extends Path,V extends Path> extends FromToTask<T,V> implements ProgressTask {
     protected final static String POST="POST";
     protected final static String GET="GET";
     protected final static String HEAD="HEAD";
     private boolean mEnableBreakpoint=false;
 
-    public FileTask(Path from,Path to){
+    public FileTask(T from,V to){
         super(null!=to?to.getName():null!=from?from.getName():null,from,to);
     }
 
