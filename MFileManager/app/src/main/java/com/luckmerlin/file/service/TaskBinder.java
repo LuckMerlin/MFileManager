@@ -2,7 +2,13 @@ package com.luckmerlin.file.service;
 
 import android.os.Binder;
 
-class TaskBinder extends Binder implements Tasker{
+import com.luckmerlin.core.match.Matchable;
+import com.luckmerlin.task.OnTaskUpdate;
+import com.luckmerlin.task.Task;
+
+import java.util.List;
+
+public class TaskBinder extends Binder implements Tasker{
      private final TaskService mTaskService;
 
      TaskBinder(TaskService service){
@@ -10,9 +16,9 @@ class TaskBinder extends Binder implements Tasker{
      }
 
      @Override
-     public boolean register(OnTaskUpdate callback, Object... task) {
+     public boolean register(OnTaskUpdate callback, Matchable  matchable) {
          TaskService taskService=mTaskService;
-         return null!=taskService&&taskService.register(callback,task);
+         return null!=taskService&&taskService.register(callback,matchable);
      }
 
      @Override
@@ -22,14 +28,20 @@ class TaskBinder extends Binder implements Tasker{
      }
 
     @Override
-    public boolean startTask(Object... tasks) {
+    public boolean startTask(Object task) {
         TaskService service=mTaskService;
-        return null!=service&&service.startTask(tasks);
+        return null!=service&&service.startTask(task);
     }
 
     @Override
-    public boolean stopTask(Object... tasks) {
+    public boolean cancelTask(Object task, boolean interrupt) {
         TaskService service=mTaskService;
-        return null!=service&&service.stopTask(tasks);
+        return null!=service&&service.cancelTask(task,interrupt);
+    }
+
+    @Override
+    public List<Task> getTasks(Matchable matchable, int max) {
+        TaskService service=mTaskService;
+        return null!=service?service.getTasks(matchable,max):null;
     }
 }

@@ -8,6 +8,8 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.databinding.ObservableField;
 import androidx.databinding.ViewDataBinding;
 
@@ -27,6 +29,7 @@ import com.luckmerlin.file.NasClient;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
+import com.luckmerlin.file.TaskListActivity;
 import com.luckmerlin.file.adapter.FileBrowserAdapter;
 import com.luckmerlin.file.databinding.AlertDialogBinding;
 import com.luckmerlin.file.service.TaskBinder;
@@ -48,6 +51,7 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
     private final ObservableField<Integer> mBrowserMode=new ObservableField<>(Mode.NONE);
     private final ObservableField<String> mSearchInput=new ObservableField<>();
     private final ObservableField<String> mNotifyText=new ObservableField<>("正在上传 dsddddd.mp3");
+    private TaskBinder mTaskBinder;
     private final FileBrowserAdapter mBrowserAdapter=new FileBrowserAdapter(){
         @Override
         protected void onReset(boolean succeed, Section<Query, Path> section) {
@@ -61,7 +65,6 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
             mCurrentClient.set(client);
         }
     };
-    private TaskBinder mTaskBinder;
 
     public final boolean selectMode(int mode,String debug){
         Integer current=mBrowserMode.get();
@@ -78,6 +81,8 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
 //        selectClient(new NasClient("http://192.168.0.6",2018,"NAS"),"While root attached.");
         selectClient(new LocalClient("/sdcard/android",getString(R.string.local,null)),"While root attached.");
 //        showAlertDialog("是的发送到发",null);
+//        showTasksList("");
+        startActivity(TaskListActivity.class,null,null);
     }
 
     private boolean selectClient(Client client,String debug){
@@ -167,9 +172,6 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
     @Override
     public void onServiceBindChanged(IBinder iBinder, ComponentName componentName) {
         TaskBinder taskBinder=mTaskBinder=null!=iBinder&&iBinder instanceof TaskBinder?((TaskBinder)iBinder):null;
-        if (null!=taskBinder){
-            
-        }
     }
 
     public final ObservableField<Client> getCurrentClient() {

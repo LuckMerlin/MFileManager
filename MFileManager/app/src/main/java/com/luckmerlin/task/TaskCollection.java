@@ -5,6 +5,7 @@ import com.luckmerlin.core.match.Matcher;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class TaskCollection<T extends Task,M extends Collection<T>>  extends Task{
     private M mTasks;
@@ -14,20 +15,19 @@ public class TaskCollection<T extends Task,M extends Collection<T>>  extends Tas
     }
 
     @Override
-    protected final Result onExecute(Task task) {
+    protected Result onExecute(Task task, OnTaskUpdate update) {
         Task unFinishTask=null;Task firstFetched=null;Result result;
-        MapResult<Task,Result> results=new MapResult();
+        MapResult<Task,Result> mapResult=new MapResult<>();
         while ((null!=(unFinishTask=getFirstUnFinish()))){
             if (null!=firstFetched&&firstFetched==unFinishTask){
                 break;
             }
-            if (null!=(result=null!=unFinishTask&&!unFinishTask.isExecuting()?unFinishTask.
-                    execute():null)&&null!=results){
-                results.put(task,result);
+            if (null!=unFinishTask&&!unFinishTask.isExecuting()){
+                mapResult.put(unFinishTask,unFinishTask.onExecute(this,update));
             }
             firstFetched=null!=firstFetched?firstFetched:unFinishTask;
         }
-        return null!=results&&results.size()>0?results:null;
+        return null!=mapResult&&mapResult.size()>0?mapResult:null;
     }
 
     public final boolean isAllFinish(){

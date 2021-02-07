@@ -7,7 +7,7 @@ import androidx.databinding.ViewDataBinding;
 import com.luckmerlin.databinding.DataBindingUtil;
 import com.luckmerlin.file.Mode;
 import com.luckmerlin.file.R;
-import com.luckmerlin.file.TransportActivity;
+import com.luckmerlin.file.TaskListActivity;
 import com.luckmerlin.file.databinding.FileBrowserMenuBinding;
 
 public class FileManagerModel extends FileBrowserModel {
@@ -21,7 +21,7 @@ public class FileManagerModel extends FileBrowserModel {
                 case R.string.exit:
                     return finishActivity("While exit view click.");
                 case R.string.transportManager:
-                    return startActivity(TransportActivity.class,null,"After transport view click.");
+                    return startActivity(TaskListActivity.class,null,"After transport view click.");
                 case R.string.multiChoose:
                     return selectMode(Mode.MODE_MULTI_CHOOSE,"While multi choose view click.");
             }

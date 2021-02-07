@@ -2,22 +2,52 @@ package com.luckmerlin.file.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 
-import com.luckmerlin.task.Result;
+import com.luckmerlin.core.debug.Debug;
+import com.luckmerlin.core.match.Matchable;
+import com.luckmerlin.core.match.Matcher;
+import com.luckmerlin.task.OnTaskUpdate;
+import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
+import com.luckmerlin.task.TaskExecutor;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 public final class TaskService extends Service implements Tasker{
     private final List<Task> mTasks=new ArrayList<>();
-    private final Map<OnTaskUpdate,Object[]> mMaps=new HashMap<>();
-    private final ExecutorService mExecutor=Executors.newScheduledThreadPool(5);
+    private final Map<OnTaskUpdate,Matchable> mUpdateMaps=new WeakHashMap<>();
+    private final DefaultTaskExecutor mExecutor=new DefaultTaskExecutor();
+    private final Handler mHandler=new Handler(Looper.getMainLooper());
+    private final OnTaskUpdate mInnerUpdate=(Task task, int status)-> {
+        Map<OnTaskUpdate,Matchable> updateMaps=mUpdateMaps;
+        if (null!=updateMaps&&null!=task){
+            final Handler handler=mHandler;
+            synchronized (updateMaps){
+                Set<OnTaskUpdate> set=updateMaps.keySet();
+                if (null!=set){
+                    Matchable matchable=null;Integer matched=null;
+                    for (OnTaskUpdate child:set) {
+                        if (null!=child&&(null==(matchable=updateMaps.get(child))||
+                                null!=(matched=matchable.onMatch(task))&&matched==Matchable.MATCHED)){
+                            if (child instanceof OnTaskSyncUpdate){
+                                child.onTaskUpdated(task,status);
+                            }else if (null!=handler){
+                                handler.post(()->child.onTaskUpdated(task,status));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -40,29 +70,41 @@ public final class TaskService extends Service implements Tasker{
                 }
             }
         }
-        final Task finalTask=child;
-        if (null!=finalTask){
-            final ExecutorService executor=null!=child?mExecutor:null;
-            Future future=executor.submit(()->{
-                Result result= finalTask.execute(future);
-            });
-            return true;
+        if (null!=child){
+            final TaskExecutor executor=mExecutor;
+            if (null==executor){
+                Debug.W("Can't start task while executor NULL.");
+                return false;
+            }
+            final Task finalTask=child;
+            if (null==finalTask||finalTask.isStarted()){
+                return false;
+            }
+            return null!=executor.submit(()-> { finalTask.execute(mInnerUpdate); });
         }
         return false;
     }
 
     @Override
-    public boolean stopTask(Object task) {
-
-        return false;
+    public boolean cancelTask(Object task, boolean interrupt) {
+        List<Task> list=mTasks;
+        if (null==task||null==list){
+            return false;
+        }
+        Task child=null;
+        synchronized (list){
+            int index=list.indexOf(task);
+            child=index>=0?list.get(index):null;
+        }
+        return null!=child&&child.cancel(interrupt);
     }
 
     @Override
-    public boolean register(OnTaskUpdate callback, Object... task) {
-        final Map<OnTaskUpdate,Object[]> maps=null!=callback?mMaps:null;
+    public boolean register(OnTaskUpdate callback,Matchable matchable) {
+        final Map<OnTaskUpdate,Matchable> maps=null!=callback?mUpdateMaps:null;
         if (null!=maps){
             synchronized (maps){
-                maps.put(callback,task);
+                maps.put(callback,matchable);
             }
             return true;
         }
@@ -71,7 +113,7 @@ public final class TaskService extends Service implements Tasker{
 
     @Override
     public boolean unregister(OnTaskUpdate callback) {
-        final Map<OnTaskUpdate,Object[]> maps=null!=callback?mMaps:null;
+        final Map<OnTaskUpdate,Matchable> maps=null!=callback?mUpdateMaps:null;
         if (null!=maps){
             synchronized (maps){
                 maps.remove(callback);
@@ -81,4 +123,27 @@ public final class TaskService extends Service implements Tasker{
         return false;
     }
 
+    @Override
+    public List<Task> getTasks(Matchable matchable, int max) {
+        List<Task> list=mTasks;
+        if (null!=list){
+            List<Task> result=null;
+            synchronized (list){
+                int size=list.size();
+                (result=new ArrayList<>(size)).addAll(list);
+            }
+            if (null!=result){
+                return new Matcher().match(result,matchable,max);
+            }
+        }
+        return null;
+    }
+
+    private final boolean notifyTaskUpdate(Task task, int status,OnTaskUpdate callback){
+        if (null!=callback){
+            callback.onTaskUpdated(task,status);
+            return true;
+        }
+        return false;
+    }
 }
