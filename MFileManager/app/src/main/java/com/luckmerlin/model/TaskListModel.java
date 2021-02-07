@@ -1,25 +1,19 @@
 package com.luckmerlin.model;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.Model;
-import com.luckmerlin.databinding.OnModelResolve;
-import com.luckmerlin.databinding.dialog.Dialog;
 import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.NasPath;
-import com.luckmerlin.file.Path;
-import com.luckmerlin.file.R;
 import com.luckmerlin.file.adapter.TaskListAdapter;
 import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
-import com.luckmerlin.file.task.DownloadTask;
+import com.luckmerlin.file.task.NasDownloadTask;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
@@ -52,7 +46,7 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
             path.setParent("/是的发生/");
             path.setHost("http://192.168.0.4");
             path.setPort(2019);
-            taskBinder.startTask(new DownloadTask(path, LocalPath.create(new File("/sdcard/testdownload的.lin"))));
+            taskBinder.startTask(new NasDownloadTask(path, LocalPath.create(new File("/sdcard/testdownload的.lin"))));
         }
     }
 
