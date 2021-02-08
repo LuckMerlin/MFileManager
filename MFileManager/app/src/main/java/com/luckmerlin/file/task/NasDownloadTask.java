@@ -8,6 +8,7 @@ import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.What;
+import com.luckmerlin.file.util.FileSize;
 import com.luckmerlin.task.CodeResult;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Result;
@@ -56,49 +57,12 @@ public final class NasDownloadTask extends FileTask<NasPath,LocalPath> {
         OutputStream outputStream=null;
         InputStream inputStream=null;
         HttpURLConnection connection = null;
+        String fileMd5=null;
+        long fileLength=-1;
+        String fileMime=null;
         try {
             final Map<String,String> maps=new HashMap<>();
             maps.put(Label.LABEL_PATH,fromUriPath);
-//            HttpURLConnection conn = connection=createHttpConnect(hostPort,HEAD,maps);
-//            if (null==conn){
-//                Debug.W("Fail create download connect to fetch file head.");
-//                return null;
-//            }
-//            String contentType=conn.getContentType();
-//            String connHeaderLength = conn.getHeaderField("content-length");
-//            final long fileLength = null!=connHeaderLength&&connHeaderLength.length()>0?Long.parseLong(connHeaderLength):-1;
-//            Debug.D("Head fetched of download file."+contentType+" "+fileLength+" "+fromUriPath);
-//            if (fileLength<=0){
-//                Debug.D("Fail download file which length is empty or EMPTY");
-//                return null;
-//            }
-//            final FileDownloadResult succeedResult=new FileDownloadResult(fromUriPath,toPath,fileLength,contentType);
-//            if (localLength>=fileLength){
-//                int cover=getCover();
-//                if (cover!=Cover.COVER_REPLACE) {
-//                    Debug.D("File has been already downloaded. "+fileLength+" "+toPath);
-////                    notifyStatus(Status.DOING, What.WHAT_NONE, "File has been already downloaded."+fileLength, progress);
-//                    return null;
-//                }else{
-//                    toFile.delete();
-//                    if (!toFile.exists()){
-////                        progress.setDone(currentLength=0);
-//                        Debug.D("Deleted already downloaded file while download with cover mode replace." + cover + " " + toPath);
-//                    }else{
-////                        notifyStatus(Status.FINISH, What.WHAT_NONE, "Fail delete already downloaded."+fileLength, succeedResult);
-//                        return null;
-//                    }
-//                }
-//                toFile.delete();
-//                if (!toFile.exists()){
-//                    Debug.D("Deleted already downloaded file while download with cover mode replace." + localLength + " " + toPath);
-//                    localLength=0;
-//                }else{
-//                    Debug.W("Fail delete already downloaded."+fileLength);
-//                    return null;
-//                }
-//            }
-//            conn.disconnect();//Disconnect head connection
             final HttpURLConnection conn=connection=createHttpConnect(hostPort,GET,maps);
             if (null==conn){
                 Debug.W("Fail open connection for download target path.");
@@ -119,13 +83,13 @@ public final class NasDownloadTask extends FileTask<NasPath,LocalPath> {
                 Debug.W("Can't download file while server response content type invalid."+contentType);
                 return null;
             }
-            final String fileMd5 = conn.getHeaderField(Label.LABEL_MD5);
+            fileMd5 = conn.getHeaderField(Label.LABEL_MD5);
+            fileMime=conn.getHeaderField(Label.LABEL_MIME);
             String fileLengthValue = conn.getHeaderField(Label.LABEL_LENGTH);
             if (null==fileLengthValue||fileLengthValue.length()<=0){
                 Debug.W("Can't download file while response file md5 or length invalid."+fileLengthValue+" "+fileMd5);
                 return null;
             }
-            long fileLength=-1;
             try {
                 fileLength=Long.parseLong(fileLengthValue);
             }catch (Exception e){
@@ -150,12 +114,15 @@ public final class NasDownloadTask extends FileTask<NasPath,LocalPath> {
                 Debug.D("Fail download file which create file fail. "+toFile);
                 return null;
             }
+            if ((null==fileMd5||fileMd5.length()<=0)&&fileLength==0){//Check if empty file
+                Debug.D("Downloaded empty file."+toFile);
+                return new FileCodeResult(What.WHAT_SUCCEED);
+            }else if (localLength>fileLength){
+
+            }
             if (!toFile.canWrite()){
                 Debug.D("Fail download file which target path NONE permission. "+toFile);
                 return null;
-            }
-            if ((null==fileMd5||fileMd5.length()<=0)&&fileLength==0){//Check if empty file
-                return new FileCodeResult(What.WHAT_SUCCEED);
             }
             final InputStream input=inputStream= conn.getInputStream();
             if (null==input){
@@ -165,8 +132,7 @@ public final class NasDownloadTask extends FileTask<NasPath,LocalPath> {
             BufferedInputStream bufferedInputStream = new BufferedInputStream(input);
             Debug.D("Downloading file "+localLength+" "+contentType+" "+toPath);
             notifyTaskUpdate(Status.EXECUTING,callback);
-            OutputStream out =outputStream= new FileOutputStream(toFile,localLength<fileLength);
-            long downloaded=localLength;
+            OutputStream out =outputStream= new FileOutputStream(toFile,localLength>0);
             int size=0;
             final byte[] buf = new byte[1024*1024];
             long lastTime=System.nanoTime();
@@ -175,7 +141,6 @@ public final class NasDownloadTask extends FileTask<NasPath,LocalPath> {
                 if (size>0){
                     out.write(buf, 0, size);
                     long currentTime=System.nanoTime();
-                    downloaded += size;
                     if ((sec=(((double) (currentTime-lastTime))/(1000000000)))>0){
                         mPerSecondSize=(long)(size/sec);
                     }
@@ -188,10 +153,7 @@ public final class NasDownloadTask extends FileTask<NasPath,LocalPath> {
                 }
             }
             out.flush();
-            Debug.D("Downloaded nas file,now match file's valid."+fileMd5);
-            final String md5=new MD5().getFileMD5(toFile);
-            Debug.D("AAAAAAAAa "+md5);
-            final long currentLength=toFile.length();
+            Debug.D("Finish download nas file."+toFile);
             return null;
         } catch (IOException e) {
             e.printStackTrace();
@@ -201,12 +163,22 @@ public final class NasDownloadTask extends FileTask<NasPath,LocalPath> {
             if (null!=connection){
                 connection.disconnect();
             }
-        }
-        Debug.W("Fail download file task."+localLength+" "+toPath);  //Download fail
-        if (!isEnableBreakpoint()&&null!=toFile&&toFile.exists()){//Delete fail file
-            Debug.D("Delete download fail file."+toFile.length()+" "+toPath);
-            toFile.delete();
+            String localFileMD5=null;
+            final long localFileLength=null!=toFile?toFile.length():-1;
+            if (null!=fileMd5&&localFileLength==fileLength){
+                localFileMD5=new MD5().getFileMD5(toFile);
+                if (null!=localFileMD5&&localFileMD5.equalsIgnoreCase(fileMd5)){
+                    Debug.D("Succeed download nas file."+ FileSize.formatSizeText(fileLength)+" "+fileMime +" "+toFile);
+                    return new FileCodeResult(What.WHAT_SUCCEED);
+                }
+            }
+            Debug.W("Fail download file task."+fileLength+" "+localFileLength+" "+toPath+"\n"+ localFileMD5+"\n"+fileMd5);  //Download fail
+            if (!isEnableBreakpoint()&&null!=toFile&&toFile.exists()){//Delete fail file
+                Debug.D("Delete download fail file."+toFile.length()+" "+toPath);
+                toFile.delete();
+            }
         }
         return null;
     }
+
 }

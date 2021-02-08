@@ -52,7 +52,7 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
 
     @Override
     public void onTaskUpdated(Task task, int status) {
-        Debug.D("AAAAAAAAAAa "+task+" "+status);
+//        Debug.D("AAAAAAAAAAa "+task+" "+status);
     }
 
     public final RecyclerView.Adapter getTaskListAdapter(){
