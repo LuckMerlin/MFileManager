@@ -21,8 +21,7 @@
                 android:layout_marginLeft="6dp" android:layout_marginRight="15dp"/>
             <LinearLayout android:orientation="vertical" android:layout_weight="1" android:layout_width="0dp" android:layout_height="wrap_content">
                <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content">
-                   <TextView android:id="@+id/fileBrowser_clientNameTV" android:text="@{vm.browserClient.name??``}" android:textSize="@dimen/textTitle" android:padding="5dp"
-                       binding:lmBinding="@{Touch.dispatch(Touch.CLICK,vm.browserClient)}" android:minWidth="40dp" android:textStyle="bold" style="@style/titleNormalTextView"/>
+                   <include binding:client="@{vm.browserClient}" layout="@layout/item_client_name"/>
                    <TextView android:text="@{` (`+((null==vm.currentSelectSize||(vm.currentSelectSize&lt;0))?``:``+vm.currentSelectSize+`/`)+vm.browserFolder.total+')'}"
                        style="@style/titleNormalTextView" android:textStyle="bold"
                        android:visibility="@{(null==vm.browserClient&amp;&amp;null==vm.browserFolder)?View.GONE:View.VISIBLE}"

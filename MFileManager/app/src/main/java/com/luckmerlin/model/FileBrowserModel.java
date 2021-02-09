@@ -66,36 +66,37 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
         }
     };
 
+    protected final boolean add(Client client, String debug){
+        List<Client> clients=mClients;
+        if (null!=client&&null!=clients&&!clients.contains(client)&&clients.add(client)){
+            FileBrowserAdapter adapter=mBrowserAdapter;
+            return (null!=adapter&&adapter.getCurrentClient()==null&&setClientSelect(client,debug))||true;
+        }
+        return false;
+    }
+
     public final boolean selectMode(Mode mode,String debug){
         mBrowserMode.set(mode);
         return true;
     }
 
-    @Override
-    protected void onRootAttached(View view) {
-        super.onRootAttached(view);
-        add(new LocalClient("/sdcard/android",getString(R.string.local,null)),"");
-        add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
-//        selectClient(new NasClient("http://192.168.0.4",2019,"NAS"),"While root attached.");
-//        selectClient(new LocalClient("/sdcard/android",getString(R.string.local,null)),"While root attached.");
-//        showAlertDialog("是的发送到发",null);
-//        showTasksList("");
-//        startActivity(TaskListActivity.class,null,null);
-    }
-
-
-    private boolean add(Client client,String debug){
-        List<Client> clients=mClients;
-        if (null!=client&&null!=clients&&!clients.contains(client)&&clients.add(client)){
-            FileBrowserAdapter adapter=mBrowserAdapter;
-            return (null!=adapter&&adapter.getCurrentClient()==null&&selectClient(client,debug))||true;
+    protected final boolean switchSelectClient(String debug){
+        List<Client> clients=getClients();
+        int size=null!=clients?clients.size():-1;
+        if (size>0){
+            Client current=getCurrentClient();
+            int index=null!=current?clients.indexOf(current):-1;
+            index=(index<0?-1:index)+1;
+            return setClientSelect(clients.get(index>=0&&index<size?index:0),debug);
         }
         return false;
     }
 
-    protected final boolean selectClient(Client client,String debug){
-        Client current= getCurrentClient();
+    public final List<Client> getClients() {
+        return mClients;
+    }
 
+    protected final boolean setClientSelect(Client client, String debug){
         FileBrowserAdapter browserAdapter=mBrowserAdapter;
         return null!=browserAdapter&&browserAdapter.setClient(client,debug);
     }

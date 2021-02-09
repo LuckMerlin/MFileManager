@@ -1,28 +1,46 @@
 package com.luckmerlin.model;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.databinding.ViewDataBinding;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.DataBindingUtil;
 import com.luckmerlin.databinding.dialog.Dialog;
+import com.luckmerlin.databinding.dialog.PopupWindow;
 import com.luckmerlin.file.Client;
+import com.luckmerlin.file.LocalClient;
 import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Mode;
+import com.luckmerlin.file.NasClient;
 import com.luckmerlin.file.NasFolder;
 import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.TaskListActivity;
+import com.luckmerlin.file.adapter.ClientAdapter;
+import com.luckmerlin.file.adapter.FileBrowserAdapter;
 import com.luckmerlin.file.databinding.FileBrowserMenuBinding;
 import com.luckmerlin.file.task.DownloadTask;
 import com.luckmerlin.file.task.UploadTask;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FileManagerModel extends FileBrowserModel {
+    private final PopupWindow mClientNamePopupWindow=new PopupWindow(true,null);
+
+    @Override
+    protected void onRootAttached(View view) {
+        super.onRootAttached(view);
+        add(new LocalClient("/sdcard/android",getString(R.string.local,null)),"");
+        add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
+    }
 
     @Override
     public boolean onViewClick(View view, int i, int i1, Object tag) {
@@ -31,7 +49,8 @@ public class FileManagerModel extends FileBrowserModel {
                 case R.drawable.selector_menu:
                     return showBrowserMenu(view,"While menu view click.");
                 case R.id.fileBrowser_clientNameTV:
-                    return (null!=tag&&tag instanceof Client&&selectClient((Client)tag,"While view click."))||true;
+                    return null!=tag&&tag instanceof Client&&(i1<=1?showClientSelectOption(view,"While view click."):
+                            switchSelectClient("While view click."));
                 case R.string.exit:
                     return finishActivity("While exit view click.");
                 case R.string.transportManager:
@@ -76,6 +95,30 @@ public class FileManagerModel extends FileBrowserModel {
         return false;
     }
 
+    private boolean showClientSelectOption(View view,String debug){
+        PopupWindow popupWindow=null!=view?mClientNamePopupWindow:null;
+        if (null!=popupWindow){
+            if (popupWindow.isShowing()){
+                popupWindow.dismiss();
+                return true;
+            }
+            final ClientAdapter clientAdapter=new ClientAdapter(getClients());
+            RecyclerView recyclerView=new RecyclerView(view.getContext());
+            recyclerView.setPadding(20,20,20,20);
+            recyclerView.setBackgroundResource(R.drawable.dialog_round_corner_gray);
+            recyclerView.setAdapter(clientAdapter);
+            recyclerView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.
+                    LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+            popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+            popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+            popupWindow.setContentView(recyclerView);
+            popupWindow.showAsDropDown(view,0,0,this,
+                    PopupWindow.DISMISS_INNER_MASK|PopupWindow.DISMISS_OUT_MASK);
+            return true;
+        }
+        return false;
+    }
+
     private boolean showBrowserMenu(View view, String debug) {
         Context context=null!=view?view.getContext():null;
         context=null!=context?context:getContext();
@@ -89,17 +132,14 @@ public class FileManagerModel extends FileBrowserModel {
         return false;
     }
 
-
     private boolean showPathContextMenu(Path path,String debug){
         final Dialog dialog=new Dialog(getContext());
-        return null!=path&&dialog.setCanceledOnTouchOutside(true).
-                setContentView(new FileContextMenuModel(path){
+        return null!=path&&dialog.setCanceledOnTouchOutside(true).setContentView(new FileContextMenuModel(path){
                     @Override
                     public boolean onViewClick(View view, int i, int i1, Object o) {
                         dialog.dismiss();
                         return super.onViewClick(view, i, i1, o)||FileManagerModel.this.onViewClick(view,i,i1,o);
-                    }},new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT)).show();
+                    }},new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)).show();
     }
 
 }
