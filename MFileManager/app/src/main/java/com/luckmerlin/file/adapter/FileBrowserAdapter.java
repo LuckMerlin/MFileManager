@@ -2,6 +2,8 @@ package com.luckmerlin.file.adapter;
 
 import android.content.Context;
 import android.view.ViewGroup;
+
+import androidx.databinding.ObservableField;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,7 +26,7 @@ import com.luckmerlin.file.databinding.ItemListFileBinding;
 import java.util.List;
 
 public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implements OnItemTouchResolver {
-    private Client mClient;
+    private final ObservableField<Client> mCurrentClient=new ObservableField<Client>();
 
     @Override
     protected void onResolveFixedViewItem(RecyclerView recyclerView) {
@@ -36,7 +38,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
 
     @Override
     protected final Canceler onNextSectionLoad(SectionRequest<Query> request, OnSectionLoadFinish<Query, Path> callback, String s) {
-        Client client=mClient;
+        Client client=mCurrentClient.get();
         return null!=client?client.onNextSectionLoad(request, (OnApiFinish<Reply<Folder<Query,Path>>>)(int what, String note, Reply<Folder<Query,Path>> data, Object arg)-> {
                 boolean succeed=what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess();
                 Folder<Query,Path> folder=null!=data?data.getData():null;
@@ -64,14 +66,14 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
     }
 
     public final boolean setClient(Client client, String debug) {
-        Client current=mClient;
+        Client current=mCurrentClient.get();
         if (null==client&&null!=current){
-            mClient=null;
+            mCurrentClient.set(null);
             boolean succeed= reset(debug);
             onClientChanged(null);
             return succeed;
         }else if (null!=client&&!client.equals(current)){
-            mClient=client;
+            mCurrentClient.set(client);
             boolean succeed= reset(debug);
             onClientChanged(client);
             return succeed;
@@ -79,8 +81,16 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         return false;
     }
 
+    public final Client getCurrentClient() {
+        return mCurrentClient.get();
+    }
+
+    public final ObservableField<Client> getBrowserClient() {
+        return mCurrentClient;
+    }
+
     public final boolean reset(String debug){
-        Client client=mClient;
+        Client client=mCurrentClient.get();
         clean("While client reset to NULL.");
         return null!=client&&resetSection(debug);
     }

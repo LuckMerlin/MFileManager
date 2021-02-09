@@ -1,5 +1,6 @@
 package com.luckmerlin.file.task;
 
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.task.OnTaskUpdate;
@@ -8,20 +9,15 @@ import com.luckmerlin.task.Task;
 
 import java.util.List;
 
-public class UploadTask extends ActionTask{
-    private final Folder mTargetFolder;
+public class DownloadTask extends ActionFolderTask{
 
-    public UploadTask(List<Path> paths, Folder folder) {
-        super(paths);
-        mTargetFolder=folder;
-    }
-
-    public final Folder getTargetFolder() {
-        return mTargetFolder;
+    public DownloadTask(List<Path> paths, Folder folder) {
+        super(paths,folder);
     }
 
     @Override
     protected Result onExecute(Task task, OnTaskUpdate callback) {
+        Debug.D("SSSSSSSSSSSSSS "+task+" "+callback);
         return null;
     }
 }

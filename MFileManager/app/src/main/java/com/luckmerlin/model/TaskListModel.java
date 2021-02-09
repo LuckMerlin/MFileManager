@@ -14,6 +14,7 @@ import com.luckmerlin.file.adapter.TaskListAdapter;
 import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
 import com.luckmerlin.file.task.NasDownloadTask;
+import com.luckmerlin.file.task.NasUploadTask;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
@@ -41,12 +42,13 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
             taskBinder.register(this,null);
             mTaskListAdapter.set(taskBinder.getTasks(null,-1),null);
             //
-            NasPath path=new NasPath();
-            path.setPathSep("/");
-            path.setParent("/是的发生/");
-            path.setHost("http://192.168.0.4");
-            path.setPort(2019);
-            taskBinder.startTask(new NasDownloadTask(path, LocalPath.create(new File("/sdcard/testdownload的.lin"))));
+//            NasPath path=new NasPath();
+//            path.setPathSep("/");
+//            path.setParent("/是的发生/");
+//            path.setHost("http://192.168.0.4");
+//            path.setPort(2019);
+//            taskBinder.startTask(new NasDownloadTask(path, LocalPath.create(new File("/sdcard/testdownload的.lin"))));
+//            taskBinder.startTask(new NasUploadTask(LocalPath.create(new File("/sdcard/testdownload的.lin")), path));
         }
     }
 

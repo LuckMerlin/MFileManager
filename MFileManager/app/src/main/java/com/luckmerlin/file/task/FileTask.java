@@ -1,5 +1,6 @@
 package com.luckmerlin.file.task;
 
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.task.FromToTask;
 import com.luckmerlin.task.ProgressTask;
@@ -31,8 +32,18 @@ public abstract class FileTask<T extends Path,V extends Path> extends FromToTask
         return null!=path?path.getTotal():0;
     }
 
+    public abstract long getPerSpeed();
+
     public final boolean isEnableBreakpoint() {
         return mEnableBreakpoint;
+    }
+
+    protected final long string2Long(String lengthValue,long def){
+        try {
+            return Long.parseLong(lengthValue);
+        }catch (Exception e){
+            return def;
+        }
     }
 
     protected final HttpURLConnection createHttpConnect(String urlPath, String method) throws IOException {
@@ -45,6 +56,8 @@ public abstract class FileTask<T extends Path,V extends Path> extends FromToTask
         if (null!=conn){
             conn.setRequestMethod(null!=method&&method.length()>0?method:GET);
             conn.setRequestProperty("Charset", "UTF-8");
+            conn.setRequestProperty("connection", "Keep-Alive");
+            conn.setConnectTimeout(50000);
             Set<String> set=null!=properies?properies.keySet():null;
             if (null!=set){
                 for (String child:set) {

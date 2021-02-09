@@ -33,6 +33,11 @@ public final class NasDownloadTask extends FileTask<NasPath,LocalPath> {
     }
 
     @Override
+    public long getPerSpeed() {
+        return mPerSecondSize;
+    }
+
+    @Override
     protected Result onExecute(Task task, OnTaskUpdate callback) {
         final LocalPath toPath=getTo();
         final NasPath fromPath=getFrom();
@@ -85,19 +90,10 @@ public final class NasDownloadTask extends FileTask<NasPath,LocalPath> {
             }
             fileMd5 = conn.getHeaderField(Label.LABEL_MD5);
             fileMime=conn.getHeaderField(Label.LABEL_MIME);
-            String fileLengthValue = conn.getHeaderField(Label.LABEL_LENGTH);
-            if (null==fileLengthValue||fileLengthValue.length()<=0){
-                Debug.W("Can't download file while response file md5 or length invalid."+fileLengthValue+" "+fileMd5);
-                return null;
-            }
-            try {
-                fileLength=Long.parseLong(fileLengthValue);
-            }catch (Exception e){
-                Debug.W("Can't download file while response file length invalid."+fileLengthValue);
-                return null;
-            }
+            fileLength= string2Long(conn.getHeaderField(Label.LABEL_LENGTH),-1);
             if (fileLength<0){
-                Debug.W("Can't download file while response file length invalid."+fileLength);
+                Debug.W("Can't download file while response file md5 or length invalid."+
+                        conn.getHeaderField(Label.LABEL_LENGTH)+" "+fileMd5);
                 return null;
             }
             if (!toFile.exists()){

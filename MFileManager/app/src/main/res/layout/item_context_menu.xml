@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            binding:lmBinding="@{Touch.textRes(menu.text,null,Touch.CLICK)}"
+            binding:lmBinding="@{Touch.textRes(menu.text,menu.arg,Touch.CLICK)}"
             android:padding="10dp"
             android:minWidth="150dp"
             android:minHeight="20dp"

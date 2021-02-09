@@ -24,33 +24,39 @@ import com.luckmerlin.databinding.touch.TouchListener;
 import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalClient;
+import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Mode;
 import com.luckmerlin.file.NasClient;
+import com.luckmerlin.file.NasFolder;
+import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.TaskListActivity;
 import com.luckmerlin.file.adapter.FileBrowserAdapter;
-import com.luckmerlin.file.databinding.AlertDialogBinding;
 import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
+import com.luckmerlin.file.task.ActionFolderTask;
+import com.luckmerlin.file.task.ActionTask;
 import com.luckmerlin.file.ui.OnPathSpanClick;
 import com.luckmerlin.mvvm.activity.OnActivityBackPress;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
+import com.luckmerlin.task.OnTaskUpdate;
+import com.luckmerlin.task.Task;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanClick, OnActivityBackPress,
-        OnModelServiceResolve, OnServiceBindChange {
-    private final ObservableField<Client> mCurrentClient=new ObservableField<Client>();
+        OnModelServiceResolve, OnServiceBindChange, OnTaskUpdate,OnViewLongClick {
     private final ObservableField<Integer> mClientCount=new ObservableField<Integer>();
     private final ObservableField<Integer> mCurrentSelectSize=new ObservableField<>();
     private final ObservableField<Folder> mCurrentFolder=new ObservableField<>();
-    private final ObservableField<Integer> mBrowserMode=new ObservableField<>(Mode.NONE);
+    private final ObservableField<Mode> mBrowserMode=new ObservableField<>(null);
     private final ObservableField<String> mSearchInput=new ObservableField<>();
     private final ObservableField<String> mNotifyText=new ObservableField<>("正在上传 dsddddd.mp3");
+    private final List<Client> mClients=new ArrayList<>();
     private TaskBinder mTaskBinder;
     private final FileBrowserAdapter mBrowserAdapter=new FileBrowserAdapter(){
         @Override
@@ -58,34 +64,38 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
             super.onReset(succeed, section);
             mCurrentFolder.set(null!=section&&section instanceof Folder?(Folder)section:null);
         }
-
-        @Override
-        protected void onClientChanged(Client client) {
-            super.onClientChanged(client);
-            mCurrentClient.set(client);
-        }
     };
 
-    public final boolean selectMode(int mode,String debug){
-        Integer current=mBrowserMode.get();
-        if (null==current||(current!=mode)){
-            mBrowserMode.set(mode);
-            return true;
-        }
-        return false;
+    public final boolean selectMode(Mode mode,String debug){
+        mBrowserMode.set(mode);
+        return true;
     }
 
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-//        selectClient(new NasClient("http://192.168.0.6",2018,"NAS"),"While root attached.");
-        selectClient(new LocalClient("/sdcard/android",getString(R.string.local,null)),"While root attached.");
+        add(new LocalClient("/sdcard/android",getString(R.string.local,null)),"");
+        add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
+//        selectClient(new NasClient("http://192.168.0.4",2019,"NAS"),"While root attached.");
+//        selectClient(new LocalClient("/sdcard/android",getString(R.string.local,null)),"While root attached.");
 //        showAlertDialog("是的发送到发",null);
 //        showTasksList("");
-        startActivity(TaskListActivity.class,null,null);
+//        startActivity(TaskListActivity.class,null,null);
     }
 
-    private boolean selectClient(Client client,String debug){
+
+    private boolean add(Client client,String debug){
+        List<Client> clients=mClients;
+        if (null!=client&&null!=clients&&!clients.contains(client)&&clients.add(client)){
+            FileBrowserAdapter adapter=mBrowserAdapter;
+            return (null!=adapter&&adapter.getCurrentClient()==null&&selectClient(client,debug))||true;
+        }
+        return false;
+    }
+
+    protected final boolean selectClient(Client client,String debug){
+        Client current= getCurrentClient();
+
         FileBrowserAdapter browserAdapter=mBrowserAdapter;
         return null!=browserAdapter&&browserAdapter.setClient(client,debug);
     }
@@ -106,13 +116,11 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
 
     @Override
     public boolean onViewClick(View view, int i, int i1, Object tag) {
-        switch (i){
-            case R.drawable.selector_back:
-                return onBackKeyPressed("While back view click.");
-        }
-        if (null!=tag&&tag instanceof Path){
-            return openPath(((Path)tag),"While path view click.");
-        }
+        return false;
+    }
+
+    @Override
+    public boolean onViewLongClick(View view, int i, Object tag) {
         return false;
     }
 
@@ -121,7 +129,7 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
         return onBackKeyPressed("While activity back pressed.");
     }
 
-    private boolean onBackKeyPressed(String debug){
+    protected final boolean onBackKeyPressed(String debug){
         Folder folder=mCurrentFolder.get();
         String parent=null!=folder?folder.getParent():null;
         return null!=parent&&parent.length()>0&&browserPath(parent,debug);
@@ -134,7 +142,7 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
         return null!=adapter&&adapter.browser(new Query(path,searchInput),debug);
     }
 
-    private boolean openPath(Path path,String debug){
+    protected final boolean openPath(Path path,String debug){
         String pathValue=null!=path?path.getPath():null;
         if (null==pathValue||pathValue.length()<=0){
             return false;
@@ -154,28 +162,59 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
         return null!=adapter&&adapter.browser(new Query(path,searchInput),debug);
     }
 
-    public final Client getCurrentClientObject() {
-        ObservableField<Client> client=getCurrentClient();
-        return null!=client?client.get():null;
-    }
-
-    public final Folder getCurrentFolderObject() {
-        ObservableField<Folder> folder=getCurrentFolder();
+    public final Folder getCurrentFolder() {
+        ObservableField<Folder> folder=getBrowserFolder();
         return null!=folder?folder.get():null;
-    }
-
-    public final boolean showAlertDialog(Object title, TouchListener callback){
-//        return showAtLocation();
-        return false;
     }
 
     @Override
     public void onServiceBindChanged(IBinder iBinder, ComponentName componentName) {
+        TaskBinder binder=mTaskBinder;
+        if (null!=binder){
+            binder.unregister(this);
+        }
         TaskBinder taskBinder=mTaskBinder=null!=iBinder&&iBinder instanceof TaskBinder?((TaskBinder)iBinder):null;
+        if (null!=taskBinder){
+            taskBinder.register(this,null);
+        }
     }
 
-    public final ObservableField<Client> getCurrentClient() {
-        return mCurrentClient;
+    @Override
+    public void onTaskUpdated(Task task, int status) {
+        //Do nothing
+    }
+
+    protected final boolean startTask(Task task,String debug){
+        if (null==task){
+            return false;
+        }
+        if (task instanceof ActionTask&&((ActionTask)task).isEmpty()){
+            return toast(R.string.emptyContent)&&false;
+        }
+        if (task instanceof ActionFolderTask){
+            if (((ActionFolderTask)task).getFolder()==null){
+                return toast(R.string.noneTargetFolder)&&false;
+            }else if (((ActionFolderTask)task).isAllInSameFolder()){
+                return toast(R.string.notActionHere)&&false;
+            }
+        }
+        TaskBinder binder=mTaskBinder;
+        if (null==binder){
+            return toast(R.string.transporterNotBind)&&false;
+        }
+        return binder.startTask(task)||true;
+    }
+
+    protected final Mode getMode() {
+        return mBrowserMode.get();
+    }
+
+    protected final Client getCurrentClient() {
+        return mBrowserAdapter.getCurrentClient();
+    }
+
+    public final ObservableField<Client> getBrowserClient() {
+        return mBrowserAdapter.getBrowserClient();
     }
 
     public final ObservableField<Integer> getClientCount() {
@@ -186,7 +225,7 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
         return mCurrentSelectSize;
     }
 
-    public final ObservableField<Folder> getCurrentFolder() {
+    public final ObservableField<Folder> getBrowserFolder() {
         return mCurrentFolder;
     }
 
@@ -194,7 +233,7 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
         return mBrowserAdapter;
     }
 
-    public final ObservableField<Integer> getBrowserMode() {
+    public final ObservableField<Mode> getBrowserMode() {
         return mBrowserMode;
     }
 

@@ -17,9 +17,9 @@ public final class LocalPath extends Path {
         if (null!=file){
             final String filePath=null!=file?file.getPath():null;
             String extension=null;String name=null;String parent=null;
+            final String fileDivider=File.separator;
             if (null!=filePath&&filePath.length()>0){
                 final int length=filePath.length();
-                final String fileDivider=File.separator;
                 int lastNameIndex=filePath.lastIndexOf(fileDivider);
                 if (lastNameIndex>=0&&lastNameIndex<length){
                     parent=filePath.substring(0,lastNameIndex);

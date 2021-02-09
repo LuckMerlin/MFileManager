@@ -60,7 +60,7 @@ public abstract class Task{
         return null!=mResult;
     }
 
-    protected abstract Result onExecute(Task task,OnTaskUpdate update);
+    protected abstract Result onExecute(Task task,OnTaskUpdate callback);
 
     public final boolean isStarted(){
         return mStatus!=Status.IDLE;
