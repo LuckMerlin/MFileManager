@@ -23,6 +23,8 @@ import com.csdk.api.core.Listener;
 import com.csdk.api.core.OnSendFinish;
 import com.csdk.api.core.Operation;
 import com.csdk.api.core.Page;
+import com.csdk.api.ui.HomeModel;
+import com.csdk.api.ui.Model;
 import com.csdk.debug.Logger;
 import com.csdk.ui.ContentModel;
 import com.csdk.data.AuthenticationRequest;
@@ -30,6 +32,8 @@ import com.csdk.server.data.Json;
 import com.csdk.api.core.Label;
 import com.csdk.server.socket.HeroSocket;
 import com.csdk.server.util.Utils;
+import com.csdk.ui.DataBindingUtil;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -396,7 +400,10 @@ public final class CommonSDK implements CommonApi {
             
         }
         if (null!=contentView){
-
+            Model model=null!=contentView?new DataBindingUtil().findFirstModel(contentView):null;
+            if (null!=model&&model instanceof HomeModel){
+                ((HomeModel)model).enableOutline(outline);
+            }
             if (contentView.getVisibility()!=View.VISIBLE) {
                 contentView.setVisibility(View.VISIBLE);
             }
