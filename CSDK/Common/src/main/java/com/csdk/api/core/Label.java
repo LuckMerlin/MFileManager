@@ -1,0 +1,95 @@
+package com.csdk.api.core;
+
+/**
+ * Create LuckMerlin
+ * Date 16:10 2020/8/27
+ * TODO
+ */
+public interface Label {
+    public final static String LABEL_SERVER_URL="serverURL";
+    String LABEL_CODE="code";
+    String LABEL_MSG="msg";
+    String LABEL_DATA="data";
+    String LABEL_FRIENDSHIP_DATA="fsData";
+    String LABEL_FRIENDSHIP_ACTION="fsAction";
+    String LABEL_CUSTOM_ID="customId";
+    String LABEL_DURATION="duration";
+    String LABEL_USER_NAME="uname";
+    String LABEL_TITLE="title";
+    String LABEL_GROUP_ID="groupId";
+    String LABEL_GROUP_TYPE="groupType";
+    String LABEL_GROUP_NAME="groupName";
+    String LABEL_AVATAR_URL="avatarUrl";
+    String LABEL_LINK="link";
+    String LABEL_STATUS="status";
+    String LABEL_FROM="from";
+    String LABEL_TO="to";
+    String LABEL_STATUS_NAME="statusName";
+    String LABEL_LAST_ONLINE_TIME="lastOnlineTime";
+    String LABEL_EXTRA="extra";
+    String LABEL_TO_UID="toUid";
+    String LABEL_FROM_ROLE_ID="fromRoleId";
+    String LABEL_TO_ROLE_ID="toRoleId";
+    String LABEL_UID="uid";
+    String LABEL_ACTION_TOKEN="actToken";
+    String LABEL_PAGE="pageNo";
+    String LABEL_PAGE_LIMIT="pageSize";
+    String LABEL_LONGITUDE="longitude";
+    String LABEL_LATITUDE="latitude";
+    String LABEL_PROVINCE="province";
+    String LABEL_PRODUCT_ID="productId";
+    String LABEL_SERVER_ID="serverId";
+    String LABEL_TIME_STAMP="timestamp";
+    String LABEL_UPLOAD="upload";
+    String LABEL_API_TOKEN="apiToken";
+    String LABEL_PROVINCE_NAME="provinceName";
+    String LABEL_CITY="city";
+    String LABEL_CITY_NAME="cityName";
+    String LABEL_AREA="area";
+    String LABEL_AREA_NAME="areaName";
+    String LABEL_ADDRESS="address";
+    String LABEL_GENDER="gender";
+    String LABEL_INTEREST="interest";
+    String LABEL_ONLINE_TIME="onlineTime";
+    String LABEL_ONLINE_DAY="onlineDay";
+    String LABEL_KEY_WORDS="keywords";
+    String LABEL_NEARBY="nearby";
+    String LABEL_SLOGAN="slogan";
+    String LABEL_IMAGES="imgs";
+    String LABEL_URL="url";
+    String LABEL_COLOR="color";
+    String LABEL_ID="id";
+    String LABEL_SIZE="size";
+    String LABEL_SIGN="sign";
+    String LABEL_TAGS="tags";
+    String LABEL_POSITIONED="positioned";
+    String LABEL_TRANSLATION="translation";
+    String LABEL_SHOW_ASSETS="showAssets";
+    String LABEL_ONLINE="online";
+    String LABEL_ROLE_ID="roleId";
+    String LABEL_CONTAINS_BLOCKED="containBlocked";
+    String LABEL_PROFILE="profile";
+    String LABEL_PREFER_MAIN="perfer1";
+    String LABEL_PREFER_SUB="perfer2";
+    String LABEL_SDK_VERSION="sdkVersion";
+    String LABEL_DEVICE_ID="deviceId";
+    String LABEL_NICK_NAME="nickName";
+    String LABEL_VIP_LEVEL="vipLevel";
+    String LABEL_ROLE_LEVEL="level";
+    String LABEL_ROLE_NAME="roleName";
+    String LABEL_LANGUAGE="lang";
+    String LABEL_TYPE="type";
+    String LABEL_OWNER_ID="ownerId";
+    String LABEL_REMARK="remark";
+    String LABEL_FROM_UID="fromUid";
+    String LABEL_MESSAGE_KEY="msgKey";
+    String LABEL_MESSAGE_ID="msgId";
+    String LABEL_CONTENT="content";
+    String LABEL_CONTENT_TYPE="contentType";
+    String LABEL_TIME="time";
+    String LABEL_MESSAGE_TYPE="msgType";
+    String LABEL_REFER="refer";
+    String LABEL_GROUP_CUSTOM_ID="groupCustomId";
+    String LABEL_MESSAGE_CONTENT="msgContent";
+    String LABEL_FRIENDSHIP_VERSION="fsv";
+}
