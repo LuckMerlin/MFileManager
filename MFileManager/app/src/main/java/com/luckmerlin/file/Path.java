@@ -14,18 +14,27 @@ public abstract class  Path implements Permission {
     public abstract int getPermission();
     public abstract String getMime();
 
-    public final String getPath() {
+    public final String getNameWithExtension(){
         String sep=getSep();
-        String name=getName();
         if (null==sep||sep.length()<=0){
             return null;
         }
-        String parent=getParent();
-        parent=null!=parent?parent:"";
+        String name=getName();
         name=null!=name?name:"";
         name=name.startsWith(sep)?name.substring(1):name;
         String extension=getExtension();
-        return (parent.startsWith(sep)?parent:sep+parent)+(parent.endsWith(sep)?"":sep)+name+(null!=extension?extension:"");
+        return name+(null!=extension?extension:"");
+    }
+
+    public final String getPath() {
+        String sep=getSep();
+        if (null==sep||sep.length()<=0){
+            return null;
+        }
+        String nameExtension=getNameWithExtension();
+        String parent=getParent();
+        parent=null!=parent?parent:"";
+        return (parent.startsWith(sep)?parent:sep+parent)+(parent.endsWith(sep)?"":sep)+(null!=nameExtension?nameExtension:"");
     }
 
     public final boolean isExistPermission(int...permissions){
