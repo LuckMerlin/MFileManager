@@ -3,13 +3,15 @@ import android.Manifest;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+
 import com.csdk.api.bean.ChatBaseInfo;
 import com.csdk.api.bean.ChatConfig;
 import com.csdk.api.bean.Gender;
 import com.csdk.api.common.Api;
 import com.csdk.api.common.CSDK;
 import com.csdk.api.common.CommonApi;
-import com.ui.model.HomeModel;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,22 +71,7 @@ public class MainActivity extends Activity {
         baseInfo.setVipLevel(System.currentTimeMillis()%2==0?"vipa":"vipb");
         //
         CSDK.getInstance().setChatBaseInfo(baseInfo);
-        CSDK.getInstance().openChatUi(true);
-        //
-//        getApi().setContentView(new HomeModel(getApi()),null);
+        new Handler(Looper.getMainLooper()).postDelayed(()-> CSDK.getInstance().openChatUi(true),3000);
         return false;
-    }
-
-    private Api getApi(){
-        CSDK csdk=CSDK.getInstance();
-        try {
-            Field commonApi=csdk.getClass().getDeclaredField("mSocket");
-            commonApi.setAccessible(true);
-            commonApi.get(csdk);
-            return ((CommonApi)commonApi.get(csdk)).getApi();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

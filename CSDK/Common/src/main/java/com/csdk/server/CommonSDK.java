@@ -19,6 +19,7 @@ import com.csdk.api.common.Api;
 import com.csdk.api.common.CommonApi;
 import com.csdk.api.common.OnCSDKListener;
 import com.csdk.api.core.Code;
+import com.csdk.api.core.Debug;
 import com.csdk.api.core.Listener;
 import com.csdk.api.core.OnSendFinish;
 import com.csdk.api.core.Operation;
@@ -33,6 +34,8 @@ import com.csdk.api.core.Label;
 import com.csdk.server.socket.HeroSocket;
 import com.csdk.server.util.Utils;
 import com.csdk.ui.DataBindingUtil;
+import com.csdk.ui.Home;
+import com.csdk.ui.HomeModelLoader;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -364,13 +367,24 @@ public final class CommonSDK implements CommonApi {
     }
 
     @Override
-    public int setContentView(Object contentView){
+    public int setContentView(Object contentView, FrameLayout.LayoutParams params){
         View currentContentView=mContentView;
         mContentView=null;
         if (null!=currentContentView&&removeFromParent(currentContentView)){
             Logger.D("Removed current content view while open chat ui.");
         }
-
+        if (null==contentView&&null!=currentContentView){
+            return Code.CODE_SUCCEED;
+        }else if (null!=contentView){
+            Context context=getContext();
+            if (null==context||!(context instanceof Activity)){
+                Debug.W("Can't set content view while context not activity.");
+                return Code.CODE_FAIL;
+            }
+            if (null!=contentView){
+                return new ContentModel().setContentView((Activity)context,contentView,params);
+            }
+        }
         return Code.CODE_FAIL;
     }
 
@@ -397,9 +411,14 @@ public final class CommonSDK implements CommonApi {
         }
         View contentView=mContentView;
         if (null==contentView){//Try load content view
-            
+            Object rootViewObject=new HomeModelLoader().createRootViewObject(context,"While api call open chat ui.");
+            if (null!=rootViewObject){
+                int code=setContentView(rootViewObject,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.
+                        MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT));//Set just create home view as content view
+                Debug.D((code==Code.CODE_SUCCEED?"Succeed":"Fail")+" create home model.");
+            }
         }
-        if (null!=contentView){
+        if (null!=(contentView=mContentView)){
             Model model=null!=contentView?new DataBindingUtil().findFirstModel(contentView):null;
             if (null!=model&&model instanceof HomeModel){
                 ((HomeModel)model).enableOutline(outline);
@@ -505,7 +524,7 @@ public final class CommonSDK implements CommonApi {
                 Logger.W("Can't set csdk content view while content view NULL.");
                 return Code.CODE_PARAMS_INVALID;
             }
-            return new ContentModel().setContentView(getContext(), contentViewObj, params);
+            return CommonSDK.this.setContentView(contentViewObj,params);
         }
 
         @Override

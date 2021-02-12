@@ -2,6 +2,7 @@ package com.csdk.api.common;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import com.csdk.api.bean.CSDKAction;
 import com.csdk.api.bean.ChatBaseInfo;
@@ -57,7 +58,7 @@ public interface CommonApi  {
     /**
      *
      */
-    int setContentView(Object contentView);
+    int setContentView(Object contentView, FrameLayout.LayoutParams params);
     /**
      *
      */

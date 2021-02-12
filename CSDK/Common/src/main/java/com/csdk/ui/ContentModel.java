@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.csdk.api.core.Code;
+import com.csdk.api.core.Debug;
 import com.csdk.api.ui.Model;
 import com.csdk.api.ui.ModelAttachStateChangeListener;
 import com.csdk.api.ui.ModelBinder;
@@ -27,19 +28,15 @@ import java.lang.ref.WeakReference;
  */
 public final class ContentModel {
 
-   public  int setContentView(Context context,final Object contentViewObj, FrameLayout.LayoutParams params){
+   public  int setContentView(Activity activity,final Object contentViewObj, FrameLayout.LayoutParams params){
         if (null==contentViewObj){
             Logger.W("Can't set csdk content view while view NULL.");
             return Code.CODE_PARAMS_INVALID;
         }
-        if (null==context){
+        if (null==activity){
             Logger.W("Can't set csdk content view while context NULL,Check if initial?");
             return Code.CODE_PARAMS_INVALID;
-        }else if (!(context instanceof Activity)){
-            Logger.W("Can't set csdk content view while context not activity.");
-            return Code.CODE_FAIL;
         }
-        final Activity activity=(Activity)context;
         Window window=activity.getWindow();
         View decoreView=null!=window?window.getDecorView():null;
         if (null==decoreView||!(decoreView instanceof ViewGroup)){
@@ -85,6 +82,16 @@ public final class ContentModel {
             contentView[0]=view;
         }else if (contentViewObj instanceof Model){
             contentView[0]=new ModelBinder().bind(activityRoot, (Model)contentViewObj,"While api call.");
+        }else if (contentViewObj instanceof Integer){
+            try {
+                View view=new DataBindingUtil().inflate(activity.getLayoutInflater(),(Integer)contentViewObj,null,false);
+                Debug.D("AAAAAAAAAA "+view);
+                if (null!=view){
+                    return setContentView(activity,view,params);
+                }
+            } catch (Exception e) {
+               //Do nothing
+            }
         }
         final View finalContentView=contentView[0];
         if (null==finalContentView){
