@@ -46,9 +46,10 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    api project(path: ':CommonsUi')
+//    api project(path: ':CommonsUi')
 //    api project(path: ':Common')
 //    api project(path: ':CommonUi')
     
     implementation files('libs\\Common-release.aar')
+    implementation files('libs\\CommonsUi-release.aar')
 }

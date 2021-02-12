@@ -1,27 +1,23 @@
-package com.common.ui;
+package com.csdk.ui.model;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ViewDataBinding;
-
 import com.csdk.api.audio.AudioManager;
 import com.csdk.api.bean.Group;
 import com.csdk.api.bean.Menu;
 import com.csdk.api.bean.Session;
 import com.csdk.api.common.Api;
-import com.csdk.api.config.Config;
 import com.csdk.api.core.Debug;
 import com.csdk.api.core.GroupType;
 import com.csdk.api.ui.Model;
 import com.csdk.api.ui.ModelBinder;
 import com.csdk.api.ui.OnViewClick;
-import com.csdk.server.Configure;
 import com.csdk.ui.R;
 import com.csdk.ui.adapter.OutlineMessageAdapter;
 import com.csdk.ui.binding.Click;
@@ -29,14 +25,8 @@ import com.csdk.ui.databinding.CsdkHomeFriendsModelBinding;
 import com.csdk.ui.databinding.CsdkHomeGroupModelBinding;
 import com.csdk.ui.databinding.CsdkHomeItemMenuBinding;
 import com.csdk.ui.databinding.CsdkHomeSystemModelBinding;
-import com.csdk.ui.model.HomeContentModel;
-import com.csdk.ui.model.HomeFriendsModel;
-import com.csdk.ui.model.HomeGroupModel;
-import com.csdk.ui.model.HomeSessionModel;
-import com.csdk.ui.model.HomeSystemModel;
 import com.csdk.ui.ue4.NativityActivityTouchHocker;
 import com.csdk.ui.ue4.SoftInputCloser;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;

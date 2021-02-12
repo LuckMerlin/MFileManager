@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:binding="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="vm" type="com.common.ui.CommonHomeModel" />
+        <variable name="vm" type="com.csdk.ui.model.CommonHomeModel" />
         <import type="com.csdk.ui.R"/>
         <import type="android.view.View"/>
         <import type="com.csdk.ui.ViewScalePadding"/>

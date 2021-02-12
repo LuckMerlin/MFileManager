@@ -2,6 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.csdk.ui">
 
     <application>
-        <meta-data android:name="csdkHomeUi" android:value="com.common.ui.CommonHomeModel"/>
+        <meta-data android:name="csdkHomeUi" android:value="com.csdk.ui.model.CommonHomeModel"/>
     </application>
 </manifest>
