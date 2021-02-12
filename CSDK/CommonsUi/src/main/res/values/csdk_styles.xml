@@ -1,0 +1,52 @@
+<resources>
+    <style name="csdk_homeInputIcon">
+        <item name="android:layout_width">@dimen/csdk_homeInputIconSize</item>
+        <item name="android:layout_height">@dimen/csdk_homeInputIconSize</item>
+        <item name="android:padding">4dp</item>
+    </style>
+
+    <style name="csdk_homeInputSendText">
+        <item name="android:textColor">#fff</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/csdk_home_button_bg</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="csdk_homeInputStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#FF6A7CA0</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">left</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:background">@color/csdk_inputBg</item>
+    </style>
+
+    <style name="csdk_homeInputBackground" parent="csdk_homeInputStyle">
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:layout_marginTop">3dp</item>
+        <item name="android:layout_marginBottom">3dp</item>
+    </style>
+
+    <style name="csdk_homeFriendTabTitle">
+        <item name="android:background">@drawable/csdk_selector_home_friends_tab_bg</item>
+        <item name="android:textColor">@color/csdk_title</item>
+        <item name="android:textSize">9sp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingBottom">9dp</item>
+        <item name="android:paddingTop">9dp</item>
+    </style>
+</resources>

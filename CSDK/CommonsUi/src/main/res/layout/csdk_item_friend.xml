@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="user" type="com.csdk.api.bean.User" />
+        <variable name="roleStatus" type="com.csdk.api.core.RoleStatus" />
+        <variable name="gender" type="android.graphics.drawable.Drawable" />
+        <variable name="unreadMessageSize" type="int" />
+        <variable name="disabled" type="boolean" />
+        <variable name="selected" type="boolean" />
+        <import type="com.csdk.ui.binding.Click"/>
+        <import type="com.csdk.ui.R"/>
+        <import type="android.view.View"/>
+    </data>
+    <FrameLayout android:id="@+id/csdk_itemFriend_rootFL" android:selected="@{selected}"
+        binding:clickEnable="@{Click.click(Click.CLICK).tag(user)}"
+        android:background="@drawable/csdk_selector_friend_item_select" android:layout_marginBottom="5dp"
+        android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_marginBottom="2dp"
+            android:layout_marginTop="2dp"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include binding:avatarUrl="@{user.avatarUrl}" binding:userUid="@{user.id}"
+                binding:disabled="@{disabled}" binding:userLevel="@{user.userLevel}"
+                binding:userFemale="@{user.female}" layout="@layout/csdk_user_logo"/>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginLeft="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:src="@{user.female?@drawable/csdk_gender_female:@drawable/csdk_gender_man}"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"/>
+                    <TextView
+                        android:text="@{user.roleName??``}"
+                        android:singleLine="true"
+                        android:textColor="@color/csdk_title"
+                        android:textSize="8sp"
+                        android:maxEms="10"
+                        android:layout_marginLeft="3dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <TextView
+                    android:text="@{roleStatus.title??``}"
+                    android:textColor="@{roleStatus.color}"
+                    android:layout_marginTop="3dp"
+                    android:textSize="9sp"
+                    android:singleLine="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+        </FrameLayout>
+</layout>

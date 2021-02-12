@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="menu" type="com.csdk.api.bean.Menu" />
+        <variable name="click" type="com.csdk.ui.binding.Click" />
+        <variable name="selected" type="boolean" />
+        <import type="com.csdk.ui.R"/>
+        <import type="android.view.View"/>
+    </data>
+    <LinearLayout android:orientation="vertical" android:gravity="center_vertical" android:layout_width="80dp" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="horizontal" android:id="@+id/csdk_homeItemMenu_rootLL" binding:clickEnable="@{click}"
+            android:selected="@{selected}" android:background="@drawable/csdk_selector_home_menu" android:gravity="center_vertical"
+            android:layout_width="match_parent" android:layout_height="40dp">
+            <ImageView android:src="@drawable/csdk_temp" android:layout_width="30dp" android:layout_height="30dp"/>
+            <TextView android:text="@{menu.getTitle(false)??``}" android:textColor="#FF81A9DF"
+                android:singleLine="true" android:maxEms="6" android:minEms="6"
+                android:textSize="10sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View android:background="#99ffffff" android:layout_width="match_parent" android:layout_height="1dp"/>
+    </LinearLayout>
+</layout>

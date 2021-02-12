@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="csdk_homeInputIconSize">30dp</dimen>
+    <dimen name="csdk_userLogoSize">45dp</dimen>
+
+    <color name="csdk_title">#fff</color>
+    <color name="csdk_divider">#6B6B74</color>
+    <color name="csdk_inputBg">#FF10172D</color>
+
+
+    <string name="csdk_searchFriendsEmpty">请输入好友名称中包含的汉字与字母进行查询</string>
+    <string name="csdk_delete_user_chat_message">确认删除与该好友的聊天内容吗？</string>
+    <string name="csdk_noneFriendExist">暂时没有好友,\n快去认识点新朋友</string>
+    <string name="csdk_channelContentEmpty">该频道内容为空</string>
+    <string name="csdk_groupName">频道名称</string>
+    <string name="csdk_with">与</string>
+    <string name="csdk_chatWhich">的会话</string>
+    <string name="csdk_clickToSearchFriend">点击搜索好友</string>
+    <string name="csdk_chooseFriendToChat">选择好友去聊天</string>
+    <string name="csdk_groupMember">频道成员</string>
+    <string name="csdk_have_a_chat">聊聊呗~</string>
+    <string name="csdk_recentList">最近</string>
+    <string name="csdk_send">发送~</string>
+    <string name="csdk_friend">好友</string>
+    <string name="csdk_world">世界</string>
+    <string name="csdk_system">系统</string>
+    <string name="csdk_hall">大厅</string>
+    <string name="csdk_cancel">取消</string>
+    <string name="csdk_sure">确定</string>
+    <string name="csdk_area">星球</string>
+    <string name="csdk_labourUnion">公会</string>
+    <string name="csdk_team">队伍</string>
+    <string name="csdk_voiceMessage">语音消息</string>
+    <string name="csdk_linkMessage">链接消息</string>
+    <string name="csdk_inputDisableInMenu">该频道下无法输入</string>
+</resources>

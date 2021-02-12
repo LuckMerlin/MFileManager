@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="vm" type="com.csdk.ui.model.HomeFriendsModel" />
+        <import type="com.csdk.ui.R"/>
+        <import type="android.view.View"/>
+        <import type="com.csdk.ui.binding.Click"/>
+    </data>
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout  android:layout_weight="1.4" android:orientation="horizontal" android:background="#000"
+                android:gravity="center_vertical" android:layout_width="0dp" android:layout_height="match_parent">
+                <TextView  android:id="@+id/csdk_homeChannelFriend_listTV" style="@style/csdk_homeFriendTabTitle"
+                    binding:clickEnable="@{Click.click()}" android:text="@{@string/csdk_friend+` `+(vm.friendOnLineSize??`0`)+`/`+(vm.friendsSize??`0`)}"
+                    android:selected="@{vm.selectFriendTab==@id/csdk_homeChannelFriend_listTV}"
+                    android:layout_weight="1" android:layout_width="0dp" android:layout_height="match_parent"/>
+                <TextView android:id="@+id/csdk_homeChannelFriend_recentTV" android:text="@string/csdk_recentList"
+                    binding:clickEnable="@{Click.click()}" android:textColor="@color/csdk_title"
+                    android:selected="@{vm.selectFriendTab==@id/csdk_homeChannelFriend_recentTV}"
+                     style="@style/csdk_homeFriendTabTitle"  android:layout_weight="1"
+                    android:layout_width="0dp" android:layout_height="match_parent"/>
+            </LinearLayout>
+
+            <LinearLayout  android:layout_weight="2" android:orientation="horizontal" android:paddingLeft="3dp" android:paddingRight="3dp"
+                android:paddingBottom="2dp" android:paddingTop="2dp"  android:background="@drawable/csdk_single_chat_session_title_bg"
+                android:layout_width="0dp" android:layout_height="match_parent">
+                <TextView android:text="@{vm.user.roleName==null?``:(@string/csdk_with+` `+vm.user.roleName+` `+@string/csdk_chatWhich)}"
+                    android:layout_marginLeft="5dp" android:layout_gravity="center_vertical" android:textSize="11sp" android:singleLine="true"
+                    android:layout_weight="1" android:textColor="@color/csdk_title" android:layout_width="0dp"
+                    android:layout_height="wrap_content"/>
+                <ImageView android:id="@+id/csdk_friendChatSession_menuIV" android:visibility="@{vm.user==null?View.INVISIBLE:View.VISIBLE}"
+                    android:tag="@{vm.user.id}" android:src="@drawable/csdk_chat_session_menu" android:padding="5dp" android:layout_marginLeft="3dp"
+                    binding:clickEnable="@{Click.click()}" android:layout_marginRight="5dp" android:layout_width="30dp" android:layout_height="30dp"/>
+                <ImageView android:id="@+id/csdk_friendChatSession_deleteMessageIV" android:visibility="@{vm.user==null?View.INVISIBLE:View.VISIBLE}"
+                    binding:clickEnable="@{Click.click()}"  android:src="@drawable/csdk_chat_session_delete" android:padding="5dp" android:layout_width="30dp" android:layout_height="30dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="match_parent">
+            <LinearLayout  android:layout_weight="1.4" android:orientation="vertical" android:layout_width="0dp" android:layout_height="match_parent">
+                <LinearLayout android:orientation="horizontal" android:layout_marginTop="5dp" android:layout_marginBottom="5dp"
+                    android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <com.csdk.ui.view.ClearEditTextView android:hint="@string/csdk_clickToSearchFriend" android:layout_weight="1" android:focusedByDefault="true"
+                        android:focusable="true" android:focusableInTouchMode="true" android:gravity="center_vertical"
+                        android:text="@={vm.searchInput}" android:background="#FF353E5F" android:textSize="9sp"
+                        android:textColor="@color/csdk_title" android:imeOptions="actionDone|flagNoExtractUi|flagNoFullscreen"
+                        android:textColorHint="#FF4F5774" android:layout_width="0dp"
+                        android:paddingLeft="3dp" android:paddingRight="3dp" android:paddingBottom="2dp" android:paddingTop="2dp"
+                        android:singleLine="true" android:layout_height="match_parent"/>
+                    <com.csdk.ui.view.SquareImageView android:id="@+id/csdk_homeChannelFriend_searchIV"
+                        android:src="@drawable/csdk_icon_search" android:paddingLeft="5dp" android:paddingRight="5dp"
+                        binding:clickEnable="@{Click.click()}" android:layout_width="25dp" android:layout_height="25dp"/>
+                </LinearLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:layout_marginLeft="5dp" android:layout_marginRight="5dp" android:adapter="@{vm.userAdapter}"
+                    android:layout_marginBottom="3dp" android:layout_width="match_parent" android:layout_height="match_parent"/>
+            </LinearLayout>
+            <FrameLayout android:layout_weight="2"
+                android:layout_width="0dp" android:layout_height="match_parent">
+                <LinearLayout android:visibility="@{vm.user==null?View.VISIBLE:View.GONE}" android:orientation="vertical"
+                    android:layout_gravity="center" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <TextView android:text="@string/csdk_chooseFriendToChat" android:textColor="@color/csdk_title"
+                        android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <com.csdk.ui.view.SwipeRefreshLayout android:layout_margin="5dp"
+                    android:visibility="@{vm.user==null?View.GONE:View.VISIBLE}"
+                    android:layout_width="match_parent" android:layout_height="match_parent">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:adapter="@{vm.userAdapter}" android:layout_width="match_parent" android:layout_height="match_parent"/>
+                </com.csdk.ui.view.SwipeRefreshLayout>
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+</layout>

@@ -381,7 +381,6 @@ public final class CommonSDK implements CommonApi {
                 return Code.CODE_FAIL;
             }
             if (null!=contentView){
-                Debug.D("SSSSSSSSSSSs "+contentView);
                 return new ContentModel().setContentView((Activity)context,contentView,params);
             }
         }

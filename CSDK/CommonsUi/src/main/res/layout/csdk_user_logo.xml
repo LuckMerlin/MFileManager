@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="avatarUrl" type="String" />
+        <variable name="userUid" type="String" />
+        <variable name="userLevel" type="String" />
+        <variable name="userFemale" type="boolean" />
+        <variable name="disabled" type="boolean" />
+        <variable name="enableLogoClick" type="boolean" />
+        <import type="android.view.View"/>
+        <import type="com.csdk.ui.binding.Click"/>
+    </data>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <com.csdk.ui.view.UIUserRadiusImageView
+            android:id="@+id/csdk_userLogo_imageIV"
+            binding:clickEnable="@{Click.click(enableLogoClick?Click.CLICK:Click.NONE)}"
+            android:layout_marginLeft="7dp"
+            android:enabled="@{!disabled}"
+            binding:avatarUrl="@{avatarUrl}"
+            binding:useFemale="@{userFemale}"
+            android:background="@drawable/csdk_user_logo_ring_background"
+            android:scaleType="fitCenter"
+            android:tag="@{userUid}"
+            android:padding="5dp"
+            android:layout_width="@dimen/csdk_userLogoSize"
+            android:layout_height="@dimen/csdk_userLogoSize"/>
+        <com.csdk.ui.view.UserClassTextView
+            android:text="@{userLevel.length()&lt;=0?``:``+userLevel}"
+            android:visibility="@{userLevel.length()>0?View.VISIBLE:View.INVISIBLE}"
+            android:padding="3dp"
+            android:layout_marginBottom="5dp"
+            android:singleLine="true"
+            android:layout_gravity="bottom|left"
+            android:textColor="#FFFF00"
+            android:textStyle="bold"
+            android:textSize="6sp"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </FrameLayout>
+
+</layout>

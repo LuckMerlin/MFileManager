@@ -71,7 +71,14 @@ public class MainActivity extends Activity {
         baseInfo.setVipLevel(System.currentTimeMillis()%2==0?"vipa":"vipb");
         //
         CSDK.getInstance().setChatBaseInfo(baseInfo);
-        new Handler(Looper.getMainLooper()).postDelayed(()-> CSDK.getInstance().openChatUi(true),3000);
+        //
+        Handler handler= new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                CSDK.getInstance().openChatUi(System.currentTimeMillis()%2==0);
+            }
+        }, 3000);
         return false;
     }
 }

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="vm" type="com.common.ui.CommonHomeModel" />
+        <import type="com.csdk.ui.R"/>
+        <import type="android.view.View"/>
+        <import type="com.csdk.ui.ViewScalePadding"/>
+        <import type="android.graphics.Color"/>
+    </data>
+    <FrameLayout binding:viewScalePadding="@{ViewScalePadding.a(true)}" android:clickable="@{!vm.showOutline}"
+        android:layout_width="match_parent" android:layout_height="match_parent">
+        <!-- Desktop begin -->
+        <LinearLayout android:orientation="horizontal" android:visibility="@{vm.showOutline?View.GONE:View.VISIBLE}"
+            android:layout_width="match_parent" android:layout_height="match_parent">
+            <LinearLayout android:orientation="horizontal" android:layout_weight="0.8"
+                android:layout_width="0dp" android:layout_height="match_parent">
+                <LinearLayout android:orientation="vertical" android:layout_weight="3"
+                    android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <LinearLayout android:layout_weight="1" android:orientation="horizontal"
+                        android:layout_width="match_parent" android:layout_height="match_parent">
+                        <ScrollView android:layout_width="80dp" android:scrollbars="none"
+                            android:background="@drawable/csdk_home_menu_content_bg" android:layout_height="wrap_content">
+                            <LinearLayout android:id="@+id/csdk_homeModel_menuLL" android:orientation="vertical"
+                                android:tag="disableRegisterClick" android:layout_width="match_parent"
+                                android:layout_height="match_parent"/>
+                        </ScrollView>
+                        <View android:background="@color/csdk_divider" android:layout_width="1dp"
+                            android:layout_height="match_parent"/>
+                        <FrameLayout android:id="@+id/csdk_homeModel_contentFL" android:background="#99222541"
+                            android:tag="disableRegisterClick" android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+                    </LinearLayout>
+                    <include android:id="@+id/csdk_homeModel_inputRoot" binding:vm="@{vm}" layout="@layout/csdk_home_model_input"/>
+                </LinearLayout>
+
+                <FrameLayout android:id="@+id/csdk_homeModel_closeHandleFL" android:paddingTop="40dp"
+                    android:paddingBottom="40dp" android:paddingRight="3dp" android:layout_gravity="center_vertical"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <ImageView android:src="@drawable/csdk_home_close_handle" android:scaleType="fitCenter"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </FrameLayout>
+            </LinearLayout>
+            <View android:onTouchListener="@{vm.emptyViewTouchListener}" android:layout_weight="0.2"
+                android:layout_width="0dp" android:layout_height="match_parent"/>
+        </LinearLayout>
+        <!-- Desktop end -->
+        <include android:visibility="@{vm.showOutline?View.VISIBLE:View.GONE}"
+            binding:vm="@{vm}" layout="@layout/csdk_home_model_outline"
+            android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <!-- emoji-->
+<!--        <FrameLayout android:id="@+id/csdk_homeModel_emojiRootFL"-->
+<!--            android:visibility="@{vm.inputEmoji?View.VISIBLE:View.GONE}"-->
+<!--            android:layout_width="match_parent" android:layout_height="match_parent">-->
+<!--            <include layout="@layout/csdk_emoji_select" binding:vm="@{vm}"-->
+<!--                android:layout_gravity="bottom|center_horizontal"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"/>-->
+<!--        </FrameLayout>-->
+    </FrameLayout>
+</layout>

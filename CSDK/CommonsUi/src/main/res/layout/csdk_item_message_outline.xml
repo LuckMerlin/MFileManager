@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable name="title" type="String" />
+        <variable name="subTitle" type="String" />
+        <variable name="message" type="String" />
+        <variable name="titleDrawable" type="android.graphics.drawable.Drawable" />
+    </data>
+    <LinearLayout
+        android:layout_marginLeft="10dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical"
+        android:gravity="left|center_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+        <TextView
+            android:background="@{titleDrawable}"
+            android:text="@{title}"
+            android:textColor="#fff"
+            android:gravity="center"
+            android:textSize="10sp"
+            android:singleLine="true"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:maxEms="10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:text="@{null==subTitle||subTitle.length()&lt;=0?``:`[`+subTitle+`]`}"
+            android:textColor="#80C150"
+            android:textSize="10sp"
+            android:maxEms="10"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="1dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="1dp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:textSize="10sp"
+            android:textColor="#fff"
+            android:singleLine="true"
+            android:text="@{`: `+message}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</layout>
