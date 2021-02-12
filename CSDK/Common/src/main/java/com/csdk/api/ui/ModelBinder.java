@@ -40,7 +40,7 @@ import java.util.List;
             int layoutId=(Integer)modelView;
             LayoutInflater inflater=LayoutInflater.from(context);
             try {
-                rootView=new DataBindingUtil().inflate(inflater,layoutId,null,false);
+                rootView=new DataBindingUtil().inflate(inflater,layoutId,null,false,model);
             }catch (Exception e){
                 if (null!=e&&e instanceof InflateException){
                     Logger.E("Exception,Please check if enable databinding in gradle?");

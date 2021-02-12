@@ -82,16 +82,6 @@ public final class ContentModel {
             contentView[0]=view;
         }else if (contentViewObj instanceof Model){
             contentView[0]=new ModelBinder().bind(activityRoot, (Model)contentViewObj,"While api call.");
-        }else if (contentViewObj instanceof Integer){
-            try {
-                View view=new DataBindingUtil().inflate(activity.getLayoutInflater(),(Integer)contentViewObj,null,false);
-                Debug.D("AAAAAAAAAA "+view);
-                if (null!=view){
-                    return setContentView(activity,view,params);
-                }
-            } catch (Exception e) {
-               //Do nothing
-            }
         }
         final View finalContentView=contentView[0];
         if (null==finalContentView){

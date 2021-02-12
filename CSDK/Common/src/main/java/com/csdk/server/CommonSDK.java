@@ -34,7 +34,6 @@ import com.csdk.api.core.Label;
 import com.csdk.server.socket.HeroSocket;
 import com.csdk.server.util.Utils;
 import com.csdk.ui.DataBindingUtil;
-import com.csdk.ui.Home;
 import com.csdk.ui.HomeModelLoader;
 
 import java.io.File;
@@ -382,6 +381,7 @@ public final class CommonSDK implements CommonApi {
                 return Code.CODE_FAIL;
             }
             if (null!=contentView){
+                Debug.D("SSSSSSSSSSSs "+contentView);
                 return new ContentModel().setContentView((Activity)context,contentView,params);
             }
         }
@@ -411,9 +411,9 @@ public final class CommonSDK implements CommonApi {
         }
         View contentView=mContentView;
         if (null==contentView){//Try load content view
-            Object rootViewObject=new HomeModelLoader().createRootViewObject(context,"While api call open chat ui.");
-            if (null!=rootViewObject){
-                int code=setContentView(rootViewObject,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.
+            Model homeModel=new HomeModelLoader().getHomeModel(context,mApi,"While api call open chat ui.");
+            if (null!=homeModel){
+                int code=setContentView(homeModel,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.
                         MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT));//Set just create home view as content view
                 Debug.D((code==Code.CODE_SUCCEED?"Succeed":"Fail")+" create home model.");
             }

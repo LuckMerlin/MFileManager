@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.csdk.api.core.Debug;
 import com.csdk.api.ui.Model;
 
 import java.lang.reflect.Method;
