@@ -33,6 +33,7 @@ import java.util.List;
         if (null!=root&&null!=root.getParent()){
             return root;//Already bind
         }
+        final ClassLoader classLoader=vg.getClass().getClassLoader();
         Context context=vg.getContext();
         Object modelView=null!=context?model.onResolveModelView(context):null;
         View rootView=null;
@@ -44,6 +45,8 @@ import java.util.List;
             }catch (Exception e){
                 if (null!=e&&e instanceof InflateException){
                     Logger.E("Exception,Please check if enable databinding in gradle?");
+                }else{
+                    Logger.E("Exception inflate view.e="+e,e);
                 }
             }
             if (null==rootView){//Fail create databinding view

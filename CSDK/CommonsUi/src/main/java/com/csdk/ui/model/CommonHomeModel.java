@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommonHomeModel extends Model implements OnViewClick {
-    private final OutlineMessageAdapter mOutlineAdapter = new OutlineMessageAdapter();
     private final ObservableField<Boolean> mShowOutline=new ObservableField<>(true);
     private final ObservableField<Boolean> mInputEmoji = new ObservableField<>(false);
     private final ObservableField<Menu> mShowingChannel = new ObservableField<>();
@@ -254,7 +253,7 @@ public class CommonHomeModel extends Model implements OnViewClick {
     }
 
     public OutlineMessageAdapter getOutlineAdapter() {
-        return mOutlineAdapter;
+        return null;
     }
 
     public ObservableField<Boolean> getVoiceMessageSendEnable() {

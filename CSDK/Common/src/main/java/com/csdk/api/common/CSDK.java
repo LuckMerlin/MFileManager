@@ -1,6 +1,8 @@
 package com.csdk.api.common;
 
 import android.content.Context;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.csdk.api.bean.CSDKAction;
 import com.csdk.api.bean.ChatBaseInfo;
@@ -74,6 +76,20 @@ public final class CSDK implements Code {
             return socket.setOnCSDKListener(listener);
         }catch (Exception e){
             Logger.E("Exception while set on csdk listener."+e);
+            return CODE_EXCEPTION;
+        }
+    }
+
+    public int setContentView(Object contentView, FrameLayout.LayoutParams params){
+        try{
+            CommonApi socket=mSocket;
+            if (null==socket){
+                Logger.W("Can't set content view while api NULL.");
+                return CODE_NONE_INITIAL;
+            }
+            return socket.setContentView(contentView,params);
+        }catch (Exception e){
+            Logger.E("Exception while set content view."+e);
             return CODE_EXCEPTION;
         }
     }

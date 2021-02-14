@@ -46,10 +46,12 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-//    api project(path: ':CommonsUi')
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
+    api project(path: ':CommonsUi')
 //    api project(path: ':Common')
 //    api project(path: ':CommonUi')
-    
     implementation files('libs\\Common-release.aar')
-    implementation files('libs\\CommonsUi-release.aar')
+//    implementation files('libs\\CommonsUi-release.aar')
 }

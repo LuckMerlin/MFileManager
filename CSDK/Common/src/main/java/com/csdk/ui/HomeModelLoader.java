@@ -70,8 +70,7 @@ public final class HomeModelLoader {
 //                }
 //            }
         } catch (Exception e) {
-            Debug.E("Exception create home model.e="+e,e
-            );
+            Debug.E("Exception create home model.e="+e,e);
             e.printStackTrace();
         }
 

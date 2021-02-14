@@ -5,6 +5,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 
 import com.csdk.api.bean.ChatBaseInfo;
 import com.csdk.api.bean.ChatConfig;
@@ -12,6 +17,8 @@ import com.csdk.api.bean.Gender;
 import com.csdk.api.common.Api;
 import com.csdk.api.common.CSDK;
 import com.csdk.api.common.CommonApi;
+import com.csdk.ui.model.CommonHomeModel;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,6 +83,9 @@ public class MainActivity extends Activity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+//                DataBindingUtil.inflate(@NonNull LayoutInflater inflater,
+//                int layoutId, @Nullable ViewGroup parent, boolean attachToParent)
+//                CSDK.getInstance().setContentView(new CommonHomeModel(null),null);
                 CSDK.getInstance().openChatUi(System.currentTimeMillis()%2==0);
             }
         }, 3000);
