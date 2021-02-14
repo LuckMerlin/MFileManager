@@ -34,10 +34,10 @@ public class HomeFriendsModel extends SingleSessionModel implements OnViewClick,
 
     public HomeFriendsModel(Api api) {
         super(api);
-        mFriendsListAdapter.add(new User(""));//Test
-        mFriendsListAdapter.add(new User(""));//Test
-        mFriendsListAdapter.add(new User(""));//Test
-        mFriendsListAdapter.add(new User(""));//Test
+        mFriendsListAdapter.add(new User("2").setRoleName("是范德萨发"));//Test
+        mFriendsListAdapter.add(new User("3"));//Test
+        mFriendsListAdapter.add(new User("4"));//Test
+        mFriendsListAdapter.add(new User("5"));//Test
     }
 
     @Override
@@ -52,9 +52,11 @@ public class HomeFriendsModel extends SingleSessionModel implements OnViewClick,
         }
     }
 
-
-    private boolean startChat(User user,String debug){
+    public final boolean startChat(User user,String debug){
         mUser.set(user);
+        mFriendsListAdapter.setSelect(user);
+        mRecentListAdapter.setSelect(user);
+        mSearchAdapter.setSelect(user);
         return true;
     }
 

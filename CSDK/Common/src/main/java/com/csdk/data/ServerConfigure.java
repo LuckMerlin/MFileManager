@@ -29,6 +29,11 @@ public final class ServerConfigure implements Serializable, Config {
     }
 
     @Override
+    public CharSequence getMenuIcon(String menuType) {
+        return "https://pics4.baidu.com/feed/962bd40735fae6cdb867df2cdcce032c43a70f35.jpeg?token=4b561cafa0fd3152dc8951e3ad528c01&s=97A349A74E5F2BCC0EAD91BC03006003";
+    }
+
+    @Override
     public boolean isGroupVoice2TextEnabled(String type) {
         GroupBean groupBean=null!=group?group.get(type):null;
         GroupBean.GroupMessageBean bean=null!=groupBean?groupBean.message:null;

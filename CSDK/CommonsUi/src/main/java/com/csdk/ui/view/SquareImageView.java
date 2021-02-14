@@ -9,7 +9,7 @@ import android.widget.ImageView;
  * Date 17:00 2020/8/7
  * TODO
  */
-public final class SquareImageView extends ImageView  {
+public class SquareImageView extends ImageView  {
 
 
     public SquareImageView(Context context) {

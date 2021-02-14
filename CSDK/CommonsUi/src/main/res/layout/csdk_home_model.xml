@@ -7,6 +7,7 @@
         <import type="android.view.View"/>
         <import type="com.csdk.ui.ViewScalePadding"/>
         <import type="android.graphics.Color"/>
+        <import type="com.csdk.ui.binding.Click"/>
     </data>
     <FrameLayout binding:viewScalePadding="@{ViewScalePadding.a(true)}" android:clickable="@{!vm.showOutline}"
         android:layout_width="match_parent" android:layout_height="match_parent">
@@ -28,16 +29,16 @@
                         <View android:background="@color/csdk_divider" android:layout_width="1dp"
                             android:layout_height="match_parent"/>
                         <FrameLayout android:id="@+id/csdk_homeModel_contentFL" android:background="#99222541"
-                            android:tag="disableRegisterClick" android:layout_width="match_parent"
-                            android:layout_height="match_parent"/>
+                            android:tag="disableRegisterClick" android:layout_width="match_parent" android:layout_height="match_parent"/>
                     </LinearLayout>
                     <include android:id="@+id/csdk_homeModel_inputRoot" binding:vm="@{vm}" layout="@layout/csdk_home_model_input"/>
                 </LinearLayout>
 
-                <FrameLayout android:id="@+id/csdk_homeModel_closeHandleFL" android:paddingTop="40dp"
-                    android:paddingBottom="40dp" android:paddingRight="3dp" android:layout_gravity="center_vertical"
+                <FrameLayout android:paddingTop="40dp" android:paddingBottom="40dp" android:layout_gravity="center_vertical"
                     android:layout_width="wrap_content" android:layout_height="wrap_content">
-                    <ImageView android:src="@drawable/csdk_home_close_handle" android:scaleType="fitCenter"
+                    <ImageView android:id="@+id/csdk_homeModel_closeHandleIV"
+                        binding:clickEnable="@{Click.click(Click.CLICK,vm)}"
+                        android:src="@drawable/csdk_home_close_handle" android:scaleType="fitCenter"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </FrameLayout>
             </LinearLayout>
@@ -45,7 +46,10 @@
                 android:layout_width="0dp" android:layout_height="match_parent"/>
         </LinearLayout>
         <!-- Desktop end -->
-        <include android:visibility="@{vm.showOutline?View.VISIBLE:View.GONE}"
+        <include
+            android:id="@+id/csdk_homeModel_outlineRootIL"
+            android:visibility="@{vm.showOutline?View.VISIBLE:View.GONE}"
+            binding:clickEnable="@{Click.click(Click.CLICK,vm)}"
             binding:vm="@{vm}" layout="@layout/csdk_home_model_outline"
             android:layout_width="match_parent" android:layout_height="match_parent"/>
         <!-- emoji-->

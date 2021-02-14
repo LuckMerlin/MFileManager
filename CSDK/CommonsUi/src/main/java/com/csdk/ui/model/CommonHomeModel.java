@@ -12,7 +12,9 @@ import com.csdk.api.audio.AudioManager;
 import com.csdk.api.bean.Group;
 import com.csdk.api.bean.Menu;
 import com.csdk.api.bean.Session;
+import com.csdk.api.bean.User;
 import com.csdk.api.common.Api;
+import com.csdk.api.config.Config;
 import com.csdk.api.core.Debug;
 import com.csdk.api.core.GroupType;
 import com.csdk.api.ui.Model;
@@ -32,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommonHomeModel extends Model implements OnViewClick {
-    private final ObservableField<Boolean> mShowOutline=new ObservableField<>(true);
+    private final ObservableField<Boolean> mShowOutline=new ObservableField<>(false);
     private final ObservableField<Boolean> mInputEmoji = new ObservableField<>(false);
     private final ObservableField<Menu> mShowingChannel = new ObservableField<>();
     private final ObservableField<Boolean> mVoiceMessageSendEnable=new ObservableField<>(true);
@@ -84,7 +86,16 @@ public class CommonHomeModel extends Model implements OnViewClick {
     }
 
     @Override
-    public boolean onClicked(int i, View view, Object o) {
+    public boolean onClicked(int viewId, View view, Object object) {
+        if (viewId==R.id.csdk_homeModel_outlineRootIL){
+            return showOutline(false,"While outline root view click.")||true;
+        }else if (viewId==R.id.csdk_homeModel_closeHandleIV){
+            return showOutline(true,"While close handle view click.")||true;
+        }else if (viewId==R.id.csdk_homeItemMenu_rootLL){
+            return selectMenu(null!=object&&object instanceof Menu?((Menu)object):null,"While home item menu click.")||true;
+        }else if (viewId==R.id.csdk_itemFriend_rootLL){
+            return startChatWithUser(null!=object&&object instanceof User?((User)object):null, "While item friend view click.")||true;
+        }
         return false;
     }
 
@@ -118,6 +129,7 @@ public class CommonHomeModel extends Model implements OnViewClick {
                 final List<View> notNeedRemove=new ArrayList<>();
                 LayoutInflater inflater = LayoutInflater.from(vg.getContext());
                 final Menu currentSelected=mSelectMenu.get();
+                final Config config=getConfig();
                 Menu selectNewMenu=null;
                 for (int i = 0; i < menuTotal; i++) {
                     View childView=i<currentTotal?vg.getChildAt(i):null;
@@ -135,6 +147,7 @@ public class CommonHomeModel extends Model implements OnViewClick {
                     }
                     CsdkHomeItemMenuBinding menuBinding=(CsdkHomeItemMenuBinding)dataBinding;
                     Menu menu=menus.get(i);
+                    menuBinding.setMenuImage(null!=menu&&null!=config?config.getMenuIcon(menu.getMenuType()):null);
                     menuBinding.setClick(Click.click(this).tag(menu));
                     menuBinding.setMenu(menu);
                     selectNewMenu=null!=selectNewMenu?selectNewMenu:menu;
@@ -244,7 +257,21 @@ public class CommonHomeModel extends Model implements OnViewClick {
             }
         }
         mCurrentSession.set(session);
+        mInputEnable.set(null!=session);
         return session;
+    }
+
+    private boolean startChatWithUser(User user,String debug){
+        if (null==user){
+            Debug.W("Can't start chat while user invalid "+(null!=debug?debug:"."));
+            return false;
+        }
+        Model model=getContentModel();
+        if (null==model||!(model instanceof HomeFriendsModel)){
+            Debug.W("Can't start chat while current content model not friends model  "+(null!=debug?debug:"."));
+            return false;
+        }
+        return ((HomeFriendsModel)model).startChat(user,debug);
     }
 
     @Override
@@ -290,6 +317,20 @@ public class CommonHomeModel extends Model implements OnViewClick {
 
     public ObservableField<Session> getCurrentSession() {
         return mCurrentSession;
+    }
+
+    private Model getContentModel(){
+        ViewGroup contentRoot=getHomeContentRoot();
+        int count=null!=contentRoot?contentRoot.getChildCount():-1;
+        com.csdk.ui.DataBindingUtil dataBindingUtil=new com.csdk.ui.DataBindingUtil();
+        Model model=null;
+        for (int i = 0; i < count; i++) {
+            View child=contentRoot.getChildAt(i);
+            if (null!=child&&null!=(model=dataBindingUtil.findFirstModel(child))){
+                return model;
+            }
+        }
+        return null;
     }
 
     private ViewGroup getHomeContentRoot(){

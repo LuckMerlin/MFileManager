@@ -52,10 +52,7 @@ public final class DataBindingUtil {
     }
 
     public View inflate(LayoutInflater inflater,int layoutId,ViewGroup parent,boolean attach,final Model model) throws Exception {
-        ClassLoader classLoader=null!=parent?parent.getClass().getClassLoader():null;
-        classLoader=null==classLoader&&null!=model?model.getClass().getClassLoader():classLoader;
-        classLoader=null==classLoader&&null!=inflater?inflater.getClass().getClassLoader():classLoader;
-        Class dataBindingUtil=getDataBindingUtilClass(classLoader);
+        Class dataBindingUtil=getDataBindingUtilClass();
         Method method=null!=dataBindingUtil?dataBindingUtil.getDeclaredMethod("inflate", LayoutInflater.class,
                 int.class, ViewGroup.class,boolean.class):null;
         Object bindingObject=null!=method?method.invoke(null, inflater,
@@ -70,7 +67,6 @@ public final class DataBindingUtil {
             Object dataBinding=getViewDataBinding((View)view);
             return null!=dataBinding?attachModel(dataBinding,model):null;
         }
-        final ClassLoader classLoader=view.getClass().getClassLoader();
         //Try as dataBinding
         Class dataBindingClass=view.getClass().getSuperclass();
         Method[] methods=null!=dataBindingClass?dataBindingClass.getDeclaredMethods():null;
@@ -82,7 +78,7 @@ public final class DataBindingUtil {
                     type=null!=types&&types.length==1?types[0]:null;
                     if (null!=type&&type.equals(model.getClass())){
                         child.invoke(view, model);//Get root
-                        Class viewDataBindingClass=getViewDataBindingClass(classLoader);
+                        Class viewDataBindingClass=getViewDataBindingClass();
                         Method method=null!=viewDataBindingClass?viewDataBindingClass.getDeclaredMethod("getRoot"):null;
                         Object viewObject=null!=method?method.invoke(view):null;
                         return null!=viewObject&&viewObject instanceof View?((View)viewObject):null;
@@ -95,16 +91,16 @@ public final class DataBindingUtil {
     }
 
     private Object getViewDataBinding(View view) throws Exception {
-        Class cls=null!=view?getDataBindingUtilClass(view.getClass().getClassLoader()):null;
+        Class cls=null!=view?getDataBindingUtilClass():null;
         Method viewDataBindingMethod=null!=cls?cls.getDeclaredMethod("getBinding",View.class):null;
         return null!=viewDataBindingMethod?viewDataBindingMethod.invoke(null,view):null;
     }
 
-    private Class getViewDataBindingClass(ClassLoader classLoader) throws ClassNotFoundException {
-        return Class.forName("androidx.databinding.ViewDataBinding",true,classLoader);
+    private Class getViewDataBindingClass() throws ClassNotFoundException {
+        return Class.forName("androidx.databinding.ViewDataBinding");
     }
 
-    private Class getDataBindingUtilClass(ClassLoader classLoader) throws ClassNotFoundException {
-        return Class.forName("androidx.databinding.DataBindingUtil",true,classLoader);
+    private Class getDataBindingUtilClass() throws ClassNotFoundException {
+        return Class.forName("androidx.databinding.DataBindingUtil");
     }
 }

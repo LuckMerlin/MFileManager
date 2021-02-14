@@ -3,6 +3,7 @@
     xmlns:binding="http://schemas.android.com/apk/res-auto">
     <data>
         <variable name="menu" type="com.csdk.api.bean.Menu" />
+        <variable name="menuImage" type="CharSequence" />
         <variable name="click" type="com.csdk.ui.binding.Click" />
         <variable name="selected" type="boolean" />
         <import type="com.csdk.ui.R"/>
@@ -12,10 +13,11 @@
         <LinearLayout android:orientation="horizontal" android:id="@+id/csdk_homeItemMenu_rootLL" binding:clickEnable="@{click}"
             android:selected="@{selected}" android:background="@drawable/csdk_selector_home_menu" android:gravity="center_vertical"
             android:layout_width="match_parent" android:layout_height="40dp">
-            <ImageView android:src="@drawable/csdk_temp" android:layout_width="30dp" android:layout_height="30dp"/>
+            <com.csdk.ui.view.GlideImageView binding:image="@{menuImage}" android:layout_width="30dp"
+                android:layout_height="30dp" android:scaleType="centerCrop"/>
             <TextView android:text="@{menu.getTitle(false)??``}" android:textColor="#FF81A9DF"
-                android:singleLine="true" android:maxEms="6" android:minEms="6"
-                android:textSize="10sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                android:singleLine="true" android:maxEms="10" android:minEms="10" android:paddingLeft="5dp"
+                android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
         </LinearLayout>
         <View android:background="#99ffffff" android:layout_width="match_parent" android:layout_height="1dp"/>
     </LinearLayout>

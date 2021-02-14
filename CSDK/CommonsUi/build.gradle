@@ -31,9 +31,9 @@ android {
 }
 
 dependencies {
-    compileOnly files('libs\\Common-release.aar')
+//    compileOnly files('libs\\Common-release.aar')
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
-//    api project(path: ':Common')
+    api project(path: ':Common')
 }

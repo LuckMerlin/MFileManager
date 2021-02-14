@@ -155,16 +155,18 @@ public class User implements Serializable, Session {
         return roleName;
     }
 
-    public void setRoleName(String roleName) {
+    public User setRoleName(String roleName) {
         this.roleName = roleName;
+        return this;
     }
 
     public String getNickName() {
         return nickName;
     }
 
-    public void setNickName(String nickName) {
+    public User setNickName(String nickName) {
         this.nickName = nickName;
+        return this;
     }
 
     public String getAvatarUrl() {

@@ -12,4 +12,5 @@ public interface Config {
     boolean isGroupLiveAudioEnabled(String type);
     boolean isGroupVoice2TextEnabled(String type);
     long getMessageWithdrawTime(String type);
+    CharSequence getMenuIcon(String menuType);
 }

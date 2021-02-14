@@ -25,14 +25,13 @@
             <LinearLayout  android:layout_weight="2" android:orientation="horizontal" android:paddingLeft="3dp" android:paddingRight="3dp"
                 android:paddingBottom="2dp" android:paddingTop="2dp"  android:background="@drawable/csdk_single_chat_session_title_bg"
                 android:layout_width="0dp" android:layout_height="match_parent">
-                <TextView android:text="@{vm.user.roleName==null?``:(@string/csdk_with+` `+vm.user.roleName+` `+@string/csdk_chatWhich)}"
-                    android:layout_marginLeft="5dp" android:layout_gravity="center_vertical" android:textSize="11sp" android:singleLine="true"
-                    android:layout_weight="1" android:textColor="@color/csdk_title" android:layout_width="0dp"
-                    android:layout_height="wrap_content"/>
                 <ImageView android:id="@+id/csdk_friendChatSession_menuIV" android:visibility="@{vm.user==null?View.INVISIBLE:View.VISIBLE}"
                     android:tag="@{vm.user.id}" android:src="@drawable/csdk_chat_session_menu" android:padding="5dp" android:layout_marginLeft="3dp"
                     binding:clickEnable="@{Click.click()}" android:layout_marginRight="5dp" android:layout_width="30dp" android:layout_height="30dp"/>
-                <ImageView android:id="@+id/csdk_friendChatSession_deleteMessageIV" android:visibility="@{vm.user==null?View.INVISIBLE:View.VISIBLE}"
+                <TextView android:text="@{vm.user.roleName==null?``:(@string/csdk_with+` `+vm.user.roleName+` `+@string/csdk_chatWhich)}"
+                    android:layout_marginLeft="5dp" android:layout_gravity="center_vertical" android:textSize="11sp" android:singleLine="true"
+                    android:layout_weight="1" android:textColor="@color/csdk_title" android:layout_width="0dp" android:layout_height="wrap_content"/>
+                 <ImageView android:id="@+id/csdk_friendChatSession_deleteMessageIV" android:visibility="@{vm.user==null?View.INVISIBLE:View.VISIBLE}"
                     binding:clickEnable="@{Click.click()}"  android:src="@drawable/csdk_chat_session_delete" android:padding="5dp" android:layout_width="30dp" android:layout_height="30dp"/>
             </LinearLayout>
         </LinearLayout>
@@ -45,7 +44,7 @@
                         android:focusable="true" android:focusableInTouchMode="true" android:gravity="center_vertical"
                         android:text="@={vm.searchInput}" android:background="#FF353E5F" android:textSize="9sp"
                         android:textColor="@color/csdk_title" android:imeOptions="actionDone|flagNoExtractUi|flagNoFullscreen"
-                        android:textColorHint="#FF4F5774" android:layout_width="0dp"
+                        android:textColorHint="#5F6A92" android:layout_width="0dp"
                         android:paddingLeft="3dp" android:paddingRight="3dp" android:paddingBottom="2dp" android:paddingTop="2dp"
                         android:singleLine="true" android:layout_height="match_parent"/>
                     <com.csdk.ui.view.SquareImageView android:id="@+id/csdk_homeChannelFriend_searchIV"
@@ -67,7 +66,7 @@
                     android:visibility="@{vm.user==null?View.GONE:View.VISIBLE}"
                     android:layout_width="match_parent" android:layout_height="match_parent">
                     <androidx.recyclerview.widget.RecyclerView
-                        android:adapter="@{vm.userAdapter}" android:layout_width="match_parent" android:layout_height="match_parent"/>
+                        android:adapter="@{vm.messageListAdapter}" android:layout_width="match_parent" android:layout_height="match_parent"/>
                 </com.csdk.ui.view.SwipeRefreshLayout>
             </FrameLayout>
         </LinearLayout>

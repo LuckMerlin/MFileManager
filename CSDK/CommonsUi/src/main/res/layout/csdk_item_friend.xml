@@ -12,22 +12,14 @@
         <import type="com.csdk.ui.R"/>
         <import type="android.view.View"/>
     </data>
-    <FrameLayout android:id="@+id/csdk_itemFriend_rootFL" android:selected="@{selected}"
-        binding:clickEnable="@{Click.click(Click.CLICK).tag(user)}"
-        android:background="@drawable/csdk_selector_friend_item_select" android:layout_marginBottom="5dp"
-        android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_marginBottom="2dp"
-            android:layout_marginTop="2dp"
-            android:gravity="center_vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="horizontal" android:id="@+id/csdk_itemFriend_rootLL"
+            android:selected="@{selected}" binding:clickEnable="@{Click.click(Click.CLICK).tag(user)}"
+            android:background="@drawable/csdk_selector_item_friend" android:gravity="center_vertical"
+            android:layout_width="match_parent" android:layout_height="match_parent">
             <include binding:avatarUrl="@{user.avatarUrl}" binding:userUid="@{user.id}"
                 binding:disabled="@{disabled}" binding:userLevel="@{user.userLevel}"
                 binding:userFemale="@{user.female}" layout="@layout/csdk_user_logo"/>
-
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_marginLeft="5dp"
@@ -62,5 +54,6 @@
                     android:layout_height="wrap_content"/>
             </LinearLayout>
         </LinearLayout>
-        </FrameLayout>
+        <View android:background="#33ffffff" android:layout_width="match_parent" android:layout_height="1dp"/>
+        </LinearLayout>
 </layout>

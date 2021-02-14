@@ -282,7 +282,7 @@ public class IMSocket extends Socket {
             sendMessage(authRequest, null, (boolean succeed, String note, Frame replyFrame)-> {
                 Reply reply = null != replyFrame ? replyFrame.getBodyReply() : null;
                 Object replyObj = null != reply ? reply.getSucceedData() : null;
-                Logger.M("Finish auth im sever."+replyObj,"Finish auth im sever."+replyObj);
+                Logger.M("Finish auth im sever."+replyObj,"Finish auth im sever."+(null!=reply?reply.getCode():-1));
                 AuthenticationRequest currentLogining=mLogining;
                 boolean isLastSession=null!=currentLogining&&null!=authRequest&&currentLogining==authRequest;
                 if (isLastSession){

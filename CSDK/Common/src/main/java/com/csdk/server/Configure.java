@@ -135,6 +135,12 @@ public final class Configure {
         }
 
         @Override
+        public CharSequence getMenuIcon(String menuType) {
+            Config config=mServerConfigure;
+            return null!=config?config.getMenuIcon(menuType):null;
+        }
+
+        @Override
         public boolean isGroupVoice2TextEnabled(String type) {
             Config config=mServerConfigure;
             return null!=config&&config.isGroupVoice2TextEnabled(type);
