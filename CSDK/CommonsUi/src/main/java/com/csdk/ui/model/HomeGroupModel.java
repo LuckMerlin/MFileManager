@@ -7,6 +7,7 @@ import androidx.databinding.ObservableField;
 
 import com.csdk.api.bean.Group;
 import com.csdk.api.bean.Menu;
+import com.csdk.api.bean.Session;
 import com.csdk.api.common.Api;
 import com.csdk.api.config.Config;
 import com.csdk.api.core.OnEventChange;

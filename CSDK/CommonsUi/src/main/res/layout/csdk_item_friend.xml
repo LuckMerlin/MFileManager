@@ -16,42 +16,24 @@
         <LinearLayout android:orientation="horizontal" android:id="@+id/csdk_itemFriend_rootLL"
             android:selected="@{selected}" binding:clickEnable="@{Click.click(Click.CLICK).tag(user)}"
             android:background="@drawable/csdk_selector_item_friend" android:gravity="center_vertical"
-            android:layout_width="match_parent" android:layout_height="match_parent">
+            android:layout_width="match_parent" android:layout_height="55dp">
             <include binding:avatarUrl="@{user.avatarUrl}" binding:userUid="@{user.id}"
                 binding:disabled="@{disabled}" binding:userLevel="@{user.userLevel}"
                 binding:userFemale="@{user.female}" layout="@layout/csdk_user_logo"/>
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_marginLeft="5dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                    <ImageView
-                        android:src="@{user.female?@drawable/csdk_gender_female:@drawable/csdk_gender_man}"
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"/>
-                    <TextView
-                        android:text="@{user.roleName??``}"
-                        android:singleLine="true"
-                        android:textColor="@color/csdk_title"
-                        android:textSize="8sp"
-                        android:maxEms="10"
-                        android:layout_marginLeft="3dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+            <LinearLayout android:orientation="vertical" android:layout_marginLeft="5dp"
+                android:layout_width="wrap_content" android:layout_height="wrap_content">
+                <LinearLayout android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <ImageView android:src="@{user.female?@drawable/csdk_gender_female:@drawable/csdk_gender_man}"
+                        android:layout_width="12dp" android:layout_height="12dp"/>
+                    <TextView android:text="@{user.roleName??``}" android:singleLine="true"
+                        android:textColor="@color/csdk_title" android:textSize="8sp"
+                        android:maxEms="10" android:layout_marginLeft="3dp"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
-                <TextView
-                    android:text="@{roleStatus.title??``}"
-                    android:textColor="@{roleStatus.color}"
-                    android:layout_marginTop="3dp"
-                    android:textSize="9sp"
-                    android:singleLine="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <TextView android:text="@{roleStatus.title??``}" android:textColor="@{roleStatus.color}"
+                    android:layout_marginTop="3dp" android:textSize="9sp" android:singleLine="true"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </LinearLayout>
         </LinearLayout>
         <View android:background="#33ffffff" android:layout_width="match_parent" android:layout_height="1dp"/>

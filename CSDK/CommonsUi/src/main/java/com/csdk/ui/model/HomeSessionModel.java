@@ -17,7 +17,7 @@ import com.csdk.ui.adapter.MessageListAdapter;
  * Date 15:08 2021/2/2
  * TODO
  */
-public abstract class HomeSessionModel<T extends Session> extends Model implements OnEventChange {
+public abstract class HomeSessionModel<T extends Session> extends Model implements OnEventChange, HomeContentSessionModel{
     private final ObservableField<T> mSession=new ObservableField<>();
     private final MessageListAdapter mMessageListAdapter=new MessageListAdapter();
 
@@ -34,6 +34,11 @@ public abstract class HomeSessionModel<T extends Session> extends Model implemen
             //Load
         }
         return true;
+    }
+
+    @Override
+    public final Session getHomeContentSession() {
+        return getSessionObject();
     }
 
     @Override

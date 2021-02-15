@@ -35,6 +35,7 @@
                 <EditText
                     android:id="@+id/csdk_homeModelInput_emojiLITV"
                     android:alpha="@{vm.inputEnable?1f:0.5f}"
+                    android:inputType="none"
                     android:enabled="@{vm.inputEnable}"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"

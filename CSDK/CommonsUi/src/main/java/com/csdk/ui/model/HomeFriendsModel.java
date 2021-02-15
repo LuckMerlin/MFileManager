@@ -6,6 +6,7 @@ import android.view.View;
 import androidx.databinding.ObservableField;
 
 import com.csdk.api.bean.Menu;
+import com.csdk.api.bean.Session;
 import com.csdk.api.bean.User;
 import com.csdk.api.common.Api;
 import com.csdk.api.ui.Dialog;
@@ -21,7 +22,7 @@ import java.util.List;
  * Date 13:18 2021/2/2
  * TODO
  */
-public class HomeFriendsModel extends SingleSessionModel implements OnViewClick,HomeContentModel{
+public class HomeFriendsModel extends SingleSessionModel implements OnViewClick, HomeContentModel,HomeContentSessionModel{
     private final ObservableField<Integer> mSelectFriendTab=new ObservableField<>(R.id.csdk_homeChannelFriend_listTV);
     private final ObservableField<Integer> mFriendsSize=new ObservableField<>();
     private final ObservableField<Integer> mFriendOnLineSize=new ObservableField<>();
@@ -153,6 +154,11 @@ public class HomeFriendsModel extends SingleSessionModel implements OnViewClick,
 //            }
 //        }, debug, list);
         return false;
+    }
+
+    @Override
+    public final Session getHomeContentSession() {
+        return super.getSession();
     }
 
     public ObservableField<Integer> getFriendOnLineSize() {

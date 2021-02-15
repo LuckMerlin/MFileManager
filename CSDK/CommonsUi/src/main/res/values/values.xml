@@ -20,6 +20,7 @@
     <string name="csdk_chooseFriendToChat">选择好友去聊天</string>
     <string name="csdk_groupMember">频道成员</string>
     <string name="csdk_have_a_chat">聊聊呗~</string>
+    <string name="csdk_contentEmpty">内容为空</string>
     <string name="csdk_recentList">最近</string>
     <string name="csdk_send">发送~</string>
     <string name="csdk_friend">好友</string>

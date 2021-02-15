@@ -234,26 +234,15 @@ public class CommonHomeModel extends Model implements OnViewClick {
 
     private Session updateCurrentSession(String debug){
         final ViewGroup contentRoot=getHomeContentRoot();
-        final int contentChildCount=null!=contentRoot?contentRoot.getChildCount():null;
-        View currentView=contentChildCount>0?contentRoot.getChildAt(contentChildCount-1):null;
-        ViewDataBinding binding=null!=currentView?DataBindingUtil.getBinding(currentView):null;
-        Class cls=null!=binding?binding.getClass():null;
-        Field[] fields=null!=cls?cls.getSuperclass().getDeclaredFields():null;
+        final int contentChildCount=null!=contentRoot?contentRoot.getChildCount():-1;
+        View view=null;
+        com.csdk.ui.DataBindingUtil dataBindingUtil=new com.csdk.ui.DataBindingUtil();
+        Model model=null;
         Session session=null;
-        if (null!=fields&&fields.length>0){
-            for (Field child:fields) {
-                if (null!=child){
-                    try {
-                        child.setAccessible(true);
-                        Object object=child.get(binding);
-                        if (null!=object&&object instanceof HomeSessionModel){
-                            session= ((HomeSessionModel)object).getSessionObject();
-                            break;
-                        }
-                    }catch (Exception e){
-                        //Do nothing
-                    }
-                }
+        for (int i = 0; i < contentChildCount; i++) {
+            if (null!=(view=contentRoot.getChildAt(i))&&null!=(model=dataBindingUtil.
+                    findFirstModel(view)) &&model instanceof HomeContentSessionModel){
+                session= ((HomeContentSessionModel)model).getHomeContentSession();
             }
         }
         mCurrentSession.set(session);
@@ -271,7 +260,8 @@ public class CommonHomeModel extends Model implements OnViewClick {
             Debug.W("Can't start chat while current content model not friends model  "+(null!=debug?debug:"."));
             return false;
         }
-        return ((HomeFriendsModel)model).startChat(user,debug);
+        return ((HomeFriendsModel)model).startChat(user,debug)&&
+                (null!=updateCurrentSession("After start chat with user succeed.")||true);
     }
 
     @Override
