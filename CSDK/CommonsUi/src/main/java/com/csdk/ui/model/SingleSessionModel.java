@@ -1,4 +1,6 @@
 package com.csdk.ui.model;
+import androidx.databinding.ObservableField;
+
 import com.csdk.api.bean.User;
 import com.csdk.api.common.Api;
 import com.csdk.api.ui.Model;
@@ -11,13 +13,24 @@ import com.csdk.ui.adapter.MessageListAdapter;
  */
 public abstract class SingleSessionModel extends Model {
     private final MessageListAdapter mMessageListAdapter=new MessageListAdapter();
+    private final ObservableField<User> mUser=new ObservableField<>();
 
     public SingleSessionModel(Api api) {
         super(api);
     }
 
-    protected final User getSession(){
-        return null;
+
+    public final boolean setSingleSession(User user,String debug){
+        mUser.set(user);
+        return true;
+    }
+
+    protected final User getCurrentSession(){
+        return mUser.get();
+    }
+
+    public final ObservableField<User> getSession() {
+        return mUser;
     }
 
     public final MessageListAdapter getMessageListAdapter() {

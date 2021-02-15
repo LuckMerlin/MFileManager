@@ -27,7 +27,6 @@ public class HomeFriendsModel extends SingleSessionModel implements OnViewClick,
     private final ObservableField<Integer> mFriendsSize=new ObservableField<>();
     private final ObservableField<Integer> mFriendOnLineSize=new ObservableField<>();
     private final ObservableField<String> mSearchInput=new ObservableField<>();
-    private final ObservableField<User> mUser=new ObservableField<>();
     private final UserListAdapter mFriendsListAdapter=new FriendUserListAdapter();
     private final UserListAdapter mRecentListAdapter=new FriendUserListAdapter();
     private final UserListAdapter mSearchAdapter=new FriendUserListAdapter();
@@ -54,7 +53,7 @@ public class HomeFriendsModel extends SingleSessionModel implements OnViewClick,
     }
 
     public final boolean startChat(User user,String debug){
-        mUser.set(user);
+        super.setSingleSession(user,debug);
         mFriendsListAdapter.setSelect(user);
         mRecentListAdapter.setSelect(user);
         mSearchAdapter.setSelect(user);
@@ -109,7 +108,7 @@ public class HomeFriendsModel extends SingleSessionModel implements OnViewClick,
             }
             if (null!=searchAdapter){
                 searchAdapter.set(searchList,true);
-                searchAdapter.setSelect(getSession());
+                searchAdapter.setSelect(getCurrentSession());
             }
             mUserAdapter.set(searchAdapter);
             if (null==searchList||searchList.size()<=0){
@@ -158,7 +157,7 @@ public class HomeFriendsModel extends SingleSessionModel implements OnViewClick,
 
     @Override
     public final Session getHomeContentSession() {
-        return super.getSession();
+        return super.getCurrentSession();
     }
 
     public ObservableField<Integer> getFriendOnLineSize() {
@@ -175,10 +174,6 @@ public class HomeFriendsModel extends SingleSessionModel implements OnViewClick,
 
     public ObservableField<String> getSearchInput() {
         return mSearchInput;
-    }
-
-    public ObservableField<User> getUser() {
-        return mUser;
     }
 
     public ObservableField<UserListAdapter> getUserAdapter() {
