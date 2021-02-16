@@ -25,6 +25,7 @@ public final class Click {
     public final static int NONE=0;
     public final static int CLICK=1;
     public final static int LONG_CLICK=2;
+    private boolean mDisableClickAnim=false;
     private final int mClick;
     private final ClickListener mListener;
     private Object mTag;
@@ -40,6 +41,11 @@ public final class Click {
 
     public Click tag(Object tag){
         mTag=tag;
+        return this;
+    }
+
+    public Click clickAnimDisable(boolean disableClickAnim){
+        mDisableClickAnim=disableClickAnim;
         return this;
     }
 
@@ -92,7 +98,7 @@ public final class Click {
             final ClickListener listener=click.mListener;
             if ((clickValue&CLICK)>0){
                 view.setOnClickListener((v)->{
-                    if (null!=v){
+                    if (null!=v&&!click.mDisableClickAnim){
                         AlphaAnimation animation=new AlphaAnimation(0.5f,1);
                         animation.setDuration(200);
                         animation.setInterpolator(new AccelerateInterpolator());

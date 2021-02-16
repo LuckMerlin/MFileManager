@@ -257,7 +257,7 @@ public class HttpCaller extends CSDKCache {
                                 menuList.addAll(menus);
                             }
                             mChannels = menus;
-                            notifyEvent(Event.EVENT_CHANNEL_LIST_CHANGED, menuList);
+                            notifyEvent(Event.EVENT_MENU_LIST_CHANGED, menuList);
                         }
                         if (null!=callback){
                             callback.onChannelLoadFinish(succeed, null!=data?data.getCode():Code.CODE_FAIL,

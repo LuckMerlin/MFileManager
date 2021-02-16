@@ -83,7 +83,17 @@ public final class Dialog {
         if (null!=model) {
             View view=getRoot();
             if (null!=view&&view instanceof ViewGroup){
-                new ModelBinder().bind((ViewGroup)view, model, null);
+                new ModelBinder().bind((ViewGroup) view, model, new View.OnAttachStateChangeListener() {
+                    @Override
+                    public void onViewAttachedToWindow(View view) {
+
+                    }
+
+                    @Override
+                    public void onViewDetachedFromWindow(View view) {
+                        dismiss();
+                    }
+                },null);
             }
             Window window=getWindow();
             if (null!=window){
@@ -223,13 +233,4 @@ public final class Dialog {
         }
         return false;
     }
-
-//    public static boolean checkNavigationBarShow(Context context, Window window) {
-//        int systemUiVisility = ((Activity)context).getWindow().getDetectorView().getSystemUiVisilility();
-//        if(systemUiVisility & (View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-//                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION))==0) {
-//            return true;
-//        }
-//        return false;
-//    }
 }

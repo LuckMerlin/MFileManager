@@ -1,11 +1,13 @@
 package com.csdk.ui.view;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
 import com.csdk.api.core.Debug;
@@ -47,10 +49,11 @@ public class SoftInputDisableEditView extends EditText implements OnViewClick {
             Debug.W("Can't start input soft while context NULL "+(null!=debug?debug:"."));
             return false;
         }
-        Dialog dialog=new Dialog(context);
-        return dialog.setContentView(new SoftInputModel(null)).setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_MODE_CHANGED|WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE).
-                setGravity(Gravity.BOTTOM).setCanceledOnTouchOutside(true).setCancelable(true).setDimAmount(0).show();
+        final Dialog dialog=new Dialog(context);
+        return dialog.setContentView(new SoftInputModel(null),ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT).setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_MODE_CHANGED
+                |WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE).setGravity(Gravity.BOTTOM).
+                setCanceledOnTouchOutside(true).setCancelable(true).setDimAmount(0).show();
     }
 
     @Override

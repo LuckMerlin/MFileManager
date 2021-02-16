@@ -20,6 +20,7 @@ import com.csdk.api.common.Api;
 import com.csdk.api.config.Config;
 import com.csdk.api.core.Debug;
 import com.csdk.api.core.GroupType;
+import com.csdk.api.core.OnEventChange;
 import com.csdk.api.ui.Dialog;
 import com.csdk.api.ui.Model;
 import com.csdk.api.ui.ModelBinder;
@@ -37,7 +38,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommonHomeModel extends Model implements OnViewClick {
+public class CommonHomeModel extends Model implements OnViewClick, OnEventChange {
     private final ObservableField<Boolean> mShowOutline=new ObservableField<>(false);
     private final ObservableField<Boolean> mInputEmoji = new ObservableField<>(false);
     private final ObservableField<Menu> mShowingChannel = new ObservableField<>();
@@ -71,7 +72,16 @@ public class CommonHomeModel extends Model implements OnViewClick {
         showOutline(null!=outline&&outline,"While instance.");//Must reset set outline here
     }
 
-    private boolean showOutline(boolean show,String debug){
+    @Override
+    public void onEventChanged(int event, Object arg) {
+        switch (event){
+            case EVENT_MENU_LIST_CHANGED:
+                applyHomeMenus(getApi().getMenus(null,-1),"After channel list changed.");
+                break;
+        }
+    }
+
+    private boolean showOutline(boolean show, String debug){
         mShowOutline.set(show);
         enableTouchHocker(!show,debug);
         if (show){//Stop playing audio while

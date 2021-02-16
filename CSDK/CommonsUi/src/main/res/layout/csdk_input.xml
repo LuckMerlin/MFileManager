@@ -9,21 +9,19 @@
         <import type="com.csdk.ui.binding.Click"/>
         <import type="android.view.View"/>
     </data>
-    <com.csdk.ui.view.InputRootLayout
-        android:clickable="true" android:enabled="@{inputEnable}" android:gravity="center_vertical"
+    <com.csdk.ui.view.InputRootLayout android:clickable="true" android:enabled="@{inputEnable}" android:gravity="center_vertical"
         android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
 
         <ImageView android:alpha="@{inputEnable?1f:0.5f}" android:id="@+id/csdk_homeModel_voiceTextIV"
             android:src="@drawable/csdk_home_chat_voice_text_input_icon" style="@style/csdk_homeInputIcon"/>
 
-        <RelativeLayout android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content">
-            <com.csdk.ui.view.SoftInputDisableEditView android:id="@+id/csdk_homeModelInput_inputLITV"
-                binding:clickEnable="@{inputClickSoftInput?Click.click(Click.CLICK):null}" android:alpha="@{inputEnable?1f:0.5f}"
-                android:enabled="@{inputEnable}" android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
-                style="@style/csdk_homeInputBackground" android:focusedByDefault="true"
-                android:hint="@string/csdk_have_a_chat" android:focusable="true" android:focusableInTouchMode="true"
-                android:gravity="left" android:imeOptions="actionDone|flagNoExtractUi"/>
-        </RelativeLayout>
+        <com.csdk.ui.view.SoftInputDisableEditView android:id="@+id/csdk_homeModelInput_inputLITV"
+            android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            binding:clickEnable="@{inputClickSoftInput?Click.click(Click.CLICK):null}" android:alpha="@{inputEnable?1f:0.5f}"
+            android:enabled="@{inputEnable}" android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
+            style="@style/csdk_homeInputBackground" android:focusedByDefault="true"
+            android:hint="@string/csdk_have_a_chat" android:focusable="true" android:focusableInTouchMode="true"
+            android:gravity="left" android:imeOptions="flagNoExtractUi"/>
 
         <ImageView android:id="@+id/csdk_homeModel_longClickToSendVoiceIV" android:src="@drawable/csdk_input_voice_record"
             android:visibility="@{voiceMessageSendEnable?View.VISIBLE:View.GONE}"

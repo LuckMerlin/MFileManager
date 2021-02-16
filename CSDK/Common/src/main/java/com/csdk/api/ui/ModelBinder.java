@@ -25,7 +25,11 @@ import java.util.List;
  */
  public final class ModelBinder {
 
-    public View bind(final ViewGroup vg, final Model model, final String debug){
+    public View bind(final ViewGroup vg, final Model model,final String debug){
+        return bind(vg,model,null,debug);
+    }
+
+    public View bind(final ViewGroup vg, final Model model,View.OnAttachStateChangeListener callback, final String debug){
         if(null==vg||null==model){
             return null;
         }
@@ -78,12 +82,18 @@ import java.util.List;
                     @Override
                     public void onViewAttachedToWindow(View v) {
                         model.attachRoot(finalView, "After window attached.");
+                        if (null!=callback){
+                            callback.onViewAttachedToWindow(v);
+                        }
                     }
 
                     @Override
                     public void onViewDetachedFromWindow(View v) {
                         finalView.removeOnAttachStateChangeListener(this);
                         model.detachedRoot( "After window detached.");
+                        if (null!=callback){
+                            callback.onViewDetachedFromWindow(v);
+                        }
                     }
                 });
                 vg.addView(finalView, new ViewGroup.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
