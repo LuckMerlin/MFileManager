@@ -4,6 +4,7 @@
     <data>
         <variable name="vm" type="com.csdk.ui.model.SoftInputModel" />
         <import type="com.csdk.ui.binding.Click"/>
+        <import type="android.view.View"/>
     </data>
     <FrameLayout android:id="@+id/csdk_softInput_inputRootFL"
         binding:clickEnable="@{Click.click(Click.CLICK,vm).clickAnimDisable(true)}"
@@ -12,9 +13,10 @@
             android:background="@drawable/csdk_home_input_bg" android:layout_gravity="bottom"
             android:paddingTop="3dp" android:paddingBottom="3dp" android:paddingLeft="10dp" android:paddingRight="10dp">
 
-            <include binding:inputEnable="@{vm.inputEnable}" binding:inputEmojiEnable="@{vm.inputEmoji}"
-                binding:inputClickSoftInput="@{false}" binding:voiceMessageSendEnable="@{vm.voiceMessageSendEnable}"
-                layout="@layout/csdk_input"/>
+            <include binding:inputEnable="@{true}" binding:inputClickSoftInput="@{false}" layout="@layout/csdk_input"
+                binding:emojiInputVisibility="@{vm.inputEmoji?View.VISIBLE:View.GONE}"
+                binding:voiceTextInputVisibility="@{vm.voice2TextInputEnable?View.VISIBLE:View.INVISIBLE}"
+                binding:voiceMessageInputVisibility="@{vm.voiceMessageSendEnable?View.VISIBLE:View.GONE}" />
 
         </FrameLayout>
     </FrameLayout>

@@ -23,7 +23,7 @@
     <style name="csdk_homeInputStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">#FF6A7CA0</item>
+        <item name="android:textColor">#fff</item>
         <item name="android:textSize">10sp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:gravity">left</item>

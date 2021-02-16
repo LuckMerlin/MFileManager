@@ -20,9 +20,9 @@ import com.csdk.api.ui.OnViewClick;
 import com.csdk.ui.R;
 
 public class SoftInputModel extends Model implements OnViewClick {
-    private final ObservableField<Boolean> mInputEnable=new ObservableField<>(true);
-    private final ObservableField<Boolean> mInputEmoji=new ObservableField<>(true);
-    private final ObservableField<Boolean> mVoiceMessageSendEnable=new ObservableField<>(true);
+    private final ObservableField<Boolean> mInputEmoji=new ObservableField<>(false);
+    private final ObservableField<Boolean> voice2TextInputEnable=new ObservableField<>(false);
+    private final ObservableField<Boolean> mVoiceMessageSendEnable=new ObservableField<>(false);
 
     public SoftInputModel(Api api) {
         super(api);
@@ -100,8 +100,8 @@ public class SoftInputModel extends Model implements OnViewClick {
         return R.layout.csdk_softinput;
     }
 
-    public ObservableField<Boolean> getInputEnable() {
-        return mInputEnable;
+    public ObservableField<Boolean> getVoice2TextInputEnable() {
+        return voice2TextInputEnable;
     }
 
     public ObservableField<Boolean> getInputEmoji() {

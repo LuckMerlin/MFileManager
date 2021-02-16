@@ -3,9 +3,10 @@
     xmlns:binding="http://schemas.android.com/apk/res-auto">
     <data>
         <variable name="inputEnable" type="boolean" />
-        <variable name="inputEmojiEnable" type="boolean" />
         <variable name="inputClickSoftInput" type="boolean" />
-        <variable name="voiceMessageSendEnable" type="boolean" />
+        <variable name="voiceTextInputVisibility" type="int" />
+        <variable name="voiceMessageInputVisibility" type="int" />
+        <variable name="emojiInputVisibility" type="int" />
         <import type="com.csdk.ui.binding.Click"/>
         <import type="android.view.View"/>
     </data>
@@ -13,23 +14,23 @@
         android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
 
         <ImageView android:alpha="@{inputEnable?1f:0.5f}" android:id="@+id/csdk_homeModel_voiceTextIV"
-            android:src="@drawable/csdk_home_chat_voice_text_input_icon" style="@style/csdk_homeInputIcon"/>
+            android:visibility="@{voiceTextInputVisibility}" android:src="@drawable/csdk_home_chat_voice_text_input_icon" style="@style/csdk_homeInputIcon"/>
 
         <com.csdk.ui.view.SoftInputDisableEditView android:id="@+id/csdk_homeModelInput_inputLITV"
             android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content"
             binding:clickEnable="@{inputClickSoftInput?Click.click(Click.CLICK):null}" android:alpha="@{inputEnable?1f:0.5f}"
             android:enabled="@{inputEnable}" android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
-            style="@style/csdk_homeInputBackground" android:focusedByDefault="true"
+            style="@style/csdk_homeInputBackground" android:focusedByDefault="true" android:textColorHint="#6A7CA0"
             android:hint="@string/csdk_have_a_chat" android:focusable="true" android:focusableInTouchMode="true"
             android:gravity="left" android:imeOptions="flagNoExtractUi"/>
 
         <ImageView android:id="@+id/csdk_homeModel_longClickToSendVoiceIV" android:src="@drawable/csdk_input_voice_record"
-            android:visibility="@{voiceMessageSendEnable?View.VISIBLE:View.GONE}"
-            android:alpha="@{inputEnable?1f:0.5f}" android:layout_marginLeft="5dp" style="@style/csdk_homeInputIcon"/>
-
-        <ImageView android:id="@+id/csdk_homeModel_inputEmojiIV" android:visibility="@{inputEmojiEnable?View.GONE:View.VISIBLE}"
-            android:alpha="@{inputEnable?1f:0.5f}" android:src="@drawable/csdk_input_emoji_input"
+            android:visibility="@{voiceMessageInputVisibility}" android:alpha="@{inputEnable?1f:0.5f}"
             android:layout_marginLeft="5dp" style="@style/csdk_homeInputIcon"/>
+
+        <ImageView android:id="@+id/csdk_homeModel_inputEmojiIV" android:alpha="@{inputEnable?1f:0.5f}"
+            android:visibility="@{emojiInputVisibility}"
+            android:src="@drawable/csdk_input_emoji_input" android:layout_marginLeft="5dp" style="@style/csdk_homeInputIcon"/>
 
         <TextView android:id="@+id/csdk_homeModel_inputSendTV" style="@style/csdk_homeInputSendText"
             android:layout_marginTop="2dp" android:alpha="@{inputEnable?1f:0.5f}" android:layout_marginBottom="2dp"

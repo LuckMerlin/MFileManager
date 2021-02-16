@@ -40,9 +40,10 @@ import java.util.List;
 
 public class CommonHomeModel extends Model implements OnViewClick, OnEventChange {
     private final ObservableField<Boolean> mShowOutline=new ObservableField<>(false);
-    private final ObservableField<Boolean> mInputEmoji = new ObservableField<>(false);
-    private final ObservableField<Menu> mShowingChannel = new ObservableField<>();
+    private final ObservableField<Boolean> mInputEmoji = new ObservableField<>(true);
+    private final ObservableField<Boolean> mVoice2TextInputEnable = new ObservableField<>(true);
     private final ObservableField<Boolean> mVoiceMessageSendEnable=new ObservableField<>(true);
+    private final ObservableField<Menu> mShowingChannel = new ObservableField<>();
     private final ObservableField<Boolean> mInputEnable=new ObservableField<>(false);
     private final ObservableField<Menu> mSelectMenu=new ObservableField<>();
     private final ObservableField<Session> mCurrentSession=new ObservableField<>();
@@ -321,6 +322,10 @@ public class CommonHomeModel extends Model implements OnViewClick, OnEventChange
 
     public ObservableField<Session> getCurrentSession() {
         return mCurrentSession;
+    }
+
+    public ObservableField<Boolean> getVoice2TextInputEnable() {
+        return mVoice2TextInputEnable;
     }
 
     private Model getContentModel(){
