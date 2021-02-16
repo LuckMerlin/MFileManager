@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="vm" type="com.csdk.ui.model.SoftInputModel" />
+    </data>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:background="@drawable/csdk_home_input_bg" android:paddingBottom="3dp"
+        android:paddingTop="3dp" android:paddingLeft="10dp" android:paddingRight="10dp">
+
+        <include binding:inputEnable="@{vm.inputEnable}" binding:inputEmojiEnable="@{vm.inputEmoji}"
+            binding:inputClickSoftInput="@{false}" binding:voiceMessageSendEnable="@{vm.voiceMessageSendEnable}"
+            layout="@layout/csdk_input"/>
+
+    </FrameLayout>
+</layout>

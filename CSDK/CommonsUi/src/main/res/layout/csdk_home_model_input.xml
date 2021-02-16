@@ -2,86 +2,23 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:binding="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable
-            name="vm"
-            type="com.csdk.ui.model.CommonHomeModel" />
+        <variable name="vm" type="com.csdk.ui.model.CommonHomeModel" />
         <import type="android.view.View"/>
         <import type="com.csdk.api.core.GroupType"/>
+        <import type="com.csdk.ui.binding.Click"/>
     </data>
 
-    <FrameLayout
-        android:background="@drawable/csdk_home_input_bg"
-        android:paddingBottom="3dp"
-        android:paddingTop="3dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.csdk.ui.view.InputRootLayout
-            android:visibility="@{!vm.showingChannel.menuKey.equals(GroupType.GROUP_TYPE_SYSTEM)?View.VISIBLE:View.INVISIBLE}"
-            android:tag="disableRegisterClick"
-            android:clickable="true"
-            android:enabled="@{vm.inputEnable}"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <FrameLayout android:background="@drawable/csdk_home_input_bg" android:paddingBottom="3dp"
+        android:paddingTop="3dp" android:paddingLeft="10dp" android:paddingRight="10dp"
+        android:layout_width="match_parent" android:layout_height="wrap_content">
 
-            <ImageView android:alpha="@{vm.inputEnable?1f:0.5f}" android:id="@+id/csdk_homeModel_voiceTextIV"
-                android:src="@drawable/csdk_home_chat_voice_text_input_icon" style="@style/csdk_homeInputIcon"/>
+        <include  android:visibility="@{!vm.showingChannel.menuKey.equals(GroupType.GROUP_TYPE_SYSTEM)?View.VISIBLE:View.INVISIBLE}"
+            binding:inputEnable="@{vm.inputEnable}" binding:inputEmojiEnable="@{vm.inputEmoji}"
+            binding:inputClickSoftInput="@{true}" binding:voiceMessageSendEnable="@{vm.voiceMessageSendEnable}" layout="@layout/csdk_input"/>
 
-            <RelativeLayout android:layout_weight="1" android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <EditText
-                    android:id="@+id/csdk_homeModelInput_emojiLITV"
-                    android:alpha="@{vm.inputEnable?1f:0.5f}"
-                    android:inputType="none"
-                    android:enabled="@{vm.inputEnable}"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    style="@style/csdk_homeInputBackground"
-                    android:hint="@string/csdk_have_a_chat"
-                    android:focusedByDefault="true"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true"
-                    android:gravity="left"
-                    android:imeOptions="actionDone|flagNoExtractUi|flagNoFullscreen"/>
-            </RelativeLayout>
-
-            <ImageView
-                android:id="@+id/csdk_homeModel_longClickToSendVoiceIV"
-                android:src="@drawable/csdk_input_voice_record"
-                android:visibility="@{vm.voiceMessageSendEnable?View.VISIBLE:View.GONE}"
-                android:alpha="@{vm.inputEnable?1f:0.5f}"
-                android:layout_marginLeft="5dp"
-                style="@style/csdk_homeInputIcon"/>
-
-            <ImageView
-                android:id="@+id/csdk_homeModel_inputEmojiIV"
-                android:visibility="@{vm.inputEmoji?View.GONE:View.VISIBLE}"
-                android:alpha="@{vm.inputEnable?1f:0.5f}"
-                android:src="@drawable/csdk_input_emoji_input"
-                android:layout_marginLeft="5dp"
-                style="@style/csdk_homeInputIcon"/>
-
-            <TextView
-                android:id="@+id/csdk_homeModel_inputSendTV"
-                style="@style/csdk_homeInputSendText"
-                android:layout_marginTop="2dp"
-                android:alpha="@{vm.inputEnable?1f:0.5f}"
-                android:layout_marginBottom="2dp"
-                android:layout_marginLeft="20dp"
-                android:text="@string/csdk_send"/>
-
-        </com.csdk.ui.view.InputRootLayout>
-        <TextView
-            android:text="@string/csdk_inputDisableInMenu"
-            android:textSize="12sp"
-            android:textColor="#f00"
-            android:layout_gravity="center"
+        <TextView android:text="@string/csdk_inputDisableInMenu" android:textSize="12sp" android:textColor="#f00" android:layout_gravity="center"
             android:visibility="@{vm.showingChannel.menuKey.equals(GroupType.GROUP_TYPE_SYSTEM)?View.VISIBLE:View.INVISIBLE}"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
     </FrameLayout>
 
 </layout>

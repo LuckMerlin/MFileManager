@@ -1,10 +1,13 @@
 package com.csdk.ui.model;
 
 import android.content.Context;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ViewDataBinding;
@@ -17,6 +20,7 @@ import com.csdk.api.common.Api;
 import com.csdk.api.config.Config;
 import com.csdk.api.core.Debug;
 import com.csdk.api.core.GroupType;
+import com.csdk.api.ui.Dialog;
 import com.csdk.api.ui.Model;
 import com.csdk.api.ui.ModelBinder;
 import com.csdk.api.ui.OnViewClick;
