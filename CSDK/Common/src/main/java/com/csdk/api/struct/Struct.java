@@ -1,32 +1,59 @@
 package com.csdk.api.struct;
 
 import android.graphics.Color;
-
-import androidx.core.graphics.ColorUtils;
-
-import com.csdk.api.core.Debug;
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.csdk.api.core.Label;
-import com.csdk.server.data.Json;
-import com.csdk.server.data.JsonObject;
+import com.csdk.api.data.Json;
 
-import java.util.Base64;
-
-/**
- * Create LuckMerlin
- * Date 10:25 2021/1/25
- * TODO
- */
-public abstract class Struct implements JsonObject {
+public final class Struct implements Parcelable {
     public static final String TYPE_TEXT="text";
     public static final String TYPE_AT="at";
     public static final String TYPE_LINK_TEXT="linkText";
     public static final String TYPE_LINK="link";
     private final static String PROTOCOL="herotalk://";
     private final static String SEP="/";
+    private final CharSequence mTitle;
+    private final CharSequence mType;
+    private Json mData;
+
+    protected Struct(Parcel in) {
+        this(in.readString());
+    }
+
+    public Struct(String json) {
+        this(null!=json? Json.create(json):null);
+    }
+
+    public Struct(Json json) {
+        this(null!=json?json.optString(Label.LABEL_TYPE,null):null,
+                null!=json?json.optString(Label.LABEL_TITLE,null):null,
+                null!=json?Json.create(json.optString(Label.LABEL_DATA,null)):null);
+    }
+
+    public Struct(CharSequence type,CharSequence title){
+        this(type,title,null);
+    }
+
+    public Struct(CharSequence type,CharSequence title,Json data){
+        mTitle=title;mType=type;mData=data;
+    }
+
+    public static final Creator<Struct> CREATOR = new Creator<Struct>() {
+        @Override
+        public Struct createFromParcel(Parcel in) {
+            return new Struct(in);
+        }
+
+        @Override
+        public Struct[] newArray(int size) {
+            return new Struct[size];
+        }
+    };
 
     public final boolean isAnyType(String ...types){
         if (null!=types&&types.length>0){
-            String type=getType();
+            CharSequence type=getType();
             for (String child:types) {
                 if (null!=type&&null!=child&&type.equals(child)){
                     return true;
@@ -36,64 +63,67 @@ public abstract class Struct implements JsonObject {
         return false;
     }
 
-    public final String getStructUrl(){
-        String type=getType();
-        Object data=getData();
-        return PROTOCOL+(null!=type&&type.length()>0?type+SEP:"")+ (null!=data? Label.LABEL_DATA+"="+data:"");
+    public Struct setTitleColor(String colorHex){
+        Json data=mData;
+        data=null!=data?data:(mData=new Json());
+        if (null==colorHex||colorHex.length()<=0){
+            data.remove(Label.LABEL_COLOR);
+        }else{
+            data.putSafe(Label.LABEL_COLOR,colorHex);
+        }
+        return this;
     }
 
-    public final boolean isText(){
-        String type=getType();
-        return null!=type&&(type.equals(TYPE_TEXT)||type.equals(TYPE_LINK));
+    public Json getData() {
+        return mData;
     }
 
-    public abstract String getType();
-
-    public final String getDataUrl(){
-        Json json=getDataJson();
-        return null!=json?json.optString(Label.LABEL_URL,null):null;
+    public CharSequence getTitle() {
+        return mTitle;
     }
 
-    public final Integer getDataColor(){
-        Json json=getDataJson();
-        String colorText= null!=json?json.optString(Label.LABEL_COLOR,null):null;
+    public CharSequence getType() {
+        return mType;
+    }
+
+    public Integer getTitleColor(){
+        Json data=mData;
+        String colorText=data.optString(Label.LABEL_COLOR,null);
         try {
             colorText=null!=colorText&&!colorText.startsWith("#")?"#"+colorText:colorText;
             colorText=null!=colorText?colorText.trim().toLowerCase():null;
-            return null!=colorText&&colorText.length()>0&&colorText.startsWith("#")&&colorText.length()%2==1?Color.parseColor(colorText):null;
+            return null!=colorText&&colorText.length()>0&&colorText.startsWith("#")&&
+                    colorText.length()%2==1? Color.parseColor(colorText):null;
         }catch (Exception e){
             //Do nothing
         }
         return null;
     }
 
-    public abstract String getTitle() ;
-
-    public abstract Object getData() ;
-
-    public final String getAction(){
-        String protocol=PROTOCOL;
-        String type=getType();
-        return (null!=protocol?protocol:"")+""+(null!=type?type:"");
+    public String toJson(){
+        return null;
     }
 
-    public final Json getDataJson(){
-        Object data=getData();
-        String dataJson=null!=data?data.toString():null;
-        return null!=dataJson&&dataJson.length()>0?Json.create(dataJson):null;
-    }
-
-    public final String getAvatarUrl(){
-        Json json=getDataJson();
-        return null!=json?json.optString(Label.LABEL_AVATAR_URL, null):null;
+    public CharSequence toText(){
+        CharSequence type=mType;
+        if (null==type){
+            return null;
+        }else if (type.equals(TYPE_TEXT)){
+            return mTitle;
+        }else if(type.equals(TYPE_LINK_TEXT)){
+            final CharSequence title=mTitle;
+            return null!=title?"【"+title+"】":null;
+        }
+        return null;
     }
 
     @Override
-    public boolean apply(Object json) {
-        return false;
+    public int describeContents() {
+        return 0;
     }
 
-    public Object json(){
-        return new Json().putSafe(Label.LABEL_TYPE,getType()).putSafe(Label.LABEL_TITLE, getTitle()).putSafe(Label.LABEL_DATA, getData());
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(toJson());
     }
 }

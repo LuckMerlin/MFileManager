@@ -6,6 +6,7 @@
         <variable name="inputClickSoftInput" type="boolean" />
         <variable name="voiceTextInputVisibility" type="int" />
         <variable name="voiceMessageInputVisibility" type="int" />
+        <variable name="inputText" type="CharSequence" />
         <variable name="emojiInputVisibility" type="int" />
         <import type="com.csdk.ui.binding.Click"/>
         <import type="android.view.View"/>
@@ -17,7 +18,7 @@
             android:visibility="@{voiceTextInputVisibility}" android:src="@drawable/csdk_home_chat_voice_text_input_icon" style="@style/csdk_homeInputIcon"/>
 
         <com.csdk.ui.view.SoftInputDisableEditView android:id="@+id/csdk_homeModelInput_inputLITV"
-            android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@{inputText}"
             binding:clickEnable="@{inputClickSoftInput?Click.click(Click.CLICK):null}" android:alpha="@{inputEnable?1f:0.5f}"
             android:enabled="@{inputEnable}" android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
             style="@style/csdk_homeInputBackground" android:focusedByDefault="true" android:textColorHint="#6A7CA0"
@@ -28,8 +29,7 @@
             android:visibility="@{voiceMessageInputVisibility}" android:alpha="@{inputEnable?1f:0.5f}"
             android:layout_marginLeft="5dp" style="@style/csdk_homeInputIcon"/>
 
-        <ImageView android:id="@+id/csdk_homeModel_inputEmojiIV" android:alpha="@{inputEnable?1f:0.5f}"
-            android:visibility="@{emojiInputVisibility}"
+        <ImageView android:id="@+id/csdk_homeModel_inputEmojiIV" android:alpha="@{inputEnable?1f:0.5f}" android:visibility="@{emojiInputVisibility}"
             android:src="@drawable/csdk_input_emoji_input" android:layout_marginLeft="5dp" style="@style/csdk_homeInputIcon"/>
 
         <TextView android:id="@+id/csdk_homeModel_inputSendTV" style="@style/csdk_homeInputSendText"

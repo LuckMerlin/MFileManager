@@ -1,7 +1,7 @@
 package com.csdk.api.bean;
 
 import com.csdk.api.core.ContentType;
-import com.csdk.api.struct.StructArray;
+import com.csdk.api.struct.Struct;
 import com.csdk.debug.Logger;
 import com.csdk.server.MessageObject;
 import com.csdk.api.core.MessageType;
@@ -94,9 +94,18 @@ public final class Message implements MessageType, ContentType, Serializable, Me
         return null!=extra&&extra.length()>0?extra:mUserRoleName;
     }
 
-    public final StructArray getStruct(){
+    public final Struct getStruct(){
         String structJsonText=isContentType(ContentType.CONTENTTYPE_STRUCT)?content:null;
-        return null!=structJsonText&&structJsonText.length()>0?new StructArray(Json.createArray(structJsonText)):null;
+        JSONArray array=Json.createArray(structJsonText);
+        int length=null!=array?array.length():-1;
+        Object object=null;
+        for (int i = 0; i < length; i++) {
+            if (null!=(object=array.opt(i))&&object instanceof String){
+
+            }
+        }
+//        return null!=structJsonText&&structJsonText.length()>0?new Struct(Json.createArray(structJsonText)):null;
+        return null;
     }
 
     public void setFromUserRoleName(String userRoleName) {

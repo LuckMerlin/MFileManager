@@ -15,6 +15,7 @@ import androidx.databinding.ObservableField;
 
 import com.csdk.api.common.Api;
 import com.csdk.api.core.Debug;
+import com.csdk.api.struct.StructArrayList;
 import com.csdk.api.ui.Model;
 import com.csdk.api.ui.OnViewClick;
 import com.csdk.ui.R;
@@ -23,9 +24,11 @@ public class SoftInputModel extends Model implements OnViewClick {
     private final ObservableField<Boolean> mInputEmoji=new ObservableField<>(false);
     private final ObservableField<Boolean> voice2TextInputEnable=new ObservableField<>(false);
     private final ObservableField<Boolean> mVoiceMessageSendEnable=new ObservableField<>(false);
+    private final ObservableField<StructArrayList> mInputText=new ObservableField<>();
 
-    public SoftInputModel(Api api) {
+    public SoftInputModel(Api api,StructArrayList structs) {
         super(api);
+        mInputText.set(structs);
     }
 
     protected void onSoftInputHide(){
@@ -110,5 +113,9 @@ public class SoftInputModel extends Model implements OnViewClick {
 
     public ObservableField<Boolean> getVoiceMessageSendEnable() {
         return mVoiceMessageSendEnable;
+    }
+
+    public ObservableField<StructArrayList> getInputText() {
+        return mInputText;
     }
 }

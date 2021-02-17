@@ -1,8 +1,9 @@
 package com.csdk.ui.view;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.text.InputType;
+import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -43,6 +44,14 @@ public class SoftInputDisableEditView extends EditText implements OnViewClick {
         return false;
     }
 
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        super.setText(text, type);
+        if (null!=text&&text instanceof SpannableStringBuilder){
+            setMovementMethod(LinkMovementMethod.getInstance());
+        }
+    }
+
     private boolean startInputSoft(String debug){
         Context context=getContext();
         if (null==context){
@@ -50,8 +59,10 @@ public class SoftInputDisableEditView extends EditText implements OnViewClick {
             return false;
         }
         final Dialog dialog=new Dialog(context);
-        return dialog.setContentView(new SoftInputModel(null),ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT).setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_MODE_CHANGED
+        CharSequence charSequence=getText();
+        Debug.D("QQQQQQQQQQQq  "+(null!=charSequence?charSequence.getClass():null));
+        return dialog.setContentView(new SoftInputModel(null,null),ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT).setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
                 |WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE).setGravity(Gravity.BOTTOM).
                 setCanceledOnTouchOutside(true).setCancelable(true).setDimAmount(0).show();
     }

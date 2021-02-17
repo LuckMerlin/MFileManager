@@ -14,7 +14,7 @@
             android:paddingTop="3dp" android:paddingBottom="3dp" android:paddingLeft="10dp" android:paddingRight="10dp">
 
             <include binding:inputEnable="@{true}" binding:inputClickSoftInput="@{false}" layout="@layout/csdk_input"
-                binding:emojiInputVisibility="@{vm.inputEmoji?View.VISIBLE:View.GONE}"
+                binding:inputText="@{vm.inputText}" binding:emojiInputVisibility="@{vm.inputEmoji?View.VISIBLE:View.GONE}"
                 binding:voiceTextInputVisibility="@{vm.voice2TextInputEnable?View.VISIBLE:View.INVISIBLE}"
                 binding:voiceMessageInputVisibility="@{vm.voiceMessageSendEnable?View.VISIBLE:View.GONE}" />
 

@@ -1,6 +1,7 @@
 package com.csdk.ui.model;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -21,6 +22,8 @@ import com.csdk.api.config.Config;
 import com.csdk.api.core.Debug;
 import com.csdk.api.core.GroupType;
 import com.csdk.api.core.OnEventChange;
+import com.csdk.api.struct.Struct;
+import com.csdk.api.struct.StructArrayList;
 import com.csdk.api.ui.Dialog;
 import com.csdk.api.ui.Model;
 import com.csdk.api.ui.ModelBinder;
@@ -43,6 +46,7 @@ public class CommonHomeModel extends Model implements OnViewClick, OnEventChange
     private final ObservableField<Boolean> mInputEmoji = new ObservableField<>(true);
     private final ObservableField<Boolean> mVoice2TextInputEnable = new ObservableField<>(true);
     private final ObservableField<Boolean> mVoiceMessageSendEnable=new ObservableField<>(true);
+    private final ObservableField<StructArrayList> mInputText=new ObservableField<StructArrayList>();
     private final ObservableField<Menu> mShowingChannel = new ObservableField<>();
     private final ObservableField<Boolean> mInputEnable=new ObservableField<>(false);
     private final ObservableField<Menu> mSelectMenu=new ObservableField<>();
@@ -71,6 +75,14 @@ public class CommonHomeModel extends Model implements OnViewClick, OnEventChange
         applyHomeMenus(getMenus(null, -1), "While model root attached.");
         Boolean outline=mShowOutline.get();
         showOutline(null!=outline&&outline,"While instance.");//Must reset set outline here
+        //        mAdapter.add(new SystemMessage("系统", new StructArray().add(new SimpleStruct(Struct.TYPE_TEXT,"获得 ",null)).
+//                add(new SimpleStruct(Struct.TYPE_TEXT,"金币  ",new Json().putSafe(Label.LABEL_COLOR,"#FF4AE725"))).
+//                add(new SimpleStruct(Struct.TYPE_TEXT," x5",null)).getStructSpannableStringBuilder(null)));
+        StructArrayList structs=new StructArrayList();
+        structs.add(new Struct(Struct.TYPE_TEXT,"获得",null));
+        structs.add(new Struct(Struct.TYPE_TEXT,"金币 ",null));
+        structs.add(new Struct(Struct.TYPE_LINK_TEXT,"x5").setTitleColor("#ff0000"));
+        mInputText.set(structs);
     }
 
     @Override
@@ -326,6 +338,10 @@ public class CommonHomeModel extends Model implements OnViewClick, OnEventChange
 
     public ObservableField<Boolean> getVoice2TextInputEnable() {
         return mVoice2TextInputEnable;
+    }
+
+    public ObservableField<StructArrayList> getInputText() {
+        return mInputText;
     }
 
     private Model getContentModel(){

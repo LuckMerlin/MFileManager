@@ -7,6 +7,7 @@
         <import type="android.view.View"/>
         <import type="com.csdk.ui.ViewScalePadding"/>
         <import type="android.graphics.Color"/>
+        <import type="com.csdk.api.core.GroupType"/>
         <import type="com.csdk.ui.binding.Click"/>
     </data>
     <FrameLayout binding:viewScalePadding="@{ViewScalePadding.a(true)}" android:clickable="@{!vm.showOutline}"
@@ -31,7 +32,23 @@
                         <FrameLayout android:id="@+id/csdk_homeModel_contentFL" android:background="#99222541"
                             android:tag="disableRegisterClick" android:layout_width="match_parent" android:layout_height="match_parent"/>
                     </LinearLayout>
-                    <include android:id="@+id/csdk_homeModel_inputRoot" binding:vm="@{vm}" layout="@layout/csdk_home_model_input"/>
+
+                    <FrameLayout android:id="@+id/csdk_homeModel_inputRoot" android:background="@drawable/csdk_home_input_bg"
+                        android:paddingBottom="3dp" android:paddingTop="3dp" android:paddingLeft="10dp" android:paddingRight="10dp"
+                        android:layout_width="match_parent" android:layout_height="wrap_content">
+
+                        <include
+                            android:visibility="@{!vm.showingChannel.menuKey.equals(GroupType.GROUP_TYPE_SYSTEM)?View.VISIBLE:View.INVISIBLE}"
+                            binding:inputText="@{vm.inputText}" binding:emojiInputVisibility="@{vm.inputEmoji?View.VISIBLE:View.GONE}"
+                            binding:voiceTextInputVisibility="@{vm.voice2TextInputEnable?View.VISIBLE:View.GONE}"
+                            binding:voiceMessageInputVisibility="@{vm.voiceMessageSendEnable?View.VISIBLE:View.GONE}"
+                            binding:inputEnable="@{vm.inputEnable}" binding:inputClickSoftInput="@{true}" layout="@layout/csdk_input"/>
+
+                        <TextView android:text="@string/csdk_inputDisableInMenu" android:textSize="12sp"
+                            android:textColor="#f00" android:layout_gravity="center"
+                            android:visibility="@{vm.showingChannel.menuKey.equals(GroupType.GROUP_TYPE_SYSTEM)?View.VISIBLE:View.INVISIBLE}"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </FrameLayout>
                 </LinearLayout>
 
                 <FrameLayout android:paddingTop="40dp" android:paddingBottom="40dp" android:layout_gravity="center_vertical"
