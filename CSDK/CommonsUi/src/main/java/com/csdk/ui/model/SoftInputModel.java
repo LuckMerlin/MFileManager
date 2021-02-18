@@ -10,11 +10,8 @@ import android.view.ViewParent;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-
 import androidx.databinding.ObservableField;
-
 import com.csdk.api.common.Api;
-import com.csdk.api.core.Debug;
 import com.csdk.api.struct.StructArrayList;
 import com.csdk.api.ui.Model;
 import com.csdk.api.ui.OnViewClick;
@@ -51,8 +48,8 @@ public class SoftInputModel extends Model implements OnViewClick {
     @Override
     protected void onRootAttached(String debug) {
         super.onRootAttached(debug);
-        View inputET=findViewById(R.id.csdk_homeModelInput_inputLITV);
-        if (null!=inputET&&inputET instanceof EditText){
+        final EditText inputET=findInputEditText();
+        if (null!=inputET){
             inputET.setAlpha(0);
             post(()->{
                 Rect rect = new Rect();
@@ -117,5 +114,18 @@ public class SoftInputModel extends Model implements OnViewClick {
 
     public ObservableField<StructArrayList> getInputText() {
         return mInputText;
+    }
+
+    public StructArrayList getInputTextStruct() {
+        ObservableField<StructArrayList> input=mInputText;
+        EditText editText=findInputEditText();
+        StructArrayList structs= null!=input?input.get():null;
+        return null!=structs&&null!=editText?structs.setSelectStart(editText.getSelectionStart()).
+                setSelectEnd(editText.getSelectionEnd()):structs;
+    }
+
+    private EditText findInputEditText(){
+        View inputET=findViewById(R.id.csdk_homeModelInput_inputLITV);
+        return null!=inputET&&inputET instanceof EditText?(EditText)inputET:null;
     }
 }

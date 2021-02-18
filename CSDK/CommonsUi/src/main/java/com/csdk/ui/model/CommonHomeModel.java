@@ -48,7 +48,7 @@ public class CommonHomeModel extends Model implements OnViewClick, OnEventChange
     private final ObservableField<Boolean> mVoiceMessageSendEnable=new ObservableField<>(true);
     private final ObservableField<StructArrayList> mInputText=new ObservableField<StructArrayList>();
     private final ObservableField<Menu> mShowingChannel = new ObservableField<>();
-    private final ObservableField<Boolean> mInputEnable=new ObservableField<>(false);
+    private final ObservableField<Boolean> mInputEnable=new ObservableField<>(true);
     private final ObservableField<Menu> mSelectMenu=new ObservableField<>();
     private final ObservableField<Session> mCurrentSession=new ObservableField<>();
     private final ObservableField<Boolean> mRoomAudioEnable=new ObservableField<>(true);

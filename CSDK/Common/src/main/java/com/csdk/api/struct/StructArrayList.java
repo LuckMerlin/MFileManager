@@ -2,13 +2,14 @@ package com.csdk.api.struct;
 
 import android.graphics.Color;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import java.util.ArrayList;
 
 public final class StructArrayList extends ArrayList<Struct> implements CharSequence{
+    private int mSelectStart;
+    private int mSelectEnd;
 
     @Override
     public int length() {
@@ -22,19 +23,29 @@ public final class StructArrayList extends ArrayList<Struct> implements CharSequ
         return null!=charSequence&&i>=0&&i<charSequence.length()?charSequence.charAt(i):'0';
     }
 
+    public StructArrayList setSelectEnd(int selectEnd) {
+        this.mSelectEnd = selectEnd;
+        return this;
+    }
+
+    public StructArrayList setSelectStart(int selectStart) {
+        this.mSelectStart = selectStart;
+        return this;
+    }
+
     @Override
     public CharSequence subSequence(int i, int i1) {
-        CharSequence charSequence=toText();
+        StructSpannableStringBuilder charSequence=toText();
         int length=null!=charSequence?charSequence.length():-1;
         return length>0&&i>=0&&i1>i?charSequence.subSequence(i,Math.min(length,i1)):null;
     }
 
-    public CharSequence toText(){
+    public StructSpannableStringBuilder toText(){
         return toText(null);
     }
 
-    public CharSequence toText(OnStructClickListener callback){
-        SpannableStringBuilder textBuilder=new SpannableStringBuilder("");
+    public StructSpannableStringBuilder toText(OnStructClickListener callback){
+        StructSpannableStringBuilder textBuilder=new StructSpannableStringBuilder("",this);
         for (Struct struct:this) {
             if (null==struct){
                 continue;
@@ -67,6 +78,14 @@ public final class StructArrayList extends ArrayList<Struct> implements CharSequ
             }
         }
         return textBuilder;
+    }
+
+    public int getSelectEnd() {
+        return mSelectEnd;
+    }
+
+    public int getSelectStart() {
+        return mSelectStart;
     }
 
     @Override

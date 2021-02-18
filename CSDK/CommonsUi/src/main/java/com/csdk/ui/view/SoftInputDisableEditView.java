@@ -1,8 +1,8 @@
 package com.csdk.ui.view;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.text.InputType;
-import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
 import com.csdk.api.core.Debug;
+import com.csdk.api.struct.StructArrayList;
 import com.csdk.api.ui.Dialog;
 import com.csdk.api.ui.OnViewClick;
 import com.csdk.ui.R;
@@ -23,6 +24,7 @@ import com.csdk.ui.model.SoftInputModel;
  * TODO
  */
 public class SoftInputDisableEditView extends EditText implements OnViewClick {
+    private StructArrayList mStructArrayList;
 
     public SoftInputDisableEditView(Context context) {
         this(context, null);
@@ -47,8 +49,12 @@ public class SoftInputDisableEditView extends EditText implements OnViewClick {
     @Override
     public void setText(CharSequence text, BufferType type) {
         super.setText(text, type);
-        if (null!=text&&text instanceof SpannableStringBuilder){
+        mStructArrayList=null;
+        if (null!=text&&text instanceof StructArrayList){
+            StructArrayList list=(StructArrayList)text;
+            mStructArrayList=list;
             setMovementMethod(LinkMovementMethod.getInstance());
+            post(()->setSelection(list.getSelectStart(),list.getSelectEnd()));
         }
     }
 
@@ -59,10 +65,14 @@ public class SoftInputDisableEditView extends EditText implements OnViewClick {
             return false;
         }
         final Dialog dialog=new Dialog(context);
-        CharSequence charSequence=getText();
-        Debug.D("QQQQQQQQQQQq  "+(null!=charSequence?charSequence.getClass():null));
-        return dialog.setContentView(new SoftInputModel(null,null),ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT).setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        final StructArrayList arrayList=mStructArrayList;
+        final SoftInputModel model=new SoftInputModel(null,null!=arrayList?arrayList.
+                setSelectStart(getSelectionStart()).setSelectEnd(getSelectionEnd()):null);
+        dialog.setOnDismissListener((DialogInterface dlg)-> {
+            setText(model.getInputTextStruct());
+        });
+        return dialog.setContentView(model, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
                 |WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE).setGravity(Gravity.BOTTOM).
                 setCanceledOnTouchOutside(true).setCancelable(true).setDimAmount(0).show();
     }
