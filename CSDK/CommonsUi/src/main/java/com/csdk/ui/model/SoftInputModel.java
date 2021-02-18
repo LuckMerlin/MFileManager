@@ -12,6 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import androidx.databinding.ObservableField;
 import com.csdk.api.common.Api;
+import com.csdk.api.core.Debug;
 import com.csdk.api.struct.StructArrayList;
 import com.csdk.api.ui.Model;
 import com.csdk.api.ui.OnViewClick;
@@ -116,7 +117,7 @@ public class SoftInputModel extends Model implements OnViewClick {
         return mInputText;
     }
 
-    public StructArrayList getInputTextStruct() {
+    public StructArrayList getInputTextStruct(){
         ObservableField<StructArrayList> input=mInputText;
         EditText editText=findInputEditText();
         StructArrayList structs= null!=input?input.get():null;

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="vm"
+            type="com.csdk.ui.model.VoiceTextInputModel" />
+        <import type="com.csdk.api.core.Status"/>
+        <import type="android.view.View"/>
+    </data>
+    <FrameLayout
+        android:background="@drawable/csdk_voice_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_margin="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:visibility="@{vm.status==Status.STATUS_PENDING?View.VISIBLE:View.GONE}"
+                android:orientation="vertical"
+                android:padding="5dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <com.csdk.ui.view.VoiceRecordingAnimImageView
+                        android:src="@drawable/csdk_text_recording_anim" android:scaleType="fitCenter"
+                        android:layout_width="40dp" android:layout_height="40dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:textColor="#ffffff"
+                        android:textSize="11sp"
+                        android:text="@string/csdk_voice_inputing"
+                        android:gravity="center"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minEms="3"
+                        android:text="@{vm.counter==null?`  `:``+vm.counter+`s`}"
+                        android:gravity="center"
+                        android:textColor="#FFFE831F"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+
+                <ProgressBar
+                    android:progressDrawable="@drawable/csdk_voice_dedicate"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:max="100"
+                    android:progress="@{vm.progress}"
+                    android:layout_centerInParent="true"
+                    style="@android:style/Widget.ProgressBar.Horizontal"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:visibility="@{vm.status==Status.STATUS_DOING?View.VISIBLE:View.GONE}"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:orientation="horizontal"
+                android:gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="11sp"
+                    android:text="@string/csdk_converting"
+                    android:textColor="#ffffff"
+                    android:gravity="center"/>
+                <ImageView
+                    android:layout_height="20dp"
+                    android:layout_width="20dp"
+                    android:layout_marginLeft="3dp"
+                    android:src="@drawable/csdk_voice_converting"/>
+            </LinearLayout>
+
+            <TextView
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:visibility="@{vm.status==Status.STATUS_NONE?View.VISIBLE:View.GONE}"
+                android:text="@{vm.content.length()&lt;=0?vm.emptyNotify:vm.content}"
+                android:textSize="11sp"
+                android:layout_margin="10dp"
+                android:textColor="#ffffff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:layout_marginTop="5dp">
+                <TextView
+                    android:id="@+id/csdk_voiceTextInput_cancelTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingLeft="30dp"
+                    android:paddingRight="30dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:minEms="3"
+                    android:textSize="11sp"
+                    android:textColor="#ffffff"
+                    android:background="@drawable/csdk_voice_text_input_button_negative_bg"
+                    android:text="@string/csdk_cancel"
+                    android:gravity="center"/>
+                <TextView
+                    android:id="@+id/csdk_voiceTextInput_speakFinishTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingLeft="30dp"
+                    android:paddingRight="30dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:background="@drawable/csdk_voice_text_input_button_negative_bg"
+                    android:visibility="@{vm.status==Status.STATUS_PENDING?View.VISIBLE:View.GONE}"
+                    android:textSize="11sp"
+                    android:minEms="3"
+                    android:textColor="#ffffff"
+                    android:text="@string/csdk_speak_finish"
+                    android:gravity="center"/>
+                <TextView
+                    android:id="@+id/csdk_voiceTextInput_sendTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/csdk_voice_text_input_button_negative_bg"
+                    android:visibility="@{vm.status==Status.STATUS_NONE&amp;&amp;vm.content.length()>0?View.VISIBLE:View.GONE}"
+                    android:paddingLeft="30dp"
+                    android:paddingRight="30dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:minEms="3"
+                    android:textSize="11sp"
+                    android:textColor="#ffffff"
+                    android:text="@string/csdk_send"
+                    android:gravity="center"/>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+</layout>

@@ -28,6 +28,7 @@ import com.csdk.api.ui.Dialog;
 import com.csdk.api.ui.Model;
 import com.csdk.api.ui.ModelBinder;
 import com.csdk.api.ui.OnViewClick;
+import com.csdk.data.SoChecker;
 import com.csdk.ui.R;
 import com.csdk.ui.adapter.OutlineMessageAdapter;
 import com.csdk.ui.binding.Click;
@@ -122,6 +123,8 @@ public class CommonHomeModel extends Model implements OnViewClick, OnEventChange
             return selectMenu(null!=object&&object instanceof Menu?((Menu)object):null,"While home item menu click.")||true;
         }else if (viewId==R.id.csdk_itemFriend_rootLL){
             return startChatWithUser(null!=object&&object instanceof User?((User)object):null, "While item friend view click.")||true;
+        }else if (viewId==R.id.csdk_homeModel_voiceTextIV){
+            return startVoiceText("While voice text view click.")||true;
         }
         return false;
     }
@@ -289,6 +292,23 @@ public class CommonHomeModel extends Model implements OnViewClick, OnEventChange
         }
         return ((HomeFriendsModel)model).startChat(user,debug)&&
                 (null!=updateCurrentSession("After start chat with user succeed.")||true);
+    }
+
+    private boolean startVoiceText(String debug){
+        final Dialog dialog = new Dialog(getContext());
+        final VoiceTextInputModel model=new VoiceTextInputModel(getApi()) {
+            @Override
+            public boolean onClicked(int viewId, View view, Object tag) {
+                if (viewId==R.id.csdk_voiceTextInput_sendTV){
+                    String contentText=getContentText();
+                    if (null!=contentText&&contentText.length()>0){
+                        sendTextMessage(contentText,mCurrentSession.get(),null,"After voice text finish.");
+                    }
+                }
+                return super.onClicked(viewId, view,tag)||dialog.dismiss();
+            }
+        };
+        return dialog.setCancelable(false).setCanceledOnTouchOutside(false).setContentView(model).show();
     }
 
     @Override

@@ -28,6 +28,22 @@ public final class StructArrayList extends ArrayList<Struct> implements CharSequ
         return this;
     }
 
+    public final Struct structAt(int index){
+        if (index>=0){
+            index+=1;
+            int total=0;
+            for (Struct struct:this) {
+                if (null!=struct){
+                    int length=struct.length();
+                    if ((total+=(length<=0?0:length))>=index){
+                        return struct;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public StructArrayList setSelectStart(int selectStart) {
         this.mSelectStart = selectStart;
         return this;

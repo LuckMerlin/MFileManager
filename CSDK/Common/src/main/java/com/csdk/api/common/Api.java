@@ -2,6 +2,7 @@ package com.csdk.api.common;
 
 import android.widget.FrameLayout;
 
+import com.csdk.api.audio.AudioManager;
 import com.csdk.api.bean.CSDKAction;
 import com.csdk.api.bean.Group;
 import com.csdk.api.bean.Menu;
@@ -39,8 +40,10 @@ public interface Api {
     Page<Object, User> getFriends(int from,int size);
     Config getConfig();
     AudioPlayer getAudioPlayer();
+    AudioManager getAudioManager();
     List<Menu<Group>> getMenus(Matchable matchable, int max);
     AudioProcessor getAudioProcessor();
     Cache getCache();
     Ui getUi();
+
 }

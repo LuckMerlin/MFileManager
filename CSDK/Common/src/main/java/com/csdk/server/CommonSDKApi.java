@@ -2,6 +2,7 @@ package com.csdk.server;
 
 import android.widget.FrameLayout;
 
+import com.csdk.api.audio.AudioManager;
 import com.csdk.api.audio.AudioPlayer;
 import com.csdk.api.audio.AudioProcessor;
 import com.csdk.api.bean.CSDKAction;
@@ -84,6 +85,11 @@ import java.util.List;
 
     @Override
     public AudioPlayer getAudioPlayer() {
+        return null;
+    }
+
+    @Override
+    public AudioManager getAudioManager() {
         return null;
     }
 

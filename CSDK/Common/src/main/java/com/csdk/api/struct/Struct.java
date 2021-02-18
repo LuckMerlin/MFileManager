@@ -104,6 +104,11 @@ public final class Struct implements Parcelable {
         return null;
     }
 
+    public final int length(){
+        CharSequence charSequence=toText();
+        return null!=charSequence?charSequence.length():-1;
+    }
+
     public CharSequence toText(){
         CharSequence type=mType;
         if (null==type){

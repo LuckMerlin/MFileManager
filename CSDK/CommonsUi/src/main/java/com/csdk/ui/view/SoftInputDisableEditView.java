@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
 import com.csdk.api.core.Debug;
+import com.csdk.api.struct.Struct;
 import com.csdk.api.struct.StructArrayList;
 import com.csdk.api.ui.Dialog;
 import com.csdk.api.ui.OnViewClick;
@@ -70,11 +71,25 @@ public class SoftInputDisableEditView extends EditText implements OnViewClick {
                 setSelectStart(getSelectionStart()).setSelectEnd(getSelectionEnd()):null);
         dialog.setOnDismissListener((DialogInterface dlg)-> {
             setText(model.getInputTextStruct());
+            Debug.D("AAAAAAAAAAAAa "+model.getInputTextStruct().toText());
         });
         return dialog.setContentView(model, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                 .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
                 |WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE).setGravity(Gravity.BOTTOM).
-                setCanceledOnTouchOutside(true).setCancelable(true).setDimAmount(0).show();
+                setCanceledOnTouchOutside(false).setCancelable(false).setDimAmount(0).show();
+    }
+
+
+    @Override
+    protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
+        super.onTextChanged(text, start, lengthBefore, lengthAfter);
+        if (start>=0){
+            StructArrayList structs=mStructArrayList;
+            structs=null!=structs?structs:(mStructArrayList=new StructArrayList());
+//          structs.add();
+        }
+        Debug.D("AAAAonTextChanged AAAAAAAa  "+start+" "+lengthBefore+" "+lengthAfter+" "+text);
+
     }
 
     @Override

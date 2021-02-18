@@ -15,6 +15,11 @@
     <string name="csdk_channelContentEmpty">该频道内容为空</string>
     <string name="csdk_groupName">频道名称</string>
     <string name="csdk_with">与</string>
+    <string name="csdk_voice_inputing">语音录入中</string>
+    <string name="csdk_converting">正在转换</string>
+    <string name="csdk_speak_finish">说完了</string>
+    <string name="csdk_permission_not_granted">请先在设置中设置权限</string>
+    <string name="csdk_recoginze_none_result">没有识别到内容</string>
     <string name="csdk_chatWhich">的会话</string>
     <string name="csdk_clickToSearchFriend">点击搜索好友</string>
     <string name="csdk_chooseFriendToChat">选择好友去聊天</string>

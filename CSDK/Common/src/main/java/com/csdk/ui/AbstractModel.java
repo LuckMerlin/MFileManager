@@ -1,5 +1,6 @@
 package com.csdk.ui;
 
+import com.csdk.api.audio.AudioManager;
 import com.csdk.api.bean.CSDKAction;
 import com.csdk.api.bean.Group;
 import com.csdk.api.bean.Menu;
@@ -12,6 +13,7 @@ import com.csdk.api.audio.AudioPlayer;
 import com.csdk.api.audio.AudioProcessor;
 import com.csdk.api.config.Config;
 import com.csdk.api.core.Code;
+import com.csdk.api.core.ContentType;
 import com.csdk.api.core.Debug;
 import com.csdk.api.core.OnSendFinish;
 import com.csdk.api.core.Operation;
@@ -34,9 +36,17 @@ public class AbstractModel {
         mApi=api;
     }
 
+    /**
+     * @deprecated
+     */
     protected final AudioPlayer getAudioPlayer() {
         Api api=mApi;
         return null!=api?api.getAudioPlayer():null;
+    }
+
+    protected final AudioManager getAudioManager() {
+        Api api=mApi;
+        return null!=api?api.getAudioManager():null;
     }
 
     protected final long getSessionMessageBlockDuration(Session session){
@@ -96,6 +106,10 @@ public class AbstractModel {
     protected final Config getConfig() {
         Api api=mApi;
         return null!=api?api.getConfig():null;
+    }
+
+    protected final boolean sendTextMessage(String text,Session to,OnSendFinish callback,String debug){
+        return send(text,to, ContentType.CONTENTTYPE_TEXT,callback,debug);
     }
 
     protected final boolean send(String text,Session to,String contentType,OnSendFinish callback,String debug){

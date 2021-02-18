@@ -9,7 +9,7 @@
     <FrameLayout android:id="@+id/csdk_softInput_inputRootFL"
         binding:clickEnable="@{Click.click(Click.CLICK,vm).clickAnimDisable(true)}"
         android:layout_width="match_parent" android:layout_height="wrap_content">
-        <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true"
             android:background="@drawable/csdk_home_input_bg" android:layout_gravity="bottom"
             android:paddingTop="3dp" android:paddingBottom="3dp" android:paddingLeft="10dp" android:paddingRight="10dp">
 
