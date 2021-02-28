@@ -38,14 +38,14 @@ public final class Nas {
         @Multipart
         Call<Reply<NasPath>> save(@Part MultipartBody.Part file);
 
-        @HEAD("/")
-        Call<Reply<NasPath>> getFileData(@Path(Label.LABEL_PATH) String path);
+        @HEAD("/media")
+        Call<Reply<NasPath>> getFileData(@Query(Label.LABEL_PATH) String path);
     }
 
     public final Reply<NasPath> getNasFileData(String serverUrl, String filePath){
         if (null!=serverUrl&&serverUrl.length()>0&&null!=filePath&&filePath.length()>0){
             Retrofit retrofit=mRetrofit;
-            Debug.D("EEEEEEEd d EEE "+serverUrl+" "+filePath);
+            Debug.D("EEEEEEEd d EEE "+serverUrl+" "+filePath+"\n "+Thread.currentThread());
             Call<Reply<NasPath>> call=retrofit.prepare(ApiSaveFile.class,serverUrl).getFileData(filePath);
             try {
                 Debug.D("EEEEEEEd d EEE "+serverUrl+" "+filePath);
@@ -60,26 +60,26 @@ public final class Nas {
     }
 
     public final Reply<NasPath> upload(File file,String serverUrl,String toPath,long seek,String debug){
-        final UploadRequestBody uploadBody=new UploadRequestBody(file){
-            @Override
-            protected Boolean onProgress(long upload, float speed) {
-//                if (!isFinished()){
-//                    progress.setConveyed(upload);
-//                    updateStatus(PROGRESS,change,UploadConvey.this,progressReply);
-//                    return false;
-//                }
-                return true;
-            }
-        };
-        MultipartBody.Part part=createFilePart(createFileHeadersBuilder(file.getName(),toPath,file.isDirectory()),uploadBody);
-        Debug.D("Upload file "+file.getName()+" to "+toPath+" "+(null!=debug?debug:"."));
-        Call<Reply<NasPath>> call= new Retrofit().prepare(ApiSaveFile.class, serverUrl).save(part);
-        try {
-            Response<Reply<NasPath>> response=null!=call?call.execute():null;
-            return null!=response&&response.isSuccessful()?response.body():null;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        final UploadRequestBody uploadBody=new UploadRequestBody(file){
+//            @Override
+//            protected Boolean onProgress(long upload, float speed) {
+////                if (!isFinished()){
+////                    progress.setConveyed(upload);
+////                    updateStatus(PROGRESS,change,UploadConvey.this,progressReply);
+////                    return false;
+////                }
+//                return true;
+//            }
+//        };
+//        MultipartBody.Part part=createFilePart(createFileHeadersBuilder(file.getName(),toPath,file.isDirectory()),uploadBody);
+//        Debug.D("Upload file "+file.getName()+" to "+toPath+" "+(null!=debug?debug:"."));
+//        Call<Reply<NasPath>> call= new Retrofit().prepare(ApiSaveFile.class, serverUrl).save(part);
+//        try {
+//            Response<Reply<NasPath>> response=null!=call?call.execute():null;
+//            return null!=response&&response.isSuccessful()?response.body():null;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         return null;
     }
 
