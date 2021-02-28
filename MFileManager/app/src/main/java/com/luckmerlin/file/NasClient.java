@@ -36,7 +36,17 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
         String path=null!=query?query.getPath():null;
         String name=null!=query?query.getName():null;
         return null!=retrofit&&null!=callback?retrofit.call(retrofit.prepare(Api.class, getHostUrl())
-                .queryFiles(path,name, from, to), callback):null;
+                .queryFiles(path,name, from, to), (OnApiFinish<Reply<NasFolder<Query>>>)
+                (int what, String note, Reply<NasFolder<Query>> data, Object arg)-> {
+                    NasFolder<Query> nasFolder=null!=data?data.getData():null;
+                    if (null!=nasFolder){
+                        nasFolder.setHost(mHostUrl);
+                        nasFolder.setPort(mHostPort);
+                    }
+                if (null!=callback){
+                    callback.onApiFinish(what,note,data,arg);
+                }
+        }):null;
     }
 
     public final String getHostUrl() {

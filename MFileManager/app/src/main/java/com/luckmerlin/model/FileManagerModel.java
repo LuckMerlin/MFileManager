@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.DataBindingUtil;
 import com.luckmerlin.databinding.dialog.Dialog;
@@ -28,9 +29,11 @@ import com.luckmerlin.file.TaskListActivity;
 import com.luckmerlin.file.adapter.ClientAdapter;
 import com.luckmerlin.file.adapter.FileBrowserAdapter;
 import com.luckmerlin.file.databinding.FileBrowserMenuBinding;
+import com.luckmerlin.file.nas.Nas;
 import com.luckmerlin.file.task.DownloadTask;
 import com.luckmerlin.file.task.UploadTask;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +45,27 @@ public class FileManagerModel extends FileBrowserModel {
         super.onRootAttached(view);
         add(new LocalClient("/sdcard/android",getString(R.string.local,null)),"");
         add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
+        //
+        post(new Runnable() {
+            @Override
+            public void run() {
+                List<Path> paths=new ArrayList<>();
+                paths.add(LocalPath.create(new File("/sdcard/android/data")));
+                NasFolder uploadFolder=new NasFolder();
+                uploadFolder.setHost("http://192.168.0.4:2019");
+                uploadFolder.setPort(2019);
+                NasPath nasFolder=new NasPath();
+                nasFolder.setParent("/Volumes/Work/LuckMerlinWorkspace");
+                nasFolder.setName("FileManager");
+                nasFolder.setPathSep("/");
+                uploadFolder.setFolder(nasFolder);
+                startTask(new UploadTask(paths, uploadFolder),"");
+//                new Gson().fromJson("{\"mName\":\"data\",\"mParent\":\"/sdcard/android\"}",LocalPath.create());
+//                Folder uploadFolder=null;
+//                startTask(new UploadTask(modeUpload.getArgs(), uploadFolder));
+            }
+        }, 3000);
+        //
     }
 
     @Override
@@ -71,7 +95,7 @@ public class FileManagerModel extends FileBrowserModel {
                     if (null==uploadFolder||!(uploadFolder instanceof NasFolder)){
                         return toast(R.string.notActionHere)||true;
                     }
-                    return null!=modeUpload&&modeUpload.getMode()==Mode.MODE_DOWNLOAD&&startTask(new UploadTask(modeUpload.getArgs(),
+                    return null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD&&startTask(new UploadTask(modeUpload.getArgs(),
                             uploadFolder),"While upload view click.")&& (selectMode(null,"While upload view click.")||true);
                 case R.string.download:
                     Mode modeDownload=getMode();
@@ -136,7 +160,9 @@ public class FileManagerModel extends FileBrowserModel {
             FileBrowserMenuBinding browserBinding=(FileBrowserMenuBinding)binding;
             browserBinding.setClient(getCurrentClient());
             browserBinding.setFolder(getCurrentFolder());
-            return showAtLocationAsContext(view,browserBinding);
+            final Dialog dialog=new Dialog(getContext());
+            return dialog.setCanceledOnTouchOutside(true).setContentView(browserBinding.getRoot(),null,
+                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)).show();
         }
         return false;
     }

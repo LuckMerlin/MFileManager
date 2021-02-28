@@ -8,11 +8,41 @@ public class NasFolder<A> extends Folder<A,NasPath> {
     private long length;
     private NasPath folder;
     private A mArg;
+    private String mHost;
+    private int mPort;
 
     @Override
     public String getParent() {
         NasPath current=folder;
         return null!=current?current.getParent():null;
+    }
+
+    public final NasFolder setHost(String host) {
+        this.mHost = host;
+        return this;
+    }
+
+    public final NasFolder setPort(int port) {
+        this.mPort = port;
+        return this;
+    }
+
+    public final String getHost() {
+        return mHost;
+    }
+
+    public final NasFolder setFolder(NasPath folder) {
+        this.folder = folder;
+        return this;
+    }
+
+    public final String getHostUrl() {
+        return mHost;
+    }
+
+
+    public final int getPort() {
+        return mPort;
     }
 
     @Override
