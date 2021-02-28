@@ -38,7 +38,7 @@ android {
 
 dependencies {
     implementation 'com.luckmerlin.library:core:0.0.10'
-    implementation 'com.luckmerlin.library:databinding:0.0.68'
+    implementation 'com.luckmerlin.library:databinding:0.0.71'
     implementation 'com.luckmerlin.library:mvvm:0.0.37'
     implementation 'com.luckmerlin.library:adapter:0.0.48'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'

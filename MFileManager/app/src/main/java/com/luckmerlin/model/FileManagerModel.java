@@ -14,7 +14,9 @@ import com.luckmerlin.databinding.DataBindingUtil;
 import com.luckmerlin.databinding.dialog.Dialog;
 import com.luckmerlin.databinding.dialog.PopupWindow;
 import com.luckmerlin.file.Client;
+import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalClient;
+import com.luckmerlin.file.LocalFolder;
 import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Mode;
 import com.luckmerlin.file.NasClient;
@@ -49,8 +51,8 @@ public class FileManagerModel extends FileBrowserModel {
                 case R.drawable.selector_menu:
                     return showBrowserMenu(view,"While menu view click.");
                 case R.id.fileBrowser_clientNameTV:
-                    return null!=tag&&tag instanceof Client&&(i1<=1?showClientSelectOption(view,"While view click."):
-                            switchSelectClient("While view click."));
+                    return null!=tag&&tag instanceof Client&&(i1<=1?switchSelectClient("While view click."):
+                            showClientSelectOption(view,"While view click."));
                 case R.string.exit:
                     return finishActivity("While exit view click.");
                 case R.string.transportManager:
@@ -65,16 +67,24 @@ public class FileManagerModel extends FileBrowserModel {
                         modeUpload=null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD?modeUpload:new Mode(Mode.MODE_UPLOAD);
                         return selectMode(modeUpload.add((LocalPath)tag),"While upload view click.");
                     }
+                    Folder uploadFolder=getCurrentFolder();
+                    if (null==uploadFolder||!(uploadFolder instanceof NasFolder)){
+                        return toast(R.string.notActionHere)||true;
+                    }
                     return null!=modeUpload&&modeUpload.getMode()==Mode.MODE_DOWNLOAD&&startTask(new UploadTask(modeUpload.getArgs(),
-                            getCurrentFolder()),"While upload view click.")&& (selectMode(null,"While upload view click.")||true);
+                            uploadFolder),"While upload view click.")&& (selectMode(null,"While upload view click.")||true);
                 case R.string.download:
                     Mode modeDownload=getMode();
                     if (null!=tag&&tag instanceof NasPath){
                         modeDownload=null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD?modeDownload:new Mode(Mode.MODE_DOWNLOAD);
                         return selectMode(modeDownload.add((NasPath)tag),"While download view click.");
                     }
+                    Folder downloadFolder=getCurrentFolder();
+                    if (null==downloadFolder||!(downloadFolder instanceof LocalFolder)){
+                        return toast(R.string.notActionHere)||true;
+                    }
                     return null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD&&startTask(new DownloadTask(modeDownload.getArgs(),
-                            getCurrentFolder()),"While download view click.")&& (selectMode(null,"While download view click.")||true);
+                            downloadFolder),"While download view click.")&& (selectMode(null,"While download view click.")||true);
                 case R.string.cancel:
                     return selectMode(null,"While cancel view click.");
                 default:
@@ -112,9 +122,8 @@ public class FileManagerModel extends FileBrowserModel {
             popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
             popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
             popupWindow.setContentView(recyclerView);
-            popupWindow.showAsDropDown(view,0,0,this,
+            return null!=popupWindow.showAsDropDown(view,0,0,
                     PopupWindow.DISMISS_INNER_MASK|PopupWindow.DISMISS_OUT_MASK);
-            return true;
         }
         return false;
     }
@@ -127,7 +136,7 @@ public class FileManagerModel extends FileBrowserModel {
             FileBrowserMenuBinding browserBinding=(FileBrowserMenuBinding)binding;
             browserBinding.setClient(getCurrentClient());
             browserBinding.setFolder(getCurrentFolder());
-            return showAtLocationAsContext(view,browserBinding,this);
+            return showAtLocationAsContext(view,browserBinding);
         }
         return false;
     }

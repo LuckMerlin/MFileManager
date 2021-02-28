@@ -5,11 +5,9 @@
         <variable name="client" type="com.luckmerlin.file.Client" />
         <import type="com.luckmerlin.databinding.view.Touch"/>
     </data>
-    <TextView android:id="@+id/fileBrowser_clientNameTV"
-        android:text="@{client.name??``}"
+
+    <TextView android:id="@+id/fileBrowser_clientNameTV" android:text="@{client.name??``}"
         android:textSize="@dimen/textTitle" android:padding="5dp"
         binding:lmBinding="@{Touch.dispatch(Touch.CLICK,client).dither(200)}"
-        android:minWidth="40dp" android:textStyle="bold"
-        style="@style/titleNormalTextView"/>
-
+        android:minWidth="40dp" android:textStyle="bold" style="@style/titleNormalTextView"/>
 </layout>

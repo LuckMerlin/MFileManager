@@ -12,8 +12,6 @@ import java.util.List;
 
 public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalPath>{
     private String mName;
-    private long mTotal;
-    private long mAvailable;
     private final String mRootPath;
 
     public LocalClient(String rootPath,String name){
@@ -26,11 +24,13 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
     }
 
     public long getAvailable() {
-        return mAvailable;
+        String root=mRootPath;
+        return null!=root&&root.length()>0?new File(root).getFreeSpace():0;
     }
 
     public long getTotal() {
-        return mTotal;
+        String root=mRootPath;
+        return null!=root&&root.length()>0?new File(root).getTotalSpace():0;
     }
 
     @Override

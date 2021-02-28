@@ -34,25 +34,25 @@ public final class LocalFileCopyTask extends Task {
         Folder folder=mToFolder;
         if (null==folder){
             Debug.W("Can't copy local file while folder invalid.");
-            return new FileCodeResult(What.WHAT_ARGS_INVALID,true);
+            return code(What.WHAT_ARGS_INVALID);
         }else if(folder instanceof LocalFolder||folder instanceof NasFolder){//Copy local file into local folder
             final LocalPath from=mFrom;
             if (null==folder||null==from){
                 Debug.W("Can't copy local file to nas while local path or folder invalid.");
-                return new FileCodeResult(What.WHAT_ARGS_INVALID,true);
+                return code(What.WHAT_ARGS_INVALID);
             }
             final String fromFilePath=from.getPath();
             if (null==fromFilePath||fromFilePath.length()<=0){
                 Debug.W("Can't copy local file to nas while local path value invalid.");
-                return new FileCodeResult(What.WHAT_ARGS_INVALID,true);
+                return code(What.WHAT_ARGS_INVALID);
             }
             final File fromFile=new File(fromFilePath);
             if (!fromFile.exists()){
                 Debug.W("Can't copy local file while local file not exist.");
-                return new FileCodeResult(What.WHAT_NOT_EXIST,true);
+                return code(What.WHAT_NOT_EXIST);
             }else if (!fromFile.canRead()){
                 Debug.W("Can't copy local file while local file NONE read permission.");
-                return new FileCodeResult(What.WHAT_NONE_PERMISSION,true);
+                return code(What.WHAT_NONE_PERMISSION);
             }
             FileInputStream inputStream=null;
             OutputStream outputStream=null;
@@ -70,7 +70,7 @@ public final class LocalFileCopyTask extends Task {
             }
         }
         Debug.W("Can't copy local file while folder not support.");
-        return new FileCodeResult(What.WHAT_NOT_SUPPORT,true);
+        return code(What.WHAT_NOT_SUPPORT);
     }
 
     private OutputStream createOutputStream(String fileName,Folder folder) throws Exception {

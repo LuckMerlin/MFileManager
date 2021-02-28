@@ -1,6 +1,7 @@
 package com.luckmerlin.task;
 
 import com.luckmerlin.core.debug.Debug;
+import com.luckmerlin.file.api.What;
 
 public abstract class Task{
     private Result mResult;
@@ -30,14 +31,13 @@ public abstract class Task{
                 notifyTaskUpdate(task1,status,callback);
             }
         });
-        Debug.D("Finish execute task "+(null!=name?name:".")+" "+(null!=result&&result.isSucceed()));
+        Debug.D("Finish execute task "+(null!=name?name:".")+" "+isResultSucceed(result));
         notifyTaskUpdate(Status.IDLE,callback);
         return true;
     }
 
     public final boolean isSucceed(){
-        Result result=mResult;
-        return null!=result&&result.isSucceed();
+        return isResultSucceed(mResult);
     }
 
     public final boolean isCanceled(){
@@ -64,6 +64,14 @@ public abstract class Task{
 
     public final boolean isStarted(){
         return mStatus!=Status.IDLE;
+    }
+
+    protected final boolean isResultSucceed(Result result){
+        return null!=result&&result.getCode()==What.WHAT_SUCCEED;
+    }
+
+    public final Result code(int code){
+        return ()->code;
     }
 
     public final boolean isAnyStatus(int ...status) {
