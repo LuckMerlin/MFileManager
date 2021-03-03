@@ -51,6 +51,7 @@ public class FileManagerModel extends FileBrowserModel {
             public void run() {
                 List<Path> paths=new ArrayList<>();
                 paths.add(LocalPath.create(new File("/sdcard/android/data")));
+//                paths.add(LocalPath.create(new File("/sdcard/PictureseditedJPEG_20200224_173025.jpg")));
                 NasFolder uploadFolder=new NasFolder();
                 uploadFolder.setHost("http://192.168.0.4:2019");
                 uploadFolder.setPort(2019);

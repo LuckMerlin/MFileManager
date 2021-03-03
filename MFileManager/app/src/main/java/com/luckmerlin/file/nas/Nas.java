@@ -15,6 +15,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import retrofit2.Call;
 import okhttp3.Headers;
@@ -23,63 +25,91 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
 import retrofit2.Response;
+import retrofit2.http.GET;
 import retrofit2.http.HEAD;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.PartMap;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 public final class Nas {
     private final Retrofit mRetrofit=new Retrofit();
 
     public interface ApiSaveFile {
-        @POST("/")
+        @POST("/file/upload")
         @Multipart
-        Call<Reply<NasPath>> save(@Part MultipartBody.Part file);
+        Call<Reply<NasPath>> save(@PartMap Map<String, RequestBody> args,@Part MultipartBody.Part file);
 
-        @HEAD("/media")
-        Call<Reply<NasPath>> getFileData(@Query(Label.LABEL_PATH) String path);
+        @GET("/file/head")
+        Call<Reply<NasPath>> getFileData(@QueryMap Map<String,String> maps);
+
+        @POST("/file/create")
+        Call<Reply<NasPath>> createFile(@Query(Label.LABEL_FOLDER) boolean isDirectory, @Query(Label.LABEL_PATH) String path);
     }
 
-    public final Reply<NasPath> getNasFileData(String serverUrl, String filePath){
-        if (null!=serverUrl&&serverUrl.length()>0&&null!=filePath&&filePath.length()>0){
+    private <T> T call(Call<T> call){
+        try {
+            Response<T> response=null!=call?call.execute():null;
+            return null!=response?response.body():null;
+        }catch (Exception e) {
+            Debug.E("Exception call nas file.e="+e,e);
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public final Reply<NasPath> getNasFileData(String serverUrl, Map<String,String> maps){
+        if (null!=serverUrl&&serverUrl.length()>0&&null!=maps&&maps.size()>0){
+            return call(mRetrofit.prepare(ApiSaveFile.class,serverUrl).getFileData(maps));
+        }
+        return null;
+    }
+
+    public final Reply<NasPath> createFile(String serverUrl,boolean isDirectory, String path){
+        if (null!=serverUrl&&serverUrl.length()>0){
             Retrofit retrofit=mRetrofit;
-            Debug.D("EEEEEEEd d EEE "+serverUrl+" "+filePath+"\n "+Thread.currentThread());
-            Call<Reply<NasPath>> call=retrofit.prepare(ApiSaveFile.class,serverUrl).getFileData(filePath);
-            try {
-                Debug.D("EEEEEEEd d EEE "+serverUrl+" "+filePath);
-                Response<Reply<NasPath>> response=null!=call?call.execute():null;
-                return null!=response?response.body():null;
-            }catch (Exception e) {
-                Debug.E("Exception get nas file data.e="+e,e);
-                e.printStackTrace();
-            }
+            return call(retrofit.prepare(ApiSaveFile.class,serverUrl).createFile(isDirectory,path));
         }
         return null;
     }
 
     public final Reply<NasPath> upload(File file,String serverUrl,String toPath,long seek,String debug){
-//        final UploadRequestBody uploadBody=new UploadRequestBody(file){
-//            @Override
-//            protected Boolean onProgress(long upload, float speed) {
-////                if (!isFinished()){
-////                    progress.setConveyed(upload);
-////                    updateStatus(PROGRESS,change,UploadConvey.this,progressReply);
-////                    return false;
-////                }
-//                return true;
-//            }
-//        };
-//        MultipartBody.Part part=createFilePart(createFileHeadersBuilder(file.getName(),toPath,file.isDirectory()),uploadBody);
-//        Debug.D("Upload file "+file.getName()+" to "+toPath+" "+(null!=debug?debug:"."));
-//        Call<Reply<NasPath>> call= new Retrofit().prepare(ApiSaveFile.class, serverUrl).save(part);
-//        try {
-//            Response<Reply<NasPath>> response=null!=call?call.execute():null;
-//            return null!=response&&response.isSuccessful()?response.body():null;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        final UploadRequestBody uploadBody=new UploadRequestBody(file){
+            @Override
+            protected Boolean onProgress(long upload, float speed) {
+//                if (!isFinished()){
+                Debug.D("WWWWWWWWWWWw  "+upload+" "+speed);
+//                    progress.setConveyed(upload);
+//                    updateStatus(PROGRESS,change,UploadConvey.this,progressReply);
+//                    return false;
+//                }
+                return true;
+            }
+        };
+        try {
+            Map<String, RequestBody> map = new HashMap<>();
+            map.put(Label.LABEL_PATH,RequestBody.create(MediaType.parse("text/plain"), toPath+"我爱你"));
+//            map.put(Label.LABEL_POSITION,RequestBody.create(MediaType.parse("text/plain"), Long.toString(seek)));
+//            map.put(Label.LABEL_NAME,uploadBody);
+//            MultipartBody.Part part=createFilePart(createFileHeadersBuilder(file.getName(),toPath,file.isDirectory()),uploadBody);
+            Debug.D("Upload file "+file.getName()+" to "+toPath+" "+(null!=debug?debug:"."));
+            StringBuilder disposition = new StringBuilder("form-data; name=" + file.getName()+ ";filename=luckmerlin");
+            Headers.Builder headersBuilder = new Headers.Builder().addUnsafeNonAscii(
+                "Content-Disposition", disposition.toString());
+            final String encoding="utf-8";
+            headersBuilder.add(Label.LABEL_PATH,encode(toPath, "", encoding));
+            headersBuilder.add(Label.LABEL_POSITION,encode(Long.toString(seek), "", encoding));
+            Call<Reply<NasPath>> call= mRetrofit.prepare(ApiSaveFile.class, serverUrl).save(map,
+                    MultipartBody.Part.create(headersBuilder.build(),uploadBody));
+            Response<Reply<NasPath>> response=null!=call?call.execute():null;
+            return null!=response&&response.isSuccessful()?response.body():null;
+        } catch (IOException e) {
+            Debug.E("Exception upload file to nas.e="+e,e);
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -143,26 +173,27 @@ public final class Nas {
         }
     }
 
-    public MultipartBody.Part createFilePart(Headers.Builder builder, RequestBody body){
-        return null!=builder&&null!=body?MultipartBody.Part.create(builder.build(),body):null;
-    }
+//    private MultipartBody.Part createFilePart(Headers.Builder builder, RequestBody body){
+//        return null!=builder&&null!=body?MultipartBody.Part.create(builder.build(),body):null;
+//    }
+//
+//    private Headers.Builder createFileHeadersBuilder(String name,String filePath, boolean isDirectory) {
+//        if (null==filePath||filePath.length()<=0){
+//            return null;
+//        }
+//        StringBuilder disposition = new StringBuilder("form-data; name=" + name+ ";filename=luckmerlin");
+//        Headers.Builder headersBuilder = new Headers.Builder().addUnsafeNonAscii(
+//                "Content-Disposition", disposition.toString());
+//        String encoding = "utf-8";
+//        Debug.D("EEEE放置EEEEEEEEE "+filePath);
+//        headersBuilder.add(Label.LABEL_PATH, encode(filePath, "", encoding));
+//        if (isDirectory) {
+//            headersBuilder.add(Label.LABEL_FOLDER, Label.LABEL_FOLDER);
+//        }
+//        return headersBuilder;
+//    }
 
-    private Headers.Builder createFileHeadersBuilder(String name,String filePath, boolean isDirectory) {
-        if (null==filePath||filePath.length()<=0){
-            return null;
-        }
-        StringBuilder disposition = new StringBuilder("form-data; name=" + name+ ";filename=luckmerlin" +name);
-        Headers.Builder headersBuilder = new Headers.Builder().addUnsafeNonAscii(
-                "Content-Disposition", disposition.toString());
-        String encoding = "utf-8";
-        headersBuilder.add(Label.LABEL_PATH, encode(filePath, "", encoding));
-        if (isDirectory) {
-            headersBuilder.add(Label.LABEL_FOLDER, Label.LABEL_FOLDER);
-        }
-        return headersBuilder;
-    }
-
-    public final String encode(String name, String def,String encoding){
+    private final String encode(String name, String def,String encoding){
         try {
             return null!=name&&name.length()>0? URLEncoder.encode(name,null!=encoding&&encoding.
                     length()>0?encoding: "UTF-8"):def;

@@ -1,6 +1,5 @@
 package com.luckmerlin.file.task;
 
-import com.google.gson.Gson;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalPath;
@@ -16,13 +15,11 @@ import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
-
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 public class UploadTask extends ActionFolderTask{
 
@@ -63,7 +60,18 @@ public class UploadTask extends ActionFolderTask{
             return code(What.WHAT_NONE_PERMISSION);
         }
         notifyTaskUpdate(Status.PREPARING,callback);
+        final Nas nas=new Nas();
+        final String filePath=file.getAbsolutePath();
+        String namePath=null!=rootPath?filePath.replaceFirst(rootPath,""):filePath;
+        String targetPath=null!=namePath?namePath.replaceAll(File.separator,folderSep):null;
+        targetPath=null!=targetPath?folder.getChildPath(targetPath):null;
         if (file.isDirectory()){
+            Reply<NasPath> folderReply=nas.createFile(folderHostUrl,true,targetPath);
+            final int replyWhat=null!=folderReply?folderReply.getWhat():What.WHAT_EXCEPTION;
+            if (replyWhat!=What.WHAT_SUCCEED&&replyWhat!=What.WHAT_ALREADY_DONE){
+                Debug.D("Can't upload file to cloud while create folder fail.");
+                return code(What.WHAT_EXCEPTION);
+            }
             File[] files=file.listFiles();
             int count=null!=files?files.length:-1;
             Result result=null;
@@ -76,43 +84,32 @@ public class UploadTask extends ActionFolderTask{
                         &&rootPath.length()>0?rootPath:file.getParent(),callback);
                 result=null!=childResult&&!isResultSucceed(childResult)?childResult:result;
             }
-            Debug.D("EEEEEEEEEEEE ddd ");
             return result;
         }
-        final String filePath=file.getAbsolutePath();
-        String namePath=null!=rootPath?filePath.replaceFirst(rootPath,""):filePath;
-        String targetPath=null!=namePath?namePath.replaceAll(File.separator,folderSep):null;
-        targetPath=null!=targetPath?folder.getChildPath(targetPath):null;
         //
         final Map<String,String> maps=new HashMap<>();
         final long fileLength=file.length();
-//        final String localMd5=new MD5().getFileMD5(file);
-        maps.put(Label.LABEL_PATH, targetPath);
-        final Reply<NasPath> reply=new Nas().getNasFileData(folderHostUrl,targetPath);
-        Debug.D("EEEEEEEEEEEE "+reply);
-        if (null==reply){
-
+        final String localMd5=new MD5().getFileMD5(file);
+        maps.put(Label.LABEL_PATH, null!=targetPath?targetPath:"");
+        maps.put(Label.LABEL_MD5,null!=localMd5?localMd5:"");
+        maps.put(Label.LABEL_LENGTH,Long.toString(fileLength));
+        Reply<NasPath> existReply=nas.getNasFileData(folderHostUrl,maps);
+        long from=0;
+        if (null==existReply||!existReply.isSuccess()){
+            Debug.W("Can't upload file while fetch exist fail.");
+            return code(What.WHAT_EXCEPTION);
+        }else if (existReply.getWhat()==What.WHAT_ALREADY_DONE){//Already exist
+            NasPath exist=existReply.getData();
+            if ((from = (null!=exist?exist.getLength():0))<0){
+                Debug.W("Can't upload file while fetch exist length invalid.");
+                return code(What.WHAT_ERROR);
+            }else if(from>=fileLength){
+                return code(What.WHAT_ALREADY_DONE);
+            }
         }
-//        long existLength=null!=existNas?existNas.getLength():-1;
-//        if (existLength>=fileLength){
-//            Debug.D("File already uploaded."+file);
-//            return code(What.WHAT_ALREADY_DONE);
-//        }
-//        Debug.D("开始上传 "+file+" "+);
-//        final HttpURLConnection headConn = createHttpConnect(hostPort, HEAD, maps);
-//        if (null == headConn) {
-//            Debug.W("Fail open connection for download target path.");
-//            return null;
-//        }
-//        headConn.setRequestProperty(Label.LABEL_LENGTH,Long.toString(localLength));
-//        headConn.setRequestProperty(Label.LABEL_MD5,null!=localMd5?localMd5:"");
-//        Debug.D("Prepared to upload file from "+localLength+" "+fromUriPath);
-//        headConn.connect();
-//        final String hostPort=folder.get();
-//        if (null==hostPort||hostPort.length()<=0){
-//            Debug.D("Can't upload while file host port invalid.");
-//            return null;
-//        }
+        Reply<NasPath> uploadPath=nas.upload(file,folderHostUrl,targetPath,from,null);
+        Debug.D("WWWWWWWWWWW "+uploadPath);
+//        QQQQQQQ  "+exist+" "+file +"\n"+targetPath);
         return null;
     }
 }
