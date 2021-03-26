@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,18 +40,25 @@ import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
 import com.luckmerlin.file.task.ActionFolderTask;
 import com.luckmerlin.file.task.ActionTask;
+import com.luckmerlin.file.task.UploadTask;
 import com.luckmerlin.file.ui.OnPathSpanClick;
+import com.luckmerlin.file.ui.UriPath;
+import com.luckmerlin.lib.ArraysList;
 import com.luckmerlin.mvvm.activity.OnActivityBackPress;
+import com.luckmerlin.mvvm.activity.OnActivityIntentChange;
+import com.luckmerlin.mvvm.activity.OnActivityStart;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Task;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanClick, OnActivityBackPress,
-        OnModelServiceResolve, OnServiceBindChange, OnTaskUpdate,OnViewLongClick {
+        OnModelServiceResolve, OnServiceBindChange, OnTaskUpdate,OnViewLongClick, OnActivityStart {
     private final ObservableField<Integer> mClientCount=new ObservableField<Integer>();
     private final ObservableField<Integer> mCurrentSelectSize=new ObservableField<>();
     private final ObservableField<Folder> mCurrentFolder=new ObservableField<>();
@@ -128,6 +137,40 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
     @Override
     public boolean onActivityBackPressed(Activity activity) {
         return onBackKeyPressed("While activity back pressed.");
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+        Intent intent=null!=activity?activity.getIntent():null;
+        String action=null!=intent?intent.getAction():null;
+        if (null!=action&&action.equals(Intent.ACTION_SEND)){
+            startUploadFiles(intent.getParcelableExtra(Intent.EXTRA_STREAM),"While activity send action start.");
+        }else if (null!=action&&action.equals(Intent.ACTION_SEND_MULTIPLE)){
+            startUploadFiles(intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM),"While activity send action start.");
+        }
+    }
+
+    final boolean startUploadFiles(Object files,String debug){
+        if (null==files){
+            return false;
+        }else if ((files instanceof String)||(files instanceof Uri)||(files instanceof File)){
+            return startUploadFiles(new ArraysList<>().addData(files),debug);
+        }else if (files instanceof Collection){
+            Mode mode=new Mode(Mode.MODE_UPLOAD);
+            Collection collection=(Collection)files;
+            UriPath uriPath=new UriPath();
+            Context context=getContext();
+            for (Object child:collection){
+                child=null!=child&&child instanceof Uri?uriPath.getUriPath(context,(Uri)child):child;
+                child=null!=child&&child instanceof String?new File((String)child):child;
+                child=null!=child&&child instanceof File?LocalPath.create((File)child):child;
+                if (null!=child&&child instanceof Path){
+                    mode.add((Path)child);
+                }
+            }
+            return selectMode(mode,debug);
+        }
+        return false;
     }
 
     protected final boolean onBackKeyPressed(String debug){

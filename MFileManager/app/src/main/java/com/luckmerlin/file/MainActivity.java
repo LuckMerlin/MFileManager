@@ -2,6 +2,7 @@ package com.luckmerlin.file;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.OnModelResolve;
 
 public class MainActivity extends Activity implements OnModelResolve {

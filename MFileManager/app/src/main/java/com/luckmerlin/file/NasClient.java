@@ -1,6 +1,7 @@
 package com.luckmerlin.file;
 
 import com.luckmerlin.core.Canceler;
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
@@ -40,8 +41,7 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
                 (int what, String note, Reply<NasFolder<Query>> data, Object arg)-> {
                     NasFolder<Query> nasFolder=null!=data?data.getData():null;
                     if (null!=nasFolder){
-                        nasFolder.setHost(mHostUrl);
-                        nasFolder.setPort(mHostPort);
+                        nasFolder.setHost(mHostUrl).setPort(mHostPort);
                     }
                 if (null!=callback){
                     callback.onApiFinish(what,note,data,arg);

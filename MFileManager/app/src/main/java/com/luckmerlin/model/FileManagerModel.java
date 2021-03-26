@@ -44,23 +44,24 @@ public class FileManagerModel extends FileBrowserModel {
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
         add(new LocalClient("/sdcard/android",getString(R.string.local,null)),"");
-        add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
+//        add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
+        add(new NasClient("http://http://192.168.0.10",80,"NAS"),"");
         //
         post(new Runnable() {
             @Override
             public void run() {
-                List<Path> paths=new ArrayList<>();
-                paths.add(LocalPath.create(new File("/sdcard/android/data")));
-//                paths.add(LocalPath.create(new File("/sdcard/PictureseditedJPEG_20200224_173025.jpg")));
-                NasFolder uploadFolder=new NasFolder();
-                uploadFolder.setHost("http://192.168.0.4:2019");
-                uploadFolder.setPort(2019);
-                NasPath nasFolder=new NasPath();
-                nasFolder.setParent("/Volumes/Work/LuckMerlinWorkspace");
-                nasFolder.setName("FileManager");
-                nasFolder.setPathSep("/");
-                uploadFolder.setFolder(nasFolder);
-                startTask(new UploadTask(paths, uploadFolder),"");
+//                List<Path> paths=new ArrayList<>();
+//                paths.add(LocalPath.create(new File("/sdcard/android/data")));
+////                paths.add(LocalPath.create(new File("/sdcard/PictureseditedJPEG_20200224_173025.jpg")));
+//                NasFolder uploadFolder=new NasFolder();
+//                uploadFolder.setHost("http://192.168.0.4:2019");
+//                uploadFolder.setPort(2019);
+//                NasPath nasFolder=new NasPath();
+//                nasFolder.setParent("/Volumes/Work/LuckMerlinWorkspace");
+//                nasFolder.setName("FileManager");
+//                nasFolder.setPathSep("/");
+//                uploadFolder.setFolder(nasFolder);
+//                startTask(new UploadTask(paths, uploadFolder),"");
 //                new Gson().fromJson("{\"mName\":\"data\",\"mParent\":\"/sdcard/android\"}",LocalPath.create());
 //                Folder uploadFolder=null;
 //                startTask(new UploadTask(modeUpload.getArgs(), uploadFolder));
@@ -121,6 +122,7 @@ public class FileManagerModel extends FileBrowserModel {
         }
         return false;
     }
+
 
     @Override
     public boolean onViewLongClick(View view, int i, Object tag) {

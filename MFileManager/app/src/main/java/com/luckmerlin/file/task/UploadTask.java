@@ -59,6 +59,7 @@ public class UploadTask extends ActionFolderTask{
             Debug.D("Can't upload file while none permission.");
             return code(What.WHAT_NONE_PERMISSION);
         }
+        rootPath=null!=rootPath &&rootPath.length()>0?rootPath:file.getParent();
         notifyTaskUpdate(Status.PREPARING,callback);
         final Nas nas=new Nas();
         final String filePath=file.getAbsolutePath();
@@ -80,8 +81,7 @@ public class UploadTask extends ActionFolderTask{
                 if (null==childFile){
                     continue;
                 }
-                Result childResult=uploadFileToCloud(childFile,folder,null!=rootPath
-                        &&rootPath.length()>0?rootPath:file.getParent(),callback);
+                Result childResult=uploadFileToCloud(childFile,folder,rootPath,callback);
                 result=null!=childResult&&!isResultSucceed(childResult)?childResult:result;
             }
             return result;
@@ -98,18 +98,20 @@ public class UploadTask extends ActionFolderTask{
         if (null==existReply||!existReply.isSuccess()){
             Debug.W("Can't upload file while fetch exist fail.");
             return code(What.WHAT_EXCEPTION);
-        }else if (existReply.getWhat()==What.WHAT_ALREADY_DONE){//Already exist
+        }else if (existReply.getWhat()==What.WHAT_SUCCEED){//Already exist
             NasPath exist=existReply.getData();
             if ((from = (null!=exist?exist.getLength():0))<0){
                 Debug.W("Can't upload file while fetch exist length invalid.");
                 return code(What.WHAT_ERROR);
             }else if(from>=fileLength){
+                Debug.D("File already uploaded."+filePath);
                 return code(What.WHAT_ALREADY_DONE);
             }
         }
-        Reply<NasPath> uploadPath=nas.upload(file,folderHostUrl,targetPath,from,null);
-        Debug.D("WWWWWWWWWWW "+uploadPath);
-//        QQQQQQQ  "+exist+" "+file +"\n"+targetPath);
-        return null;
+        Reply<NasPath> uploadPath=nas.upload(file, folderHostUrl, targetPath, from,(long upload, float speed)-> {
+            notifyTaskUpdate(Status.EXECUTING,callback);
+            return null;
+        }, null);
+        return null!=uploadPath?code(uploadPath.getWhat()):null;
     }
 }

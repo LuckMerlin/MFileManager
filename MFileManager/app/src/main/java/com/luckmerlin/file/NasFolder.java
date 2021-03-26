@@ -37,7 +37,8 @@ public class NasFolder<A> extends Folder<A,NasPath> {
     }
 
     public final String getHostUrl() {
-        return mHost;
+        String host=mHost;
+        return null!=host&&host.length()>0?(host+":"+mPort):null;
     }
 
 

@@ -9,8 +9,6 @@ public abstract class AbsClient<A extends Folder<T,V>,T,V extends Path> implemen
 
     protected abstract Canceler query(T query, long from, long to, OnApiFinish<Reply<A>> callback);
 
-//    protected abstract
-
     @Override
     public Canceler onNextSectionLoad(SectionRequest<T> request, OnApiFinish<Reply<A>> callback, String s) {
         T arg=null!=request?request.getArg():null;

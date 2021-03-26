@@ -38,6 +38,10 @@ import retrofit2.http.QueryMap;
 public final class Nas {
     private final Retrofit mRetrofit=new Retrofit();
 
+    public interface OnUploadProgressChange{
+        Boolean onProgressChanged(long upload, float speed);
+    }
+
     public interface ApiSaveFile {
         @POST("/file/upload")
         @Multipart
@@ -76,31 +80,24 @@ public final class Nas {
         return null;
     }
 
-    public final Reply<NasPath> upload(File file,String serverUrl,String toPath,long seek,String debug){
+    public final Reply<NasPath> upload(File file,String serverUrl,String toPath,long seek,
+                                       OnUploadProgressChange callback,String debug){
         final UploadRequestBody uploadBody=new UploadRequestBody(file){
             @Override
             protected Boolean onProgress(long upload, float speed) {
-//                if (!isFinished()){
-                Debug.D("WWWWWWWWWWWw  "+upload+" "+speed);
-//                    progress.setConveyed(upload);
-//                    updateStatus(PROGRESS,change,UploadConvey.this,progressReply);
-//                    return false;
-//                }
-                return true;
+                return null!=callback?callback.onProgressChanged(upload,speed):null;
             }
         };
         try {
             Map<String, RequestBody> map = new HashMap<>();
             map.put(Label.LABEL_PATH,RequestBody.create(MediaType.parse("text/plain"), toPath+"我爱你"));
-//            map.put(Label.LABEL_POSITION,RequestBody.create(MediaType.parse("text/plain"), Long.toString(seek)));
-//            map.put(Label.LABEL_NAME,uploadBody);
-//            MultipartBody.Part part=createFilePart(createFileHeadersBuilder(file.getName(),toPath,file.isDirectory()),uploadBody);
             Debug.D("Upload file "+file.getName()+" to "+toPath+" "+(null!=debug?debug:"."));
             StringBuilder disposition = new StringBuilder("form-data; name=" + file.getName()+ ";filename=luckmerlin");
             Headers.Builder headersBuilder = new Headers.Builder().addUnsafeNonAscii(
                 "Content-Disposition", disposition.toString());
             final String encoding="utf-8";
             headersBuilder.add(Label.LABEL_PATH,encode(toPath, "", encoding));
+            headersBuilder.add(Label.LABEL_LENGTH,encode(Long.toString(file.length()), "", encoding));
             headersBuilder.add(Label.LABEL_POSITION,encode(Long.toString(seek), "", encoding));
             Call<Reply<NasPath>> call= mRetrofit.prepare(ApiSaveFile.class, serverUrl).save(map,
                     MultipartBody.Part.create(headersBuilder.build(),uploadBody));
@@ -137,10 +134,6 @@ public final class Nas {
                     Debug.D("Uploading file "+ FileSize.formatSizeText(file.length()) +" "+file.getAbsolutePath());
                     FileInputStream in = null;
                     try {
-                        long fileLength = file.length();
-                        JSONObject json = new JSONObject();
-                        json.put(Label.LABEL_NAME, file.getName());
-                        json.put(Label.LABEL_LENGTH, fileLength);
                         int bufferSize = 1024;
                         byte[] buffer = new byte[bufferSize];
                         in = new FileInputStream(file);
@@ -172,26 +165,6 @@ public final class Nas {
             }
         }
     }
-
-//    private MultipartBody.Part createFilePart(Headers.Builder builder, RequestBody body){
-//        return null!=builder&&null!=body?MultipartBody.Part.create(builder.build(),body):null;
-//    }
-//
-//    private Headers.Builder createFileHeadersBuilder(String name,String filePath, boolean isDirectory) {
-//        if (null==filePath||filePath.length()<=0){
-//            return null;
-//        }
-//        StringBuilder disposition = new StringBuilder("form-data; name=" + name+ ";filename=luckmerlin");
-//        Headers.Builder headersBuilder = new Headers.Builder().addUnsafeNonAscii(
-//                "Content-Disposition", disposition.toString());
-//        String encoding = "utf-8";
-//        Debug.D("EEEE放置EEEEEEEEE "+filePath);
-//        headersBuilder.add(Label.LABEL_PATH, encode(filePath, "", encoding));
-//        if (isDirectory) {
-//            headersBuilder.add(Label.LABEL_FOLDER, Label.LABEL_FOLDER);
-//        }
-//        return headersBuilder;
-//    }
 
     private final String encode(String name, String def,String encoding){
         try {
