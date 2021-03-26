@@ -57,8 +57,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanClick, OnActivityBackPress,
-        OnModelServiceResolve, OnServiceBindChange, OnTaskUpdate,OnViewLongClick, OnActivityStart {
+public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivityBackPress,
+        OnModelServiceResolve, OnServiceBindChange, OnTaskUpdate, OnActivityStart {
     private final ObservableField<Integer> mClientCount=new ObservableField<Integer>();
     private final ObservableField<Integer> mCurrentSelectSize=new ObservableField<>();
     private final ObservableField<Folder> mCurrentFolder=new ObservableField<>();
@@ -78,6 +78,7 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
     protected final boolean add(Client client, String debug){
         List<Client> clients=mClients;
         if (null!=client&&null!=clients&&!clients.contains(client)&&clients.add(client)){
+            mClientCount.set(clients.size());
             FileBrowserAdapter adapter=mBrowserAdapter;
             return (null!=adapter&&adapter.getCurrentClient()==null&&setClientSelect(client,debug))||true;
         }
@@ -107,7 +108,10 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
 
     protected final boolean setClientSelect(Client client, String debug){
         FileBrowserAdapter browserAdapter=mBrowserAdapter;
-        return null!=browserAdapter&&browserAdapter.setClient(client,debug);
+        if (null!=browserAdapter){
+            return browserAdapter.setClient(client,debug);
+        }
+        return false;
     }
 
     @Override
@@ -122,16 +126,6 @@ public class FileBrowserModel extends Model implements OnViewClick, OnPathSpanCl
         list=null!=list?list:new ArrayList<>(1);
         list.add(new Intent(getContext(), TaskService.class));
         return list;
-    }
-
-    @Override
-    public boolean onViewClick(View view, int i, int i1, Object tag) {
-        return false;
-    }
-
-    @Override
-    public boolean onViewLongClick(View view, int i, Object tag) {
-        return false;
     }
 
     @Override

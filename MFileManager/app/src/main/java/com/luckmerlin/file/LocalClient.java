@@ -54,22 +54,27 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
         }else if (!browserFile.isDirectory()){
             Debug.W("Can't query local client while query file not directory.");
             return null;
-        }else if (!browserFile.canExecute()){
+        }else if (!browserFile.canRead()){
             Debug.W("Can't query local client while query file NONE permission.");
+            Reply<LocalFolder<Query>> reply=new Reply<LocalFolder<Query>>(false, What.WHAT_NONE_PERMISSION,null,null);
+            notifyApiFinish(What.WHAT_SUCCEED,null,reply,null,callback);
             return null;
         }
         String filterName=null!=path?path.getName():null;
         final File[] files=browserFile.listFiles((File file)-> { if (null!=filterName&&filterName.length()>0){
                     String fileName=file.getName();
                     return null!=fileName&&fileName.contains(fileName); }return true; });
-        Arrays.sort(files,(File file1, File file2)-> {
+        int size=-1;
+        if (null!=files){
+            size=files.length;
+            Arrays.sort(files,(File file1, File file2)-> {
                 boolean directory1=file1.isDirectory();
                 boolean directory2=file2.isDirectory();
                 if (directory1&&directory2){
                     return file1.compareTo(file2);
                 }
                 return directory1?-1:directory2?1:0; });
-        int size=null!=files?files.length:-1;
+        }
         to=Math.min(to,size);
         LocalPath currentPath=LocalPath.create(browserFile);
         List<LocalPath> list=new ArrayList<>();

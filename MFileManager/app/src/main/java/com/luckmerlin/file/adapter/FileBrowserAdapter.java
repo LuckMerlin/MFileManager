@@ -1,7 +1,9 @@
 package com.luckmerlin.file.adapter;
 
 import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import androidx.databinding.ObservableField;
 import androidx.databinding.ViewDataBinding;
@@ -22,11 +24,13 @@ import com.luckmerlin.file.R;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
+import com.luckmerlin.file.databinding.ItemContentEmptyBinding;
 import com.luckmerlin.file.databinding.ItemListFileBinding;
 import java.util.List;
 
 public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implements OnItemTouchResolver {
     private final ObservableField<Client> mCurrentClient=new ObservableField<Client>();
+    private int mLoadWhat;
 
     @Override
     protected void onResolveFixedViewItem(RecyclerView recyclerView) {
@@ -39,7 +43,9 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
     @Override
     protected final Canceler onNextSectionLoad(SectionRequest<Query> request, OnSectionLoadFinish<Query, Path> callback, String s) {
         Client client=mCurrentClient.get();
-        return null!=client?client.onNextSectionLoad(request, (OnApiFinish<Reply<Folder<Query,Path>>>)(int what, String note, Reply<Folder<Query,Path>> data, Object arg)-> {
+        return null!=client?client.onNextSectionLoad(request, (OnApiFinish<Reply<Folder<Query,Path>>>)
+                (int what, String note, Reply<Folder<Query,Path>> data, Object arg)-> {
+                 mLoadWhat=null!=data?data.getWhat():What.WHAT_FAIL;
                 boolean succeed=what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess();
                 Folder<Query,Path> folder=null!=data?data.getData():null;
                 if (null!=callback){
@@ -102,7 +108,26 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
 
     @Override
     public final RecyclerView.LayoutManager onResolveLayoutManager(RecyclerView rv) {
-        return new LinearLayoutManager(rv.getContext());
+        return new LinearLayoutManager(rv.getContext()){
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                //Make empty type view layout center
+                if (getChildCount()==1){
+                    View view=getChildAt(0);
+                    if (null!=view&&TYPE_EMPTY==getItemViewType(view)) {
+                        ViewParent parent=view.getParent();
+                        if (null!=parent&&parent instanceof View){
+                            int width=view.getWidth();
+                            int height=view.getHeight();
+                            View parentView=(View)parent;
+                            int left=(parentView.getWidth()-width)>>1;int top=(parentView.getHeight()-height)>>1;
+                            view.layout(left, top ,left+width, top+height);
+                        }
+                    }
+                }
+            }
+        };
     }
 
     @Override
@@ -112,6 +137,19 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
             ItemListFileBinding fileBinding=(ItemListFileBinding)binding;
             fileBinding.setPath(data);
             fileBinding.setPosition(i+1);
+        }else if (null!=binding&&binding instanceof ItemContentEmptyBinding){
+            ItemContentEmptyBinding emptyBinding=(ItemContentEmptyBinding)binding;
+            switch (mLoadWhat){
+                case What.WHAT_SUCCEED:
+                    emptyBinding.setMessage(null);
+                    break;
+                case What.WHAT_NONE_PERMISSION:
+                    emptyBinding.setMessage(getText(R.string.noneWhichPermission,getText(R.string.browser)));
+                    break;
+                default:
+                    emptyBinding.setMessage(getText(R.string.whichFailed,getText(R.string.browser)));
+                    break;
+            }
         }
     }
 

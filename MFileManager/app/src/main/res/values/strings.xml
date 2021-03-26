@@ -13,6 +13,10 @@
     <string name="cancel">取消</string>
     <string name="copy">复制</string>
     <string name="move">移动</string>
+    <string name="browser">访问</string>
+    <string name="noneWhichPermission">无 %1s 权限</string>
+    <string name="whichSucceed">%1s 成功</string>
+    <string name="whichFailed">%1s 失败</string>
     <string name="download">下载</string>
     <string name="reboot">重启</string>
     <string name="local">本地</string>

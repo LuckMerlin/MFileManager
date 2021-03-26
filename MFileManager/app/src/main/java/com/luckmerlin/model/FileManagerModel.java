@@ -14,6 +14,8 @@ import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.DataBindingUtil;
 import com.luckmerlin.databinding.dialog.Dialog;
 import com.luckmerlin.databinding.dialog.PopupWindow;
+import com.luckmerlin.databinding.touch.OnViewClick;
+import com.luckmerlin.databinding.touch.OnViewLongClick;
 import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalClient;
@@ -37,15 +39,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileManagerModel extends FileBrowserModel {
+public class FileManagerModel extends FileBrowserModel implements OnViewClick, OnViewLongClick {
     private final PopupWindow mClientNamePopupWindow=new PopupWindow(true,null);
 
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-        add(new LocalClient("/sdcard/android",getString(R.string.local,null)),"");
-//        add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
-        add(new NasClient("http://http://192.168.0.10",80,"NAS"),"");
+        add(new LocalClient("/sdcard",getString(R.string.local,null)),"");
+        add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
+//        add(new NasClient("http://http://192.168.0.10",80,"NAS"),"");
         //
         post(new Runnable() {
             @Override
@@ -68,61 +70,60 @@ public class FileManagerModel extends FileBrowserModel {
             }
         }, 3000);
         //
+//
+        startUploadFiles(new File("/storage/emulated/0/Android/data/com.luckmerlin.file/cache/1771Screenshot_20210326_100405.jpg"),null);
     }
 
     @Override
     public boolean onViewClick(View view, int i, int i1, Object tag) {
-        if (!super.onViewClick(view,i,i1,tag)){
-            switch (i){
-                case R.drawable.selector_menu:
-                    return showBrowserMenu(view,"While menu view click.");
-                case R.id.fileBrowser_clientNameTV:
-                    return null!=tag&&tag instanceof Client&&(i1<=1?switchSelectClient("While view click."):
-                            showClientSelectOption(view,"While view click."));
-                case R.string.exit:
-                    return finishActivity("While exit view click.");
-                case R.string.transportManager:
-                    return startActivity(TaskListActivity.class,null,"After transport view click.");
-                case R.string.multiChoose:
-                    return selectMode(new Mode(Mode.MODE_MULTI_CHOOSE),"While multi choose view click.");
-                case R.drawable.selector_back:
-                    return onBackKeyPressed("While back view click.");
-                case R.string.upload:
-                    Mode modeUpload=getMode();
-                    if (null!=tag&&tag instanceof LocalPath){
-                        modeUpload=null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD?modeUpload:new Mode(Mode.MODE_UPLOAD);
-                        return selectMode(modeUpload.add((LocalPath)tag),"While upload view click.");
-                    }
-                    Folder uploadFolder=getCurrentFolder();
-                    if (null==uploadFolder||!(uploadFolder instanceof NasFolder)){
-                        return toast(R.string.notActionHere)||true;
-                    }
-                    return null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD&&startTask(new UploadTask(modeUpload.getArgs(),
-                            uploadFolder),"While upload view click.")&& (selectMode(null,"While upload view click.")||true);
-                case R.string.download:
-                    Mode modeDownload=getMode();
-                    if (null!=tag&&tag instanceof NasPath){
-                        modeDownload=null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD?modeDownload:new Mode(Mode.MODE_DOWNLOAD);
-                        return selectMode(modeDownload.add((NasPath)tag),"While download view click.");
-                    }
-                    Folder downloadFolder=getCurrentFolder();
-                    if (null==downloadFolder||!(downloadFolder instanceof LocalFolder)){
-                        return toast(R.string.notActionHere)||true;
-                    }
-                    return null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD&&startTask(new DownloadTask(modeDownload.getArgs(),
-                            downloadFolder),"While download view click.")&& (selectMode(null,"While download view click.")||true);
-                case R.string.cancel:
-                    return selectMode(null,"While cancel view click.");
-                default:
-                    if (null!=tag&&tag instanceof Path){
-                        return openPath(((Path)tag),"While path view click.");
-                    }
-                    break;
-            }
+        switch (i){
+            case R.drawable.selector_menu:
+                return showBrowserMenu(view,"While menu view click.");
+            case R.id.fileBrowser_clientNameTV:
+                return null!=tag&&tag instanceof Client&&(i1<=1?switchSelectClient("While view click."):
+                        showClientSelectOption(view,"While view click."));
+            case R.string.exit:
+                return finishActivity("While exit view click.");
+            case R.string.transportManager:
+                return startActivity(TaskListActivity.class,null,"After transport view click.");
+            case R.string.multiChoose:
+                return selectMode(new Mode(Mode.MODE_MULTI_CHOOSE),"While multi choose view click.");
+            case R.drawable.selector_back:
+                return onBackKeyPressed("While back view click.");
+            case R.string.upload:
+                Mode modeUpload=getMode();
+                if (null!=tag&&tag instanceof LocalPath){
+                    modeUpload=null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD?modeUpload:new Mode(Mode.MODE_UPLOAD);
+                    return selectMode(modeUpload.add((LocalPath)tag),"While upload view click.");
+                }
+                Folder uploadFolder=getCurrentFolder();
+                if (null==uploadFolder||!(uploadFolder instanceof NasFolder)){
+                    return toast(R.string.notActionHere)||true;
+                }
+                return null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD&&startTask(new UploadTask(modeUpload.getArgs(),
+                        uploadFolder),"While upload view click.")&& (selectMode(null,"While upload view click.")||true);
+            case R.string.download:
+                Mode modeDownload=getMode();
+                if (null!=tag&&tag instanceof NasPath){
+                    modeDownload=null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD?modeDownload:new Mode(Mode.MODE_DOWNLOAD);
+                    return selectMode(modeDownload.add((NasPath)tag),"While download view click.");
+                }
+                Folder downloadFolder=getCurrentFolder();
+                if (null==downloadFolder||!(downloadFolder instanceof LocalFolder)){
+                    return toast(R.string.notActionHere)||true;
+                }
+                return null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD&&startTask(new DownloadTask(modeDownload.getArgs(),
+                        downloadFolder),"While download view click.")&& (selectMode(null,"While download view click.")||true);
+            case R.string.cancel:
+                return selectMode(null,"While cancel view click.");
+            default:
+                if (null!=tag&&tag instanceof Path){
+                    return openPath(((Path)tag),"While path view click.");
+                }
+                break;
         }
         return false;
     }
-
 
     @Override
     public boolean onViewLongClick(View view, int i, Object tag) {

@@ -71,6 +71,7 @@ public class Retrofit {
             throw new RuntimeException("None url to prepare.");
         }
         retrofit2.Retrofit.Builder builder=mBuilder;
+        url=url.endsWith("/")?url:url+"/";
         builder=null!=builder?builder.baseUrl(url):null;
         if (null!=callbackExecutor&&null!=builder){
             builder.callbackExecutor(callbackExecutor);
