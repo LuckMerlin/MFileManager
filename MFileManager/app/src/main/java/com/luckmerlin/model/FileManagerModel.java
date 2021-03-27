@@ -45,7 +45,7 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-        add(new LocalClient("/sdcard",getString(R.string.local,null)),"");
+//        add(new LocalClient("/sdcard",getString(R.string.local,null)),"");
         add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
 //        add(new NasClient("http://http://192.168.0.10",80,"NAS"),"");
         //
@@ -70,8 +70,7 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
             }
         }, 3000);
         //
-//
-        startUploadFiles(new File("/storage/emulated/0/Android/data/com.luckmerlin.file/cache/1771Screenshot_20210326_100405.jpg"),null);
+        startUploadFiles(new File("/sdcard/DCIM/Camera/IMG_20210110_161508.jpg"),null);
     }
 
     @Override

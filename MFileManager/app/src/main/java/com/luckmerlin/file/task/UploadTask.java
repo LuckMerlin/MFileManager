@@ -53,7 +53,7 @@ public class UploadTask extends ActionFolderTask{
             return code(What.WHAT_ERROR);
         }
         if (null==file||!file.exists()){
-            Debug.D("Can't upload file while file not exist.");
+            Debug.D("Can't upload file while file not exist."+file);
             return code(What.WHAT_NOT_EXIST);
         }else if (!file.canRead()){
             Debug.D("Can't upload file while none permission.");

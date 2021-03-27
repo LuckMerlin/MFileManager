@@ -15,9 +15,11 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 
 import com.luckmerlin.core.debug.Debug;
+import com.luckmerlin.databinding.Model;
 import com.luckmerlin.databinding.OnModelResolve;
+import com.luckmerlin.mvvm.activity.ModelActivity;
 
-public class MainActivity extends Activity implements OnModelResolve {
+public class MainActivity extends ModelActivity implements OnModelResolve {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

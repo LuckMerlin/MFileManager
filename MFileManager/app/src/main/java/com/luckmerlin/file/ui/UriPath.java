@@ -25,12 +25,13 @@ public final class UriPath {
      * 根据Uri获取文件绝对路径，解决Android4.4以上版本Uri转换 兼容Android 10
      */
     public String getUriPath(Context context, Uri imageUri) {
+        final int sdkVersion=Build.VERSION.SDK_INT;
         if (context == null || imageUri == null) {
             return null;
-        }else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+        }else if (sdkVersion < Build.VERSION_CODES.KITKAT) {
             return getRealFilePath(context, imageUri);
-        }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && Build.VERSION.SDK_INT <
-                Build.VERSION_CODES.Q && DocumentsContract.isDocumentUri(context, imageUri)) {
+        }else if (sdkVersion >= Build.VERSION_CODES.KITKAT && sdkVersion < Build.VERSION_CODES.Q
+                && DocumentsContract.isDocumentUri(context, imageUri)) {
             if (isExternalStorageDocument(imageUri)) {
                 String docId = DocumentsContract.getDocumentId(imageUri);
                 String[] split = docId.split(":");
@@ -58,8 +59,7 @@ public final class UriPath {
                 String[] selectionArgs = new String[]{split[1]};
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
-        } // MediaStore (and general)
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+        }else if (sdkVersion >= Build.VERSION_CODES.Q){
             return uriToFileApiQ(context,imageUri);
         } else if ("content".equalsIgnoreCase(imageUri.getScheme())) {
             // Return the remote address
@@ -181,7 +181,7 @@ public final class UriPath {
                 }
             }
         }
-        return file.getAbsolutePath();
+        return null!=file?file.getAbsolutePath():null;
     }
 
     public Uri toUri(Context context, String filePath) {
