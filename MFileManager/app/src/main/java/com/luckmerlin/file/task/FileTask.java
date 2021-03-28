@@ -9,7 +9,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
-abstract class FileTask<T extends Path,V extends Path> extends FromToTask<T,V> {
+public abstract class FileTask<T extends Path,V extends Path> extends FromToTask<T,V> {
     protected final static String POST="POST";
     protected final static String GET="GET";
     protected final static String HEAD="HEAD";
