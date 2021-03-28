@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 import com.luckmerlin.file.TaskColors;
-import com.luckmerlin.task.ProgressTask;
 import com.luckmerlin.task.Task;
 
 public class TaskProgressView extends View {
