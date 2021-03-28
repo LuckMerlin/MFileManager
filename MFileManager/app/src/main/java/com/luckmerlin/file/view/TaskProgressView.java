@@ -27,9 +27,7 @@ public class TaskProgressView extends View {
     public void setTask(Task task){
         int color= new TaskColors().createColor(task);
         Drawable drawable=getBackground();
-        if (null!=task&&task instanceof ProgressTask){
-            mProgress=((ProgressTask)task).getProgress();
-        }else if (null!=drawable&&drawable instanceof ColorDrawable&&((ColorDrawable)drawable).getColor()==color){
+        if (null!=drawable&&drawable instanceof ColorDrawable&&((ColorDrawable)drawable).getColor()==color){
             return;
         }
         setBackgroundColor(color);

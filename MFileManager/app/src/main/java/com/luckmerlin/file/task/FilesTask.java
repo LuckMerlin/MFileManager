@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class ActionTask extends Task {
+public abstract class FilesTask extends Task {
     private final LinkedHashMap<Path,Result> mPaths=new LinkedHashMap<>();
 
-    public ActionTask(List<Path> paths){
+    public FilesTask(List<Path> paths){
         LinkedHashMap<Path,Result> maps=mPaths;
         if (null!=paths&&null!=maps){
             synchronized (paths){

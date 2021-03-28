@@ -6,7 +6,7 @@ import com.luckmerlin.file.Path;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class ActionFolderTask extends ActionTask {
+public abstract class ActionFolderTask extends FilesTask {
     private final Folder mFolder;
 
     public ActionFolderTask(List<Path> paths, Folder folder){

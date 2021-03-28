@@ -9,7 +9,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class FileTask<T extends Path,V extends Path> extends FromToTask<T,V> {
+abstract class FileTask<T extends Path,V extends Path> extends FromToTask<T,V> {
     protected final static String POST="POST";
     protected final static String GET="GET";
     protected final static String HEAD="HEAD";
@@ -69,11 +69,4 @@ public abstract class FileTask<T extends Path,V extends Path> extends FromToTask
         }
         return null;
     }
-
-//    @Override
-//    public final float getProgress() {
-//        long total=getTotal();
-//        long size=getSize();
-//        return total>0&&size>=0?size/(float)total:0;
-//    }
 }

@@ -5,47 +5,29 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.IBinder;
-import android.os.Parcelable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.databinding.ObservableField;
-import androidx.databinding.ViewDataBinding;
 
 import com.luckmerlin.adapter.recycleview.Section;
 import com.luckmerlin.core.debug.Debug;
-import com.luckmerlin.databinding.DataBindingUtil;
 import com.luckmerlin.databinding.Model;
-import com.luckmerlin.databinding.dialog.Dialog;
-import com.luckmerlin.databinding.touch.OnViewClick;
-import com.luckmerlin.databinding.touch.OnViewLongClick;
-import com.luckmerlin.databinding.touch.TouchListener;
 import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Folder;
-import com.luckmerlin.file.LocalClient;
 import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Mode;
-import com.luckmerlin.file.NasClient;
-import com.luckmerlin.file.NasFolder;
-import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
-import com.luckmerlin.file.TaskListActivity;
 import com.luckmerlin.file.adapter.FileBrowserAdapter;
 import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
 import com.luckmerlin.file.task.ActionFolderTask;
-import com.luckmerlin.file.task.ActionTask;
-import com.luckmerlin.file.task.UploadTask;
+import com.luckmerlin.file.task.FilesTask;
 import com.luckmerlin.file.ui.OnPathSpanClick;
 import com.luckmerlin.file.ui.UriPath;
 import com.luckmerlin.lib.ArraysList;
 import com.luckmerlin.mvvm.activity.OnActivityBackPress;
-import com.luckmerlin.mvvm.activity.OnActivityIntentChange;
 import com.luckmerlin.mvvm.activity.OnActivityStart;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
@@ -226,7 +208,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         if (null==task){
             return false;
         }
-        if (task instanceof ActionTask&&((ActionTask)task).isEmpty()){
+        if (task instanceof FilesTask &&((FilesTask)task).isEmpty()){
             return toast(R.string.emptyContent)&&false;
         }
         if (task instanceof ActionFolderTask){
