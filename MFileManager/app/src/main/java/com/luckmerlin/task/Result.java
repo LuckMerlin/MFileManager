@@ -1,5 +1,8 @@
 package com.luckmerlin.task;
 
-public interface Result {
+import com.luckmerlin.file.task.Progress;
+
+public interface Result{
    int getCode();
+   Progress getProgress();
 }

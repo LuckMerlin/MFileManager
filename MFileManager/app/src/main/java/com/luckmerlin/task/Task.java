@@ -2,6 +2,7 @@ package com.luckmerlin.task;
 
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.api.What;
+import com.luckmerlin.file.task.Progress;
 
 public abstract class Task{
     private Result mResult;
@@ -52,8 +53,13 @@ public abstract class Task{
         return false;
     }
 
-    public String getName() {
+    public final String getName() {
         return mName;
+    }
+
+    public final Progress getProgress() {
+        Result result=mResult;
+        return null!=result?result.getProgress():null;
     }
 
     public final boolean isFinished(){
@@ -71,7 +77,11 @@ public abstract class Task{
     }
 
     public final Result code(int code){
-        return ()->code;
+        return code(code,null);
+    }
+
+    public final Result code(int code,Progress progress){
+        return new AbsResult(code,progress);
     }
 
     public final boolean isAnyStatus(int ...status) {
@@ -108,6 +118,26 @@ public abstract class Task{
         }
         if (null!=callback){
             callback.onTaskUpdated(task,status);
+        }
+    }
+
+    protected static class AbsResult implements Result {
+        final int mCode;
+        final Progress mProgress;
+
+        protected AbsResult(int code,Progress progress){
+            mCode=code;
+            mProgress=progress;
+        }
+
+        @Override
+        public int getCode() {
+            return mCode;
+        }
+
+        @Override
+        public Progress getProgress() {
+            return mProgress;
         }
     }
 }

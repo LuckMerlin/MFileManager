@@ -108,10 +108,9 @@ public class UploadTask extends ActionFolderTask{
                 return code(What.WHAT_ALREADY_DONE);
             }
         }
-        Reply<NasPath> uploadPath=nas.upload(file, folderHostUrl, targetPath, from,(long upload, float speed)-> {
+        return nas.upload(file, folderHostUrl, targetPath, from,(long upload, float speed)-> {
             notifyTaskUpdate(Status.EXECUTING,callback);
-            return null;
+            return super.isCanceled()?true:null;
         }, null);
-        return null!=uploadPath?code(uploadPath.getWhat()):null;
     }
 }

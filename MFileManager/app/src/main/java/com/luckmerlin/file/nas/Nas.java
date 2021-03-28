@@ -5,8 +5,11 @@ import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.api.ApiList;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.Reply;
+import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.retrofit.Retrofit;
+import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.file.util.FileSize;
+import com.luckmerlin.task.Result;
 
 import org.json.JSONObject;
 
@@ -80,8 +83,8 @@ public final class Nas {
         return null;
     }
 
-    public final Reply<NasPath> upload(File file,String serverUrl,String toPath,long seek,
-                                       OnUploadProgressChange callback,String debug){
+    public final Result upload(File file, String serverUrl, String toPath, long seek,
+                               OnUploadProgressChange callback, String debug){
         final UploadRequestBody uploadBody=new UploadRequestBody(file){
             @Override
             protected Boolean onProgress(long upload, float speed) {
@@ -102,7 +105,18 @@ public final class Nas {
             Call<Reply<NasPath>> call= mRetrofit.prepare(ApiSaveFile.class, serverUrl).save(map,
                     MultipartBody.Part.create(headersBuilder.build(),uploadBody));
             Response<Reply<NasPath>> response=null!=call?call.execute():null;
-            return null!=response&&response.isSuccessful()?response.body():null;
+            Reply<NasPath> reply= null!=response&&response.isSuccessful()?response.body():null;
+            return new Result() {
+                @Override
+                public int getCode() {
+                    return null!=reply?reply.getWhat(): What.WHAT_FAIL;
+                }
+
+                @Override
+                public Progress getProgress() {
+                    return uploadBody;
+                }
+            };
         } catch (IOException e) {
             Debug.E("Exception upload file to nas.e="+e,e);
             e.printStackTrace();
@@ -110,9 +124,10 @@ public final class Nas {
         return null;
     }
 
-    private static abstract class UploadRequestBody extends RequestBody {
+    private static abstract class UploadRequestBody extends RequestBody implements Progress {
         private final File mFile;
         private boolean mCancel=false;
+        private long mUploaded = 0;
 
         protected abstract Boolean onProgress(long upload,float speed);
 
@@ -123,6 +138,17 @@ public final class Nas {
         @Override
         public final MediaType contentType() {
             return MediaType.parse("application/otcet-stream");
+        }
+
+        @Override
+        public Object getProgress(int type) {
+            switch (type){
+                case TYPE_DONE:
+                    return mUploaded;
+                case TYPE_SPEED:
+                    return -1;
+            }
+            return null;
         }
 
         @Override
@@ -137,7 +163,6 @@ public final class Nas {
                         int bufferSize = 1024;
                         byte[] buffer = new byte[bufferSize];
                         in = new FileInputStream(file);
-                        long uploaded = 0;
                         if (!mCancel) {
                             int read;
                             succeed = true;
@@ -145,9 +170,9 @@ public final class Nas {
                                 if (mCancel) {
                                     break;
                                 }
-                                uploaded += read;
+                                mUploaded += read;
                                 sink.write(buffer, 0, read);
-                                Boolean interruptUpload=onProgress(uploaded, -1);
+                                Boolean interruptUpload=onProgress(mUploaded, -1);
                                 if (null!=interruptUpload&&interruptUpload){
                                     Debug.D("File upload interrupted.");
                                     break;
