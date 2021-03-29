@@ -134,7 +134,7 @@ public final class TaskService extends Service implements Tasker{
                 (result=new ArrayList<>(size)).addAll(list);
             }
             if (null!=result){
-                return new Matcher().match(result,matchable,max);
+                return new Matcher().match(result,matchable,max<=0?0:max);
             }
         }
         return null;

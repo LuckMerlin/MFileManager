@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.IBinder;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 
 import androidx.databinding.ObservableField;
 
@@ -36,7 +38,6 @@ import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Result;
-import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 
 import java.io.File;
@@ -51,7 +52,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     private final ObservableField<Folder> mCurrentFolder=new ObservableField<>();
     private final ObservableField<Mode> mBrowserMode=new ObservableField<>(null);
     private final ObservableField<String> mSearchInput=new ObservableField<>();
-    private final ObservableField<String> mNotifyText=new ObservableField<>("正在上传 dsddddd.mp3");
+    private final ObservableField<CharSequence> mNotifyText=new ObservableField<>();
     private final List<Client> mClients=new ArrayList<>();
     private TaskBinder mTaskBinder;
     private final FileBrowserAdapter mBrowserAdapter=new FileBrowserAdapter(){
@@ -206,13 +207,19 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
 
     @Override
     public void onTaskUpdated(Task task, int status) {
-        String name=null!=task?task.getName():null;
         Result result=null!=task?task.getResult():null;
         Progress progress=null!=result?result.getProgress():null;
-        Object title=null!=progress?progress.getProgress(Progress.TYPE_TITLE):null;
+        Object titleObject=null!=progress?progress.getProgress(Progress.TYPE_TITLE):null;
+        String title=null!=titleObject?titleObject.toString():null;
         SpannableStringBuilder builder=new SpannableStringBuilder("");
-        builder.append("[").append("]");
-        mNotifyText.set((null!=name?"["+name+"]":"")+(null!=title?title:""));
+        int length=null!=title?title.length():-1;
+        if (length>0){
+            builder.append("[");
+            int start=builder.length();
+            builder=builder.append(title).append("]");
+            builder.setSpan(new ForegroundColorSpan(Color.RED),start,start+length, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+        mNotifyText.set(builder);
     }
 
     protected final boolean startTask(Task task,String debug){
@@ -268,7 +275,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         return mBrowserMode;
     }
 
-    public final ObservableField<String> getNotifyText() {
+    public final ObservableField<CharSequence> getNotifyText() {
         return mNotifyText;
     }
 }

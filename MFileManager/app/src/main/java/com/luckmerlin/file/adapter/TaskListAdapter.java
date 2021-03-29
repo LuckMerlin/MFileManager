@@ -15,6 +15,12 @@ import java.util.List;
 public class TaskListAdapter extends ListAdapter<Task> {
 
     @Override
+    protected void onResolveFixedViewItem(RecyclerView recyclerView) {
+        super.onResolveFixedViewItem(recyclerView);
+        setFixHolder(TYPE_EMPTY,generateViewHolder(null!=recyclerView?recyclerView.getContext():null,R.layout.item_task_empty));
+    }
+
+    @Override
     protected Object onResolveDataViewHolder(ViewGroup viewGroup) {
         return R.layout.item_task;
     }

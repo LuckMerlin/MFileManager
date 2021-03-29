@@ -41,20 +41,14 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
         if (null!=taskBinder){
             taskBinder.register(this,null);
             mTaskListAdapter.set(taskBinder.getTasks(null,-1),null);
-            //
-//            NasPath path=new NasPath();
-//            path.setPathSep("/");
-//            path.setParent("/是的发生/");
-//            path.setHost("http://192.168.0.4");
-//            path.setPort(2019);
-//            taskBinder.startTask(new NasDownloadTask(path, LocalPath.create(new File("/sdcard/testdownload的.lin"))));
-//            taskBinder.startTask(new NasUploadTask(LocalPath.create(new File("/sdcard/testdownload的.lin")), path));
-        }
+         }
     }
 
     @Override
     public void onTaskUpdated(Task task, int status) {
-//        Debug.D("AAAAAAAAAAa "+task+" "+status);
+//        TaskListAdapter adapter=null!=task?mTaskListAdapter:null;
+//        int index=null!=adapter?adapter.index(task):-1;
+        mTaskListAdapter.replace(task,null);
     }
 
     public final RecyclerView.Adapter getTaskListAdapter(){

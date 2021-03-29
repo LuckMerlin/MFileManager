@@ -1,5 +1,10 @@
 package com.luckmerlin.file.task;
 
+import android.graphics.Color;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.task.OnTaskUpdate;
