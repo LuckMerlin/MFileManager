@@ -99,8 +99,10 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                 if (null==uploadFolder||!(uploadFolder instanceof NasFolder)){
                     return toast(R.string.notActionHere)||true;
                 }
-                return null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD&&startTask(new UploadTask(modeUpload.getArgs(),
-                        uploadFolder),"While upload view click.")&& (selectMode(null,"While upload view click.")||true);
+                return null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD&&startTask(
+                        new UploadTask(getString(R.string.upload,null),modeUpload.getArgs(),
+                        uploadFolder),"While upload view click.")&&
+                        (selectMode(null,"While upload view click.")||true);
             case R.string.download:
                 Mode modeDownload=getMode();
                 if (null!=tag&&tag instanceof NasPath){
@@ -111,8 +113,10 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                 if (null==downloadFolder||!(downloadFolder instanceof LocalFolder)){
                     return toast(R.string.notActionHere)||true;
                 }
-                return null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD&&startTask(new DownloadTask(modeDownload.getArgs(),
-                        downloadFolder),"While download view click.")&& (selectMode(null,"While download view click.")||true);
+                return null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD&&
+                        startTask(new DownloadTask(getString(R.string.download,null),modeDownload.getArgs(),
+                        downloadFolder),"While download view click.")&&
+                        (selectMode(null,"While download view click.")||true);
             case R.string.cancel:
                 return selectMode(null,"While cancel view click.");
             default:

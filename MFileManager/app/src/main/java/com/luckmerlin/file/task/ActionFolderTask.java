@@ -9,8 +9,16 @@ import java.util.List;
 public abstract class ActionFolderTask extends FilesTask {
     private final Folder mFolder;
 
-    public ActionFolderTask(List<Path> paths, Folder folder){
-       super(paths);
+    public ActionFolderTask(){
+        this(null);
+    }
+
+    public ActionFolderTask(String name){
+        this(name,null,null);
+    }
+
+    public ActionFolderTask(String name,List<Path> paths, Folder folder){
+       super(name,paths);
         mFolder=folder;
     }
 

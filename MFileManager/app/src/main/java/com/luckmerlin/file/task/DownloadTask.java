@@ -12,8 +12,8 @@ import java.util.List;
 
 public class DownloadTask extends ActionFolderTask{
 
-    public DownloadTask(List<Path> paths, Folder folder) {
-        super(paths,folder);
+    public DownloadTask(String name,List<Path> paths, Folder folder) {
+        super(name,paths,folder);
     }
 
     @Override

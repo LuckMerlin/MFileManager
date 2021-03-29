@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 
 import androidx.databinding.ObservableField;
 
@@ -24,6 +26,7 @@ import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
 import com.luckmerlin.file.task.ActionFolderTask;
 import com.luckmerlin.file.task.FilesTask;
+import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.file.ui.OnPathSpanClick;
 import com.luckmerlin.file.ui.UriPath;
 import com.luckmerlin.lib.ArraysList;
@@ -32,6 +35,8 @@ import com.luckmerlin.mvvm.activity.OnActivityStart;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
+import com.luckmerlin.task.Result;
+import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 
 import java.io.File;
@@ -201,7 +206,13 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
 
     @Override
     public void onTaskUpdated(Task task, int status) {
-        //Do nothing
+        String name=null!=task?task.getName():null;
+        Result result=null!=task?task.getResult():null;
+        Progress progress=null!=result?result.getProgress():null;
+        Object title=null!=progress?progress.getProgress(Progress.TYPE_TITLE):null;
+        SpannableStringBuilder builder=new SpannableStringBuilder("");
+        builder.append("[").append("]");
+        mNotifyText.set((null!=name?"["+name+"]":"")+(null!=title?title:""));
     }
 
     protected final boolean startTask(Task task,String debug){

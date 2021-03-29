@@ -23,8 +23,8 @@ import java.util.Map;
 
 public class UploadTask extends ActionFolderTask{
 
-    public UploadTask(List<Path> paths, Folder folder) {
-        super(paths,folder);
+    public UploadTask(String name,List<Path> paths, Folder folder) {
+        super(name,paths,folder);
     }
 
     @Override

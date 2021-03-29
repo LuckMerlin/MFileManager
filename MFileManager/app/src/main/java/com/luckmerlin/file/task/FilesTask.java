@@ -14,7 +14,16 @@ import java.util.Set;
 public abstract class FilesTask extends Task {
     private final LinkedHashMap<Path,Result> mPaths=new LinkedHashMap<>();
 
-    public FilesTask(List<Path> paths){
+    public FilesTask(){
+        this(null);
+    }
+
+    public FilesTask(String name){
+        this(name,null);
+    }
+
+    public FilesTask(String name,List<Path> paths){
+        super(name);
         LinkedHashMap<Path,Result> maps=mPaths;
         if (null!=paths&&null!=maps){
             synchronized (paths){
