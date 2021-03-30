@@ -6,9 +6,9 @@
         <variable name="buttonBackground" type="android.graphics.drawable.Drawable" />
         <variable name="buttonText" type="Object" />
         <import type="com.luckmerlin.file.util.FileSize"/>
-        <import type="com.luckmerlin.file.task.FileTask"/>
         <import type="android.view.View"/>
         <import type="com.luckmerlin.databinding.view.Touch"/>
+        <import type="com.luckmerlin.file.task.Progress"/>
     </data>
     <LinearLayout android:orientation="horizontal" android:background="@drawable/selector_round_dark_corner_small"
         android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_width="match_parent" android:minHeight="60dp"
@@ -21,9 +21,9 @@
             <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
                 <LinearLayout android:orientation="vertical"  android:layout_weight="1" android:layout_width="0dp"
                     android:layout_height="wrap_content">
-                    <TextView android:text="@{task.name??`我们.mp3`}" android:singleLine="true" android:layout_width="wrap_content"
+                    <TextView android:text="@{task.progress.getProgress(Progress.TYPE_TITLE)??``}" android:singleLine="true" android:layout_width="wrap_content"
                         android:textColor="@color/textTitle" android:textSize="14sp" android:textStyle="bold" android:layout_height="wrap_content"/>
-                    <TextView android:text="@{FileSize.formatSizeText(22222)+`/`+FileSize.formatSizeText(222222)}" android:textColor="@color/textTitle"
+                    <TextView android:text="@{FileSize.formatSizeText(task.progress.getProgress(Progress.TYPE_DONE))+`/`+FileSize.formatSizeText(task.progress.getProgress(Progress.TYPE_TOTAL))}" android:textColor="@color/textTitle"
                         android:singleLine="true" android:textSize="10sp" android:layout_width="wrap_content"
                         android:layout_height="wrap_content" android:layout_marginLeft="5dp"/>
                 </LinearLayout>

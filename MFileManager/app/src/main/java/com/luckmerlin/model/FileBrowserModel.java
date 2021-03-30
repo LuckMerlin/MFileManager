@@ -37,7 +37,7 @@ import com.luckmerlin.mvvm.activity.OnActivityStart;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
-import com.luckmerlin.task.Result;
+import com.luckmerlin.task.Response;
 import com.luckmerlin.task.Task;
 
 import java.io.File;
@@ -207,7 +207,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
 
     @Override
     public void onTaskUpdated(Task task, int status) {
-        Result result=null!=task?task.getResult():null;
+        Response result=null!=task?task.getResult():null;
         Progress progress=null!=result?result.getProgress():null;
         Object titleObject=null!=progress?progress.getProgress(Progress.TYPE_TITLE):null;
         String title=null!=titleObject?titleObject.toString():null;

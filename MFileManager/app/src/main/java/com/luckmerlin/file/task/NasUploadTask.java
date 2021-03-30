@@ -7,7 +7,7 @@ import com.luckmerlin.file.MD5;
 import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.task.OnTaskUpdate;
-import com.luckmerlin.task.Result;
+import com.luckmerlin.task.Response;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 
@@ -35,7 +35,7 @@ public class NasUploadTask extends FileTask<LocalPath,NasPath> {
     }
 
     @Override
-    protected Result onExecute(Task task, OnTaskUpdate callback) {
+    protected Response onExecute(Task task, OnTaskUpdate callback) {
         final NasPath toPath=getTo();
         final LocalPath fromPath=getFrom();
         if (null==toPath||null==fromPath){

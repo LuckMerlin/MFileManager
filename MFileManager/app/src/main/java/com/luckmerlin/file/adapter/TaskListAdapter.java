@@ -43,6 +43,8 @@ public class TaskListAdapter extends ListAdapter<Task> {
         if (null!=binding&&binding instanceof ItemTaskBinding){
             ItemTaskBinding taskBinding=(ItemTaskBinding)binding;
             taskBinding.setTask(task);
+            task.getProgress();
+
             int status=null!=task?task.getStatus(): Status.IDLE;
             String buttonBgColor="ffffff";
             Object buttonText=R.string.pause;
@@ -56,7 +58,7 @@ public class TaskListAdapter extends ListAdapter<Task> {
                 case Status.STARTED:
                     buttonBgColor="7CFC00";
                     break;
-                case Status.IDLE:
+                default:
                     buttonText=R.string.started;
                     break;
             }

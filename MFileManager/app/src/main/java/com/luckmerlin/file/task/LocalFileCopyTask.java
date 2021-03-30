@@ -8,7 +8,7 @@ import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.NasFolder;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.task.OnTaskUpdate;
-import com.luckmerlin.task.Result;
+import com.luckmerlin.task.Response;
 import com.luckmerlin.task.Task;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +27,7 @@ public final class LocalFileCopyTask extends Task {
     }
 
     @Override
-    protected Result onExecute(Task task, OnTaskUpdate callback) {
+    protected Response onExecute(Task task, OnTaskUpdate callback) {
         Folder folder=mToFolder;
         if (null==folder){
             Debug.W("Can't copy local file while folder invalid.");

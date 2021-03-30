@@ -4,6 +4,22 @@ import java.math.BigDecimal;
 
 public final class FileSize {
 
+    public static String formatSizeText(Object fileSize){
+        if (null==fileSize){
+            return null;
+        }else if (fileSize instanceof Double){
+            return formatSizeText((Double)fileSize);
+        }else if (fileSize instanceof Long){
+            return formatSizeText((Double)fileSize);
+        }else if (fileSize instanceof Integer){
+            return formatSizeText((Double)fileSize);
+        }else if (fileSize instanceof Short){
+            return formatSizeText((Double)fileSize);
+        }
+        return null;
+    }
+
+
     public static String formatSizeText(double fileSize){
             double kiloByte = fileSize/1024;
             if(kiloByte < 1) {

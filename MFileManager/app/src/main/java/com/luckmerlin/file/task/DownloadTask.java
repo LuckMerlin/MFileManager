@@ -6,7 +6,7 @@ import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.task.OnTaskUpdate;
-import com.luckmerlin.task.Result;
+import com.luckmerlin.task.Response;
 import com.luckmerlin.task.Task;
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class DownloadTask extends ActionFolderTask{
     }
 
     @Override
-    protected Result onExecute(Path child, Task task, OnTaskUpdate callback) {
+    protected Response onExecute(Path child, Task task, OnTaskUpdate callback) {
         Folder folder=getFolder();
         Task childTask=null;
         if (null==folder){

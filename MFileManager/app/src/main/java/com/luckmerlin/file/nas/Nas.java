@@ -2,16 +2,13 @@ package com.luckmerlin.file.nas;
 
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.NasPath;
-import com.luckmerlin.file.api.ApiList;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.retrofit.Retrofit;
 import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.file.util.FileSize;
-import com.luckmerlin.task.Result;
-
-import org.json.JSONObject;
+import com.luckmerlin.task.Response;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,14 +24,11 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
-import retrofit2.Response;
 import retrofit2.http.GET;
-import retrofit2.http.HEAD;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.PartMap;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
@@ -59,7 +53,7 @@ public final class Nas {
 
     private <T> T call(Call<T> call){
         try {
-            Response<T> response=null!=call?call.execute():null;
+            retrofit2.Response response=null!=call?call.execute():null;
             return null!=response?response.body():null;
         }catch (Exception e) {
             Debug.E("Exception call nas file.e="+e,e);
@@ -83,8 +77,8 @@ public final class Nas {
         return null;
     }
 
-    public final Result upload(File file, String serverUrl, String toPath, long seek,int cover,
-                               OnUploadProgressChange callback, String debug){
+    public final Response upload(File file, String serverUrl, String toPath, long seek, int cover,
+                                 OnUploadProgressChange callback, String debug){
         final UploadRequestBody uploadBody=new UploadRequestBody(file){
             @Override
             protected Boolean onProgress(long upload, float speed) {
@@ -105,9 +99,9 @@ public final class Nas {
             headersBuilder.add(Label.LABEL_MODE,encode(Long.toString(cover), "", encoding));
             Call<Reply<NasPath>> call= mRetrofit.prepare(ApiSaveFile.class, serverUrl).save(map,
                     MultipartBody.Part.create(headersBuilder.build(),uploadBody));
-            Response<Reply<NasPath>> response=null!=call?call.execute():null;
+            retrofit2.Response response=null!=call?call.execute():null;
             Reply<NasPath> reply= null!=response&&response.isSuccessful()?response.body():null;
-            return new Result() {
+            return new Response() {
                 @Override
                 public int getCode() {
                     return null!=reply?reply.getWhat(): What.WHAT_FAIL;
@@ -127,13 +121,18 @@ public final class Nas {
 
     private static abstract class UploadRequestBody extends RequestBody implements Progress {
         private final File mFile;
+        private final String mTitle;
         private boolean mCancel=false;
         private long mUploaded = 0;
+        private final long mTotal;
+        private long mSpeed;
 
         protected abstract Boolean onProgress(long upload,float speed);
 
         private UploadRequestBody(File file){
             mFile=file;
+            mTotal=null!=file?file.length():0;
+            mTitle=null!=file?file.getName():null;
         }
 
         @Override
@@ -147,7 +146,11 @@ public final class Nas {
                 case TYPE_DONE:
                     return mUploaded;
                 case TYPE_SPEED:
-                    return -1;
+                    return mSpeed;
+                case TYPE_TOTAL:
+                    return mTotal;
+                case TYPE_TITLE:
+                    return mTitle;
             }
             return null;
         }
