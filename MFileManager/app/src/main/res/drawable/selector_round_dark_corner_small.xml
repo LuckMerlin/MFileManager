@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item
-        android:state_pressed = "true"
-        android:drawable = "@drawable/round_dark_corner_small_pressed"/>
-    <item
-        android:state_enabled = "false"
-        android:drawable = "@drawable/round_dark_corner_small_disable"/>
-    <item android:drawable = "@drawable/round_dark_corner_small_normal" />
+    <item android:state_pressed = "true">
+        <shape android:shape="rectangle" >
+            <corners android:radius="5dp" />
+            <solid android:color="#33000000" />
+        </shape>
+    </item>
+    <item android:state_enabled = "false">
+        <shape android:shape="rectangle" >
+            <corners android:radius="5dp" />
+            <solid android:color="#55696969" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle" >
+            <corners android:radius="5dp" />
+            <solid android:color="#33ffffff" />
+        </shape>
+    </item>
 </selector>

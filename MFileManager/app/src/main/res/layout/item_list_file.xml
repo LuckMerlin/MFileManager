@@ -15,7 +15,6 @@
     <RelativeLayout
         android:clickable="true"
         binding:lmBinding="@{Touch.dispatch(Touch.CLICK|Touch.LONG_CLICK,path)}"
-        binding:background="@{path.accessible?@drawable/selector_round_dark_corner_small:@drawable/round_dark_corner_small_disable}"
         android:layout_marginBottom="4dp"
         android:layout_width="match_parent"
         android:layout_height="@dimen/listItemNormal">

@@ -4,7 +4,7 @@
         <variable name="vm" type="com.luckmerlin.model.TaskListModel" />
     </data>
     <LinearLayout android:fitsSystemWindows="true" android:orientation="vertical"
-        android:background="#bb000000" android:layout_width="match_parent"
+        android:background="#33000000" android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <TextView android:text="@string/transportManager" android:textSize="17sp" android:paddingLeft="10dp"
@@ -15,7 +15,7 @@
             android:layout_marginTop="5dp" android:layout_width="match_parent"
             android:layout_height="1dp"/>
 
-        <androidx.recyclerview.widget.RecyclerView android:paddingLeft="10dp" android:paddingRight="10dp"
+        <androidx.recyclerview.widget.RecyclerView
             android:adapter="@{vm.taskListAdapter}" android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </LinearLayout>

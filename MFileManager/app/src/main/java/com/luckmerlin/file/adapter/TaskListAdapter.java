@@ -1,5 +1,11 @@
 package com.luckmerlin.file.adapter;
 
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.StateListDrawable;
+import android.graphics.drawable.shapes.RoundRectShape;
 import android.view.ViewGroup;
 
 import androidx.databinding.ViewDataBinding;
@@ -31,6 +37,24 @@ public class TaskListAdapter extends ListAdapter<Task> {
         if (null!=binding&&binding instanceof ItemTaskBinding){
             ItemTaskBinding taskBinding=(ItemTaskBinding)binding;
             taskBinding.setTask(task);
+            float[] outerR = new float[] { 20, 20, 20, 20, 20, 20, 20, 20 };
+            RoundRectShape rr = new RoundRectShape(outerR, null, null);
+            ShapeDrawable drawableNormal = new ShapeDrawable(rr);
+            Paint paint=drawableNormal.getPaint();
+            paint.setColor(Color.parseColor("#44ffffff"));
+            paint.setStyle(Paint.Style.FILL);
+            ShapeDrawable drawablePressed=new ShapeDrawable(rr);
+            paint=drawablePressed.getPaint();
+            paint.setColor(Color.parseColor("#11ffffff"));
+            paint.setStyle(Paint.Style.FILL);
+            final int[] STATE_NORMAL = {-android.R.attr.state_selected};//-代表此属性为false
+            final int[] STATE_SELECTED = {android.R.attr.state_selected};
+            final int[] STATE_PRESSED = {android.R.attr.state_pressed};
+            StateListDrawable drawable=new StateListDrawable();
+            drawable.addState(STATE_SELECTED,drawablePressed);
+            drawable.addState(STATE_PRESSED,drawablePressed);
+            drawable.addState(STATE_NORMAL,drawableNormal);
+            taskBinding.setButtonBackground(drawable);
         }
     }
 }

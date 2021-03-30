@@ -15,6 +15,7 @@ import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
 import com.luckmerlin.file.task.NasDownloadTask;
 import com.luckmerlin.file.task.NasUploadTask;
+import com.luckmerlin.file.task.UploadTask;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
@@ -41,6 +42,8 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
         if (null!=taskBinder){
             taskBinder.register(this,null);
             mTaskListAdapter.set(taskBinder.getTasks(null,-1),null);
+            //Upload
+            mTaskListAdapter.add(new UploadTask(null,null,null));
          }
     }
 
