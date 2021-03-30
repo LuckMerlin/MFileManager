@@ -8,8 +8,8 @@
         <import type="com.luckmerlin.databinding.view.Touch"/>
         <import type="com.luckmerlin.file.util.FileSize"/>
         <import type="com.luckmerlin.file.binding.PathTextViewBinding"/>
-        <import type="com.luckmerlin.file.Mode"/>
         <import type="com.luckmerlin.file.R"/>
+        <import type="com.luckmerlin.file.Mode"/>
     </data>
     <LinearLayout android:background="@drawable/round_corner_gray" android:orientation="vertical"
         android:fitsSystemWindows="true" android:layout_width="match_parent" android:layout_height="match_parent">

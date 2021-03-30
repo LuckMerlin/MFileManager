@@ -96,6 +96,10 @@ public abstract class Task{
         return false;
     }
 
+    public final int getStatus() {
+        return mStatus;
+    }
+
     public final boolean isExecuting() {
         return mStatus==Status.EXECUTING;
     }

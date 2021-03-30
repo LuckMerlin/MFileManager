@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
     <data>
         <variable name="vm" type="com.luckmerlin.model.TaskListModel" />
+        <import type="com.luckmerlin.databinding.view.Touch"/>
+        <import type="com.luckmerlin.file.R"/>
     </data>
     <LinearLayout android:fitsSystemWindows="true" android:orientation="vertical"
         android:background="#33000000" android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <TextView android:text="@string/transportManager" android:textSize="17sp" android:paddingLeft="10dp"
-            android:paddingRight="10dp" android:textColor="@color/textTitle"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+       <LinearLayout android:layout_marginLeft="10dp" android:layout_marginRight="10dp" android:paddingBottom="5dp"
+            android:layout_gravity="center_vertical" android:gravity="center_vertical"
+            android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <ImageView binding:lmBinding="@{Touch.imageRes(R.drawable.selector_back,null,Touch.CLICK)}"
+                android:layout_width="@dimen/titleIconSize" android:layout_height="@dimen/titleIconSize"
+                android:layout_marginLeft="6dp" android:layout_marginRight="15dp"/>
+           <TextView android:text="@string/transportManager" android:textSize="17sp" android:paddingLeft="10dp"
+               android:paddingRight="10dp" android:textColor="@color/textTitle"
+               android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
 
         <View android:background="#55ffffff" android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp" android:layout_width="match_parent"

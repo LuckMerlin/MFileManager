@@ -83,7 +83,7 @@ public final class Nas {
         return null;
     }
 
-    public final Result upload(File file, String serverUrl, String toPath, long seek,
+    public final Result upload(File file, String serverUrl, String toPath, long seek,int cover,
                                OnUploadProgressChange callback, String debug){
         final UploadRequestBody uploadBody=new UploadRequestBody(file){
             @Override
@@ -102,6 +102,7 @@ public final class Nas {
             headersBuilder.add(Label.LABEL_PATH,encode(toPath, "", encoding));
             headersBuilder.add(Label.LABEL_LENGTH,encode(Long.toString(file.length()), "", encoding));
             headersBuilder.add(Label.LABEL_POSITION,encode(Long.toString(seek), "", encoding));
+            headersBuilder.add(Label.LABEL_MODE,encode(Long.toString(cover), "", encoding));
             Call<Reply<NasPath>> call= mRetrofit.prepare(ApiSaveFile.class, serverUrl).save(map,
                     MultipartBody.Part.create(headersBuilder.build(),uploadBody));
             Response<Reply<NasPath>> response=null!=call?call.execute():null;
@@ -172,6 +173,7 @@ public final class Nas {
                                 }
                                 mUploaded += read;
                                 sink.write(buffer, 0, read);
+                                Thread.sleep(1000);
                                 Boolean interruptUpload=onProgress(mUploaded, -1);
                                 if (null!=interruptUpload&&interruptUpload){
                                     Debug.D("File upload interrupted.");

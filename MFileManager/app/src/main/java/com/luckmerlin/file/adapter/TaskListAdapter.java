@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.luckmerlin.adapter.recycleview.ListAdapter;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.databinding.ItemTaskBinding;
+import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 
 import java.util.List;
@@ -27,6 +28,11 @@ public class TaskListAdapter extends ListAdapter<Task> {
     }
 
     @Override
+    public final RecyclerView.LayoutManager onResolveLayoutManager(RecyclerView rv) {
+        return new LinearLayoutManager(rv.getContext());
+    }
+
+    @Override
     protected Object onResolveDataViewHolder(ViewGroup viewGroup) {
         return R.layout.item_task;
     }
@@ -37,6 +43,25 @@ public class TaskListAdapter extends ListAdapter<Task> {
         if (null!=binding&&binding instanceof ItemTaskBinding){
             ItemTaskBinding taskBinding=(ItemTaskBinding)binding;
             taskBinding.setTask(task);
+            int status=null!=task?task.getStatus(): Status.IDLE;
+            String buttonBgColor="ffffff";
+            Object buttonText=R.string.pause;
+            switch (status){
+                case Status.EXECUTING:
+                    buttonBgColor="008000";
+                    break;
+                case Status.PREPARING:
+                    buttonBgColor="FFD700";
+                    break;
+                case Status.STARTED:
+                    buttonBgColor="7CFC00";
+                    break;
+                case Status.IDLE:
+                    buttonText=R.string.started;
+                    break;
+            }
+            taskBinding.setButtonText(buttonText);
+            //Button color
             float[] outerR = new float[] { 20, 20, 20, 20, 20, 20, 20, 20 };
             RoundRectShape rr = new RoundRectShape(outerR, null, null);
             ShapeDrawable drawableNormal = new ShapeDrawable(rr);
@@ -47,7 +72,7 @@ public class TaskListAdapter extends ListAdapter<Task> {
             paint=drawablePressed.getPaint();
             paint.setColor(Color.parseColor("#11ffffff"));
             paint.setStyle(Paint.Style.FILL);
-            final int[] STATE_NORMAL = {-android.R.attr.state_selected};//-代表此属性为false
+            final int[] STATE_NORMAL = {-android.R.attr.state_selected};
             final int[] STATE_SELECTED = {android.R.attr.state_selected};
             final int[] STATE_PRESSED = {android.R.attr.state_pressed};
             StateListDrawable drawable=new StateListDrawable();

@@ -94,6 +94,7 @@ public class UploadTask extends ActionFolderTask{
         maps.put(Label.LABEL_MD5, null != localMd5 ? localMd5 : "");
         maps.put(Label.LABEL_LENGTH, Long.toString(fileLength));
         Reply<NasPath> existReply = nas.getNasFileData(folderHostUrl, maps);
+        final int cover=getCover();
         long from = 0;
         if (null == existReply || !existReply.isSuccess()) {
             Debug.W("Can't upload file while fetch exist fail.");
@@ -103,12 +104,12 @@ public class UploadTask extends ActionFolderTask{
             if ((from = (null != exist ? exist.getLength() : 0)) < 0) {
                 Debug.W("Can't upload file while fetch exist length invalid.");
                 return code(What.WHAT_ERROR);
-            } else if (from >= fileLength) {
+            } else if (from >= fileLength&&cover!=What.WHAT_REPLACE) {
                 Debug.D("File already uploaded." + filePath);
                 return code(What.WHAT_ALREADY_DONE);
             }
         }
-        return nas.upload(file, folderHostUrl, targetPath, from, (long upload, float speed) -> {
+        return nas.upload(file, folderHostUrl, targetPath, from, cover,(long upload, float speed) -> {
             notifyTaskUpdate(Status.EXECUTING, callback);
             return super.isCanceled() ? true : null;
         }, null);

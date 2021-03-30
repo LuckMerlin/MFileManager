@@ -1,10 +1,5 @@
 package com.luckmerlin.file.task;
 
-import android.graphics.Color;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
-
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.task.OnTaskUpdate;
@@ -18,6 +13,7 @@ import java.util.Set;
 
 public abstract class FilesTask extends Task {
     private final LinkedHashMap<Path,Result> mPaths=new LinkedHashMap<>();
+    private int mCover=What.WHAT_INVALID;
 
     public FilesTask(){
         this(null);
@@ -56,6 +52,15 @@ public abstract class FilesTask extends Task {
             }
         }
         return null;
+    }
+
+    public final FilesTask setCover(int cover) {
+        this.mCover = cover;
+        return this;
+    }
+
+    public final int getCover() {
+        return mCover;
     }
 
     @Override

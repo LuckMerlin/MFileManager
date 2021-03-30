@@ -2,11 +2,9 @@ package com.luckmerlin.file.task;
 
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.util.Closer;
-import com.luckmerlin.file.Cover;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalFolder;
 import com.luckmerlin.file.LocalPath;
-import com.luckmerlin.file.MD5;
 import com.luckmerlin.file.NasFolder;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.task.OnTaskUpdate;
@@ -14,7 +12,6 @@ import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Task;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
@@ -22,7 +19,7 @@ public final class LocalFileCopyTask extends Task {
     private final LocalPath mFrom;
     private final Folder mToFolder;
     private long mPerSecondSize=0;
-    private int mCover= Cover.NONE;
+    private int mCover= What.WHAT_INVALID;
 
     public LocalFileCopyTask(LocalPath from, Folder foFolder){
         mFrom=from;
@@ -84,7 +81,7 @@ public final class LocalFileCopyTask extends Task {
             }else if (folder instanceof LocalFolder){
                 int cover=mCover;
                 File file=new File(target);
-                if (!file.exists()||cover==Cover.REPLACE){
+                if (!file.exists()||cover==What.WHAT_REPLACE){
                     String parent=file.getParent();
                     File parentFile=null!=parent&&parent.length()>0?new File(parent):null;
                     if (null!=parentFile&&!parentFile.exists()){
