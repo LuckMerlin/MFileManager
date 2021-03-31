@@ -9,8 +9,11 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.databinding.ObservableField;
 
 import com.luckmerlin.adapter.recycleview.Section;
@@ -207,19 +210,27 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
 
     @Override
     public void onTaskUpdated(Task task, int status) {
-        Response result=null!=task?task.getResponse():null;
-        Progress progress=null!=result?result.getProgress():null;
-        Object titleObject=null!=progress?progress.getProgress(Progress.TYPE_TITLE):null;
-        String title=null!=titleObject?titleObject.toString():null;
-        SpannableStringBuilder builder=new SpannableStringBuilder("");
-        int length=null!=title?title.length():-1;
-        if (length>0){
-            builder.append("[");
-            int start=builder.length();
-            builder=builder.append(title).append("]");
-            builder.setSpan(new ForegroundColorSpan(Color.RED),start,start+length, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        Progress progress=null!=task?task.getProgress():null;
+        CharSequence charSequence=null;
+        if (null!=progress){
+            Object titleObject=progress.getProgress(Progress.TYPE_TITLE);
+            String title=null!=titleObject?titleObject.toString():null;
+            SpannableStringBuilder builder=new SpannableStringBuilder("");
+            int length=null!=title?title.length():-1;
+            if (length>0){
+                Object perObject=progress.getProgress(Progress.TYPE_PERCENT);
+                int start=builder.length();
+                String preText=null!=perObject?perObject.toString():null;
+                if (null!=preText){
+                    builder.append(preText+"% ");
+                }
+                builder.append(title);
+                int end=builder.length();
+                builder.setSpan(new ForegroundColorSpan(Color.parseColor("#88ffffff")),start,end, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            }
+            charSequence=builder;
         }
-        mNotifyText.set(builder);
+        mNotifyText.set(charSequence);
     }
 
     protected final boolean startTask(Task task,String debug){

@@ -4,12 +4,14 @@ import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.task.Progress;
 
-public abstract class Task{
+public abstract class Task implements Status{
     private Response mResponse;
     private Progress mProgress;
     private int mStatus=Status.IDLE;
     private boolean mCanceled=false;
     private final String mName;
+    private long mStartTime;
+    private long mEndTime;
 
     public Task(){
         this(null);
@@ -28,14 +30,31 @@ public abstract class Task{
         String name=mName;
         Debug.D("Start execute task "+(null!=name?name:"."));
         notifyTaskUpdate(Status.STARTED,null,callback);
+        mStartTime=System.currentTimeMillis();
+        mEndTime=-1;
         Response response=mResponse=onExecute(this,(Task task1, int status)-> {
             if (Status.STARTED!=status&&status!=Status.STARTED){
                 notifyTaskUpdate(task1,status,null,callback);
             }
         });
+        mEndTime=System.currentTimeMillis();
         Debug.D("Finish execute task "+(null!=name?name:".")+" "+isResultSucceed(response));
         notifyTaskUpdate(Status.IDLE,null,callback);
         return true;
+    }
+
+    public final long getStartTime() {
+        return mStartTime;
+    }
+
+    public final long getEndTime() {
+        return mEndTime;
+    }
+
+    public final long getUsedTime(){
+        long time=mStartTime;
+        time=System.currentTimeMillis()-time;
+        return time>0?time:0;
     }
 
     public final boolean isSucceed(){

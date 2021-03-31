@@ -48,8 +48,9 @@ public class TaskListAdapter extends ListAdapter<Task> {
             task.getProgress();
             //
             int status=null!=task?task.getStatus(): Status.IDLE;
+            Debug.D("AAAAAAAAAAAAAAAA "+status);
             String buttonBgColor="ffffff";
-            Object buttonText=R.string.pause;
+            Object buttonText=R.string.cancel;
             switch (status){
                 case Status.EXECUTING:
                     buttonBgColor="008000";
@@ -61,11 +62,10 @@ public class TaskListAdapter extends ListAdapter<Task> {
                     buttonBgColor="7CFC00";
                     break;
                 default:
-                    buttonText=R.string.started;
+                    buttonText=null!=task&&task.isAnyStatus(Status.IDLE)&&task.isSucceed()?R.string.succeed:R.string.started;
                     break;
             }
             taskBinding.setButtonText(buttonText);
-            Debug.D("QQQQQQQQQQq "+task.getProgress());
             //Button color
             float[] outerR = new float[] { 20, 20, 20, 20, 20, 20, 20, 20 };
             RoundRectShape rr = new RoundRectShape(outerR, null, null);

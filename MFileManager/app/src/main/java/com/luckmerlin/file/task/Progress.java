@@ -5,5 +5,6 @@ public interface Progress {
     int TYPE_DONE=0x2;//0010
     int TYPE_TITLE=0x4;
     int TYPE_TOTAL=0x8;
+    int TYPE_PERCENT=0x12;
     Object getProgress(int type);
 }

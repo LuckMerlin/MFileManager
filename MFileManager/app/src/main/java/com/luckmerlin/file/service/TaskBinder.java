@@ -34,9 +34,9 @@ public class TaskBinder extends Binder implements Tasker{
     }
 
     @Override
-    public boolean cancelTask(Object task, boolean interrupt) {
+    public boolean cancelTask(Object task) {
         TaskService service=mTaskService;
-        return null!=service&&service.cancelTask(task,interrupt);
+        return null!=service&&service.cancelTask(task);
     }
 
     @Override

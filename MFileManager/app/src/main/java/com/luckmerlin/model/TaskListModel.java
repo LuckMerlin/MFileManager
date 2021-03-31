@@ -55,12 +55,27 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
        switch (resId){
            case R.drawable.selector_back:
                return onBackPressed(null);
+           case R.string.started:
+               return startTask(o)||true;
+           case R.string.cancel:
+               
+               return cancelTask(o)||true;
        }
         return false;
     }
 
     private boolean onBackPressed(String debug){
         return finishActivity(debug);
+    }
+
+    private boolean startTask(Object task){
+        TaskBinder binder=mTaskBinder;
+        return null!=task&&null!=binder&&binder.startTask(task);
+    }
+
+    private boolean cancelTask(Object task){
+        TaskBinder binder=mTaskBinder;
+        return null!=task&&null!=binder&&binder.cancelTask(task);
     }
 
     @Override

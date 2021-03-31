@@ -10,6 +10,6 @@ public interface Tasker {
     boolean register(OnTaskUpdate callback, Matchable matchable);
     boolean unregister(OnTaskUpdate callback);
     boolean startTask(Object task);
-    boolean cancelTask(Object task,boolean interrupt);
+    boolean cancelTask(Object task);
     List<Task> getTasks(Matchable matchable,int max);
 }

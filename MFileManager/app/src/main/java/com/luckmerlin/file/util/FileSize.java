@@ -8,13 +8,13 @@ public final class FileSize {
         if (null==fileSize){
             return null;
         }else if (fileSize instanceof Double){
-            return formatSizeText((Double)fileSize);
+            return formatSizeText((double)((Double)fileSize));
         }else if (fileSize instanceof Long){
-            return formatSizeText((Double)fileSize);
+            return formatSizeText((double)((Long)fileSize));
         }else if (fileSize instanceof Integer){
-            return formatSizeText((Double)fileSize);
+            return formatSizeText((double)((Integer)fileSize));
         }else if (fileSize instanceof Short){
-            return formatSizeText((Double)fileSize);
+            return formatSizeText((double)((Short)fileSize));
         }
         return null;
     }

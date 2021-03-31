@@ -15,7 +15,7 @@
             <ImageView binding:lmBinding="@{Touch.imageRes(R.drawable.selector_back,null,Touch.CLICK)}"
                 android:layout_width="@dimen/titleIconSize" android:layout_height="@dimen/titleIconSize"
                 android:layout_marginLeft="6dp" android:layout_marginRight="15dp"/>
-           <TextView android:text="@string/transportManager" android:textSize="17sp" android:paddingLeft="10dp"
+           <TextView android:text="@{@string/transportManager}" android:textSize="17sp" android:paddingLeft="10dp"
                android:paddingRight="10dp" android:textColor="@color/textTitle"
                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
         </LinearLayout>

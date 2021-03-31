@@ -11,6 +11,7 @@ import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.nas.Nas;
+import com.luckmerlin.file.util.Time;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Response;
 import com.luckmerlin.task.Status;
@@ -110,8 +111,9 @@ public class UploadTask extends ActionFolderTask{
             }
         }
         return nas.upload(file, folderHostUrl, targetPath, from, cover,(Progress progress) -> {
-            notifyTaskUpdate(Status.EXECUTING, callback);
+            notifyTaskUpdate(Status.EXECUTING, progress,callback);
             return super.isCanceled() ? true : null;
         }, null);
     }
+
 }

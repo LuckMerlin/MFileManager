@@ -37,7 +37,7 @@
                         android:visibility="@{null==vm.browserClient?View.GONE:View.VISIBLE}" android:singleLine="true" android:layout_height="wrap_content"/>
                    <Space android:layout_weight="1" android:layout_width="0dp" android:layout_height="wrap_content"/>
                    <TextView android:text="@{vm.notifyText??``}" android:singleLine="true" android:textColor="#fff" android:textSize="11sp"
-                       binding:lmBinding="@{Touch.dispatch(Touch.CLICK,vm.notifyText)}" android:layout_marginRight="20dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                       android:layout_marginLeft="5dp" binding:lmBinding="@{Touch.dispatch(Touch.CLICK,vm.notifyText)}" android:layout_marginRight="5dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
             </LinearLayout>
             <ImageView binding:lmBinding="@{Touch.imageRes(R.drawable.selector_menu,null,Touch.CLICK)}" android:layout_width="30dp" android:layout_height="30dp"/>

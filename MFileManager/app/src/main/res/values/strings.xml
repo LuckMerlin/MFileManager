@@ -17,10 +17,10 @@
     <string name="noneWhichPermission">无 %1s 权限</string>
     <string name="whichSucceed">%1s 成功</string>
     <string name="whichFailed">%1s 失败</string>
+    <string name="succeed">成功</string>
     <string name="download">下载</string>
     <string name="preparing">准备</string>
     <string name="executing">执行</string>
-    <string name="pause">暂停</string>
     <string name="started">开始</string>
     <string name="finished">完成</string>
     <string name="reboot">重启</string>

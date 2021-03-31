@@ -1,6 +1,7 @@
 package com.luckmerlin.file.nas;
 
 import com.luckmerlin.core.debug.Debug;
+import com.luckmerlin.core.util.Closer;
 import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.Reply;
@@ -17,6 +18,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import retrofit2.Call;
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -99,15 +102,11 @@ public final class Nas {
                     MultipartBody.Part.create(headersBuilder.build(),uploadBody));
             retrofit2.Response<Reply<NasPath>> response=null!=call?call.execute():null;
             Reply<NasPath> reply= null!=response&&response.isSuccessful()?response.body():null;
+            Debug.D("EEEEEEEEEEE "+reply);
             return new Response() {
                 @Override
                 public int getCode() {
                     return null!=reply?reply.getWhat(): What.WHAT_FAIL;
-                }
-
-                @Override
-                public Progress getProgress() {
-                    return uploadBody.mProgress;
                 }
             };
         } catch (IOException e) {
@@ -124,6 +123,7 @@ public final class Nas {
         private long mUploaded = 0;
         private final long mTotal;
         private long mSpeed;
+
         final Progress mProgress=new Progress() {
             @Override
             public Object getProgress(int type) {
@@ -131,11 +131,15 @@ public final class Nas {
                     case Progress.TYPE_DONE:
                         return mUploaded;
                     case Progress.TYPE_SPEED:
-                        return mSpeed;
+                        return FileSize.formatSizeText(mSpeed)+"/s";
                     case Progress.TYPE_TOTAL:
                         return mTotal;
                     case Progress.TYPE_TITLE:
                         return mTitle;
+                    case Progress.TYPE_PERCENT:
+                        long total=mTotal;
+                        long upload=mUploaded;
+                        return String.format("%.2f",total>0?(upload<=0?0:upload)*100.f/total:0);
                 }
                 return null;
             }
@@ -166,30 +170,36 @@ public final class Nas {
                     try {
                         int bufferSize = 1024;
                         byte[] buffer = new byte[bufferSize];
+                        long startTime=0;
                         in = new FileInputStream(file);
                         if (!mCancel) {
                             int read;
                             succeed = true;
-                            while ((read = in.read(buffer)) != -1) {
+                            while ((read = in.read(buffer)) >=0) {
                                 if (mCancel) {
                                     break;
-                                }
-                                mUploaded += read;
-                                sink.write(buffer, 0, read);
-                                Thread.sleep(1000);
-                                Boolean interruptUpload=onProgress(mUploaded, length ,-1);
-                                if (null!=interruptUpload&&interruptUpload){
-                                    Debug.D("File upload interrupted.");
-                                    break;
+                                }else if (read>0){
+                                    if ((startTime=startTime>0?System.nanoTime()-startTime:-1)>0){
+                                        startTime=TimeUnit.NANOSECONDS.toMillis(startTime);
+                                        mSpeed=startTime>0?read*1000/startTime:0;
+                                    }
+                                    startTime=System.nanoTime();
+                                    mUploaded += read;
+                                    sink.write(buffer, 0, read);
+                                    Thread.sleep(1000);
+                                    Boolean interruptUpload=onProgress(mUploaded, length ,-1);
+                                    if (null!=interruptUpload&&interruptUpload){
+                                        Debug.D("File upload interrupted.");
+                                        break;
+                                    }
                                 }
                             }
                         }
+                        sink.flush();
                     } catch (Exception e) {
                         succeed = false;
                     } finally {
-                        if (null != in) {
-                            in.close();
-                        }
+//                        new Closer().close(in,sink);
                     }
                 }
             }

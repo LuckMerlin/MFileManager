@@ -95,7 +95,7 @@ public final class TaskService extends Service implements Tasker{
     }
 
     @Override
-    public boolean cancelTask(Object task, boolean interrupt) {
+    public boolean cancelTask(Object task){
         List<Task> list=mTasks;
         if (null==task||null==list){
             return false;
@@ -105,7 +105,7 @@ public final class TaskService extends Service implements Tasker{
             int index=list.indexOf(task);
             child=index>=0?list.get(index):null;
         }
-        return null!=child&&child.cancel(interrupt);
+        return null!=child&&child.cancel(true);
     }
 
     @Override
