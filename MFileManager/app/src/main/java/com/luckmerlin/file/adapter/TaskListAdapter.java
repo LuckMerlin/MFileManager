@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.luckmerlin.adapter.recycleview.ListAdapter;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.R;
+import com.luckmerlin.file.Thumbs;
 import com.luckmerlin.file.databinding.ItemTaskBinding;
 import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.task.Status;
