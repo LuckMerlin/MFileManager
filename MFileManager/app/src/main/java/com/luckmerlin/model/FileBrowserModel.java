@@ -207,7 +207,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
 
     @Override
     public void onTaskUpdated(Task task, int status) {
-        Response result=null!=task?task.getResult():null;
+        Response result=null!=task?task.getResponse():null;
         Progress progress=null!=result?result.getProgress():null;
         Object titleObject=null!=progress?progress.getProgress(Progress.TYPE_TITLE):null;
         String title=null!=titleObject?titleObject.toString():null;

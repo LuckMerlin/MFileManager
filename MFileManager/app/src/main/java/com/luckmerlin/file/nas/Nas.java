@@ -17,7 +17,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-
 import retrofit2.Call;
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -36,7 +35,7 @@ public final class Nas {
     private final Retrofit mRetrofit=new Retrofit();
 
     public interface OnUploadProgressChange{
-        Boolean onProgressChanged(long upload, float speed);
+        Boolean onProgressChanged(Progress progress);
     }
 
     public interface ApiSaveFile {
@@ -53,7 +52,7 @@ public final class Nas {
 
     private <T> T call(Call<T> call){
         try {
-            retrofit2.Response response=null!=call?call.execute():null;
+            retrofit2.Response<T> response=null!=call?call.execute():null;
             return null!=response?response.body():null;
         }catch (Exception e) {
             Debug.E("Exception call nas file.e="+e,e);
@@ -81,8 +80,8 @@ public final class Nas {
                                  OnUploadProgressChange callback, String debug){
         final UploadRequestBody uploadBody=new UploadRequestBody(file){
             @Override
-            protected Boolean onProgress(long upload, float speed) {
-                return null!=callback?callback.onProgressChanged(upload,speed):null;
+            protected Boolean onProgress(long upload, long length,float speed) {
+                return null!=callback?callback.onProgressChanged(mProgress):null;
             }
         };
         try {
@@ -90,8 +89,7 @@ public final class Nas {
             map.put(Label.LABEL_PATH,RequestBody.create(MediaType.parse("text/plain"), toPath+"我爱你"));
             Debug.D("Upload file "+file.getName()+" to "+toPath+" "+(null!=debug?debug:"."));
             StringBuilder disposition = new StringBuilder("form-data; name=" + file.getName()+ ";filename=luckmerlin");
-            Headers.Builder headersBuilder = new Headers.Builder().addUnsafeNonAscii(
-                "Content-Disposition", disposition.toString());
+            Headers.Builder headersBuilder = new Headers.Builder().addUnsafeNonAscii("Content-Disposition", disposition.toString());
             final String encoding="utf-8";
             headersBuilder.add(Label.LABEL_PATH,encode(toPath, "", encoding));
             headersBuilder.add(Label.LABEL_LENGTH,encode(Long.toString(file.length()), "", encoding));
@@ -99,7 +97,7 @@ public final class Nas {
             headersBuilder.add(Label.LABEL_MODE,encode(Long.toString(cover), "", encoding));
             Call<Reply<NasPath>> call= mRetrofit.prepare(ApiSaveFile.class, serverUrl).save(map,
                     MultipartBody.Part.create(headersBuilder.build(),uploadBody));
-            retrofit2.Response response=null!=call?call.execute():null;
+            retrofit2.Response<Reply<NasPath>> response=null!=call?call.execute():null;
             Reply<NasPath> reply= null!=response&&response.isSuccessful()?response.body():null;
             return new Response() {
                 @Override
@@ -109,7 +107,7 @@ public final class Nas {
 
                 @Override
                 public Progress getProgress() {
-                    return uploadBody;
+                    return uploadBody.mProgress;
                 }
             };
         } catch (IOException e) {
@@ -119,15 +117,31 @@ public final class Nas {
         return null;
     }
 
-    private static abstract class UploadRequestBody extends RequestBody implements Progress {
+    private static abstract class UploadRequestBody extends RequestBody {
         private final File mFile;
         private final String mTitle;
         private boolean mCancel=false;
         private long mUploaded = 0;
         private final long mTotal;
         private long mSpeed;
+        final Progress mProgress=new Progress() {
+            @Override
+            public Object getProgress(int type) {
+                switch (type){
+                    case Progress.TYPE_DONE:
+                        return mUploaded;
+                    case Progress.TYPE_SPEED:
+                        return mSpeed;
+                    case Progress.TYPE_TOTAL:
+                        return mTotal;
+                    case Progress.TYPE_TITLE:
+                        return mTitle;
+                }
+                return null;
+            }
+        };
 
-        protected abstract Boolean onProgress(long upload,float speed);
+        protected abstract Boolean onProgress(long upload,long length,float speed);
 
         private UploadRequestBody(File file){
             mFile=file;
@@ -141,27 +155,13 @@ public final class Nas {
         }
 
         @Override
-        public Object getProgress(int type) {
-            switch (type){
-                case TYPE_DONE:
-                    return mUploaded;
-                case TYPE_SPEED:
-                    return mSpeed;
-                case TYPE_TOTAL:
-                    return mTotal;
-                case TYPE_TITLE:
-                    return mTitle;
-            }
-            return null;
-        }
-
-        @Override
         public final void writeTo(BufferedSink sink) throws IOException {
             final File file = mFile;
             boolean succeed = false;
             if (null != file && file.exists()) {
                 if (file.isFile()) {
-                    Debug.D("Uploading file "+ FileSize.formatSizeText(file.length()) +" "+file.getAbsolutePath());
+                    final long length=file.length();
+                    Debug.D("Uploading file "+ FileSize.formatSizeText(length) +" "+file.getAbsolutePath());
                     FileInputStream in = null;
                     try {
                         int bufferSize = 1024;
@@ -177,7 +177,7 @@ public final class Nas {
                                 mUploaded += read;
                                 sink.write(buffer, 0, read);
                                 Thread.sleep(1000);
-                                Boolean interruptUpload=onProgress(mUploaded, -1);
+                                Boolean interruptUpload=onProgress(mUploaded, length ,-1);
                                 if (null!=interruptUpload&&interruptUpload){
                                     Debug.D("File upload interrupted.");
                                     break;

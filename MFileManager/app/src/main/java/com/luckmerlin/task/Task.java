@@ -6,6 +6,7 @@ import com.luckmerlin.file.task.Progress;
 
 public abstract class Task{
     private Response mResponse;
+    private Progress mProgress;
     private int mStatus=Status.IDLE;
     private boolean mCanceled=false;
     private final String mName;
@@ -26,14 +27,14 @@ public abstract class Task{
         mResponse=null;
         String name=mName;
         Debug.D("Start execute task "+(null!=name?name:"."));
-        notifyTaskUpdate(Status.STARTED,callback);
+        notifyTaskUpdate(Status.STARTED,null,callback);
         Response response=mResponse=onExecute(this,(Task task1, int status)-> {
             if (Status.STARTED!=status&&status!=Status.STARTED){
-                notifyTaskUpdate(task1,status,callback);
+                notifyTaskUpdate(task1,status,null,callback);
             }
         });
         Debug.D("Finish execute task "+(null!=name?name:".")+" "+isResultSucceed(response));
-        notifyTaskUpdate(Status.IDLE,callback);
+        notifyTaskUpdate(Status.IDLE,null,callback);
         return true;
     }
 
@@ -58,8 +59,7 @@ public abstract class Task{
     }
 
     public final Progress getProgress() {
-        Response response=mResponse;
-        return null!=response?response.getProgress():null;
+        return mProgress;
     }
 
     public final boolean isFinished(){
@@ -77,11 +77,7 @@ public abstract class Task{
     }
 
     public final Response response(int code){
-        return response(code,null);
-    }
-
-    public final Response response(int code, Progress progress){
-        return new AbsResponse(code,progress);
+        return new AbsResponse(code);
     }
 
     public final boolean isAnyStatus(int ...status) {
@@ -113,12 +109,19 @@ public abstract class Task{
     }
 
     protected final void notifyTaskUpdate(int status,OnTaskUpdate callback){
-        notifyTaskUpdate(this,status,callback);
+      notifyTaskUpdate(status,null,callback);
     }
 
-    private final void notifyTaskUpdate(Task task,int status,OnTaskUpdate callback){
+    protected final void notifyTaskUpdate(int status,Object object,OnTaskUpdate callback){
+        notifyTaskUpdate(this,status,object,callback);
+    }
+
+    private final void notifyTaskUpdate(Task task,int status,Object object,OnTaskUpdate callback){
         if (null!=task&&task==this){
             mStatus=status;
+            if (null!=object&&object instanceof Progress){
+                mProgress=(Progress)object;
+            }
         }
         if (null!=callback){
             callback.onTaskUpdated(task,status);
@@ -127,21 +130,14 @@ public abstract class Task{
 
     protected static class AbsResponse implements Response {
         final int mCode;
-        final Progress mProgress;
 
-        protected AbsResponse(int code,Progress progress){
+        protected AbsResponse(int code){
             mCode=code;
-            mProgress=progress;
         }
 
         @Override
         public int getCode() {
             return mCode;
-        }
-
-        @Override
-        public Progress getProgress() {
-            return mProgress;
         }
     }
 }

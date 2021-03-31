@@ -21,18 +21,18 @@ public class DownloadTask extends ActionFolderTask{
         Folder folder=getFolder();
         Task childTask=null;
         if (null==folder){
-            return code(What.WHAT_ERROR);
+            return response(What.WHAT_ERROR);
         }else if (null==child){
-            return code(What.WHAT_ERROR);
+            return response(What.WHAT_ERROR);
         }else if (child instanceof NasPath){
             childTask= new NasFileCopyTask((NasPath)child,folder);
         }else if (child instanceof LocalPath){
             childTask= new LocalFileCopyTask((LocalPath)child,folder);
         }
         if (null==childTask){
-            return code(What.WHAT_NOT_SUPPORT);
+            return response(What.WHAT_NOT_SUPPORT);
         }
         childTask.execute(callback);
-        return childTask.getResult();
+        return childTask.getResponse();
     }
 }

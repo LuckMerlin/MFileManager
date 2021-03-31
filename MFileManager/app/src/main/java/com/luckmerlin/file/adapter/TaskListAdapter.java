@@ -12,8 +12,10 @@ import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.luckmerlin.adapter.recycleview.ListAdapter;
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.databinding.ItemTaskBinding;
+import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 
@@ -44,7 +46,7 @@ public class TaskListAdapter extends ListAdapter<Task> {
             ItemTaskBinding taskBinding=(ItemTaskBinding)binding;
             taskBinding.setTask(task);
             task.getProgress();
-
+            //
             int status=null!=task?task.getStatus(): Status.IDLE;
             String buttonBgColor="ffffff";
             Object buttonText=R.string.pause;
@@ -63,6 +65,7 @@ public class TaskListAdapter extends ListAdapter<Task> {
                     break;
             }
             taskBinding.setButtonText(buttonText);
+            Debug.D("QQQQQQQQQQq "+task.getProgress());
             //Button color
             float[] outerR = new float[] { 20, 20, 20, 20, 20, 20, 20, 20 };
             RoundRectShape rr = new RoundRectShape(outerR, null, null);
