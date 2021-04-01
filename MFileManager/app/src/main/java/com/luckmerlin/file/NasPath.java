@@ -60,7 +60,7 @@ public final class NasPath extends Path{
     }
 
     @Override
-    public String getMd5(Boolean force) {
+    public String getMd5() {
         return md5;
     }
 

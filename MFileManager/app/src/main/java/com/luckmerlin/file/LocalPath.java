@@ -2,7 +2,7 @@ package com.luckmerlin.file;
 
 import java.io.File;
 
-public final class LocalPath extends Path {
+public final class LocalPath extends Path implements Comparable {
     private final String mParent;
     private final String mName;
     private final String mExtension;
@@ -15,17 +15,25 @@ public final class LocalPath extends Path {
     }
 
     @Override
-    public String getMd5(Boolean force) {
-        if (null!=force){
-            if (null==mMD5||force){
-                String filePath=getPath();
-                mMD5=null!=filePath&&filePath.length()>0?new MD5().getFileMD5(new File(filePath)):mMD5;
-            }
+    public int compareTo(Object object) {
+        String name=mName;
+        if (null!=object&&object instanceof LocalPath){
+            String pathName=((LocalPath)object).mName;
+            return null!=name&&null!=pathName?name.compareTo(pathName):null==name?-1:1;
         }
+        return -1;
+    }
+
+    @Override
+    public String getMd5() {
         return mMD5;
     }
 
     public static LocalPath create(File file){
+        return create(file,false,null);
+    }
+
+    public static LocalPath create(File file,boolean load, Cancel cancel){
         if (null!=file){
             final String filePath=null!=file?file.getPath():null;
             String extension=null;String name=null;String parent=null;
@@ -46,7 +54,11 @@ public final class LocalPath extends Path {
                     }
                 }
             }
-           return new LocalPath(parent,name,extension);
+            LocalPath localPath= new LocalPath(parent,name,extension);
+            if (load&&file.isFile()&&file.length()>0){
+                localPath.mMD5=new MD5().getFileMD5(file,cancel);
+            }
+            return localPath;
         }
         return null;
     }

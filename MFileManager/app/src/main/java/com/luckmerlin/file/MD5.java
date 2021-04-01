@@ -2,7 +2,6 @@ package com.luckmerlin.file;
 
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.util.Closer;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.MessageDigest;
@@ -10,6 +9,11 @@ import java.security.MessageDigest;
 public final class MD5 {
 
     public String getFileMD5(File file) {
+        return getFileMD5(file,null);
+    }
+
+
+    public String getFileMD5(File file, Cancel cancel) {
         if (null==file||!file.exists()||file.length()<=0||!file.isFile()) {
             return null;
         }
@@ -22,6 +26,9 @@ public final class MD5 {
                 byte buffer[] = new byte[1024*1024];
                 in = new FileInputStream(file);
                 while ((len = in.read(buffer)) != -1) {
+                    if (null!=cancel&&cancel.isCanceled()){
+                        return null;
+                    }
                     digest.update(buffer, 0, len);
                 }
             }
@@ -37,6 +44,9 @@ public final class MD5 {
         }
         StringBuffer buffer  = new StringBuffer();
         for (int i = 0; i < bytes.length; i++) {
+            if (null!=cancel&&cancel.isCanceled()){
+                return null;
+            }
             int v = bytes[i] & 0xFF;
             String hv = Integer.toHexString(v);
             if (hv.length() < 2) {

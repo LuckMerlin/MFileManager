@@ -24,9 +24,15 @@ import java.util.Map;
 
 
 public class UploadTask extends ActionFolderTask{
+    private boolean mDeleteAfterSucceed=false;
 
     public UploadTask(String name,List<Path> paths, Folder folder) {
         super(name,paths,folder);
+    }
+
+    public final UploadTask enableDeleteAfterSucceed(boolean enable) {
+        this.mDeleteAfterSucceed = enable;
+        return this;
     }
 
     @Override
@@ -37,12 +43,17 @@ public class UploadTask extends ActionFolderTask{
         }else if (null==child){
             return response(What.WHAT_ERROR);
         }else if (child instanceof LocalPath){
+            String localFile=((LocalPath)child).getPath();
+            File file=null!=localFile&&localFile.length()>0?new File(localFile):null;
+            Response response=null;
            if (folder instanceof NasFolder){//Upload file into cloud
-               String localFile=((LocalPath)child).getPath();
-               File file=null!=localFile&&localFile.length()>0?new File(localFile):null;
-               return uploadFileToCloud(file,(NasFolder)folder,null,callback);
+               response= uploadFileToCloud(file,(NasFolder)folder,null,callback);
            }
-           return response(What.WHAT_NOT_SUPPORT);
+           if (null!=file&&file.isFile()&&mDeleteAfterSucceed&&null!=response&&response.getCode()==What.WHAT_SUCCEED){
+               Debug.D("Delete upload succeed file."+file);
+               file.delete();
+           }
+           return response;
         }
         return response(What.WHAT_NOT_SUPPORT);
     }
@@ -107,7 +118,7 @@ public class UploadTask extends ActionFolderTask{
                 Debug.W("Can't upload file while fetch exist length invalid.");
                 return response(What.WHAT_ERROR);
             } else if (from >= fileLength&&cover!=What.WHAT_REPLACE) {
-                String cloudMd5=exist.getMd5(null);
+                String cloudMd5=exist.getMd5();
                 if ((null!=cloudMd5&&null!=localMd5)||(null!=cloudMd5&&null!=localMd5&&cloudMd5.equals(localMd5))){
                     Debug.D("File already uploaded. "+ FileSize.formatSizeText(fileLength)+" " + filePath);
                     return response(What.WHAT_ALREADY_DONE);

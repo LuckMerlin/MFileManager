@@ -16,7 +16,7 @@ public abstract class Folder<A,T> extends Path implements Section<A,T> {
     }
 
     @Override
-    public final String getMd5(Boolean force) {
+    public final String getMd5() {
         return null;
     }
 }

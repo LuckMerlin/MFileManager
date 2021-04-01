@@ -110,7 +110,7 @@ public final class Nas {
             Reply<NasPath> nasPathReply=null!=list&&list.size()>0?list.get(0):null;
             boolean succeed=null!=nasPathReply&&nasPathReply.getWhat()==What.WHAT_SUCCEED;
             NasPath nasPath=null!=nasPathReply?nasPathReply.getData():null;
-            String md5=succeed&&null!=nasPath?nasPath.getMd5(null):null;
+            String md5=succeed&&null!=nasPath?nasPath.getMd5():null;
             int code=succeed&&((null==md5&&null==localMd5)||(null!=md5&&null!=localMd5&&
                     md5.equals(localMd5)))?What.WHAT_SUCCEED:What.WHAT_FAIL;
             return new Response() {

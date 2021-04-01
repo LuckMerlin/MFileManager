@@ -86,7 +86,8 @@ public class Retrofit {
     public final<T> RetrofitCanceler call(Observable<T> observable, Scheduler subscribeOn, Scheduler observeOn, Callback ...callbacks){
         if (null!=observable){
             final RetrofitCanceler canceler=new RetrofitCanceler();
-            observable.subscribeOn(null!=subscribeOn?subscribeOn:Schedulers.io()).observeOn(null!=observeOn?observeOn:AndroidSchedulers.mainThread())
+            observable.subscribeOn(null!=subscribeOn?subscribeOn:Schedulers.io()).
+                    observeOn(null!=observeOn?observeOn:AndroidSchedulers.mainThread())
                     .subscribe(new InnerCallback<T>(callbacks){
                         @Override
                         public void onSubscribe(Disposable d) {
