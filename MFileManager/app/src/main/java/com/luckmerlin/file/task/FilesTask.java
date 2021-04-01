@@ -76,18 +76,21 @@ public abstract class FilesTask extends Task {
             }
             Response executeResult=null;
             for (Path child:set) {
+                if (isCanceled()){
+                    executeResult=response(What.WHAT_CANCEL);
+                    break;
+                }
                 if (null==child) {
                     continue;
                 }
                 Response result=paths.get(child);
-                if (null!=result){
-                    executeResult=result.getCode()!=What.WHAT_ERROR?result:executeResult;
+                if (null!=result&&result.getCode()==What.WHAT_SUCCEED){
                     continue;
                 }
                 result=null!=child?onExecute(child,task,callback):null;
                 result=null!=result?result:response(What.WHAT_ERROR);
                 paths.put(child,result);
-                executeResult=result.getCode()!=What.WHAT_SUCCEED?result:executeResult;
+                executeResult=(null==executeResult||(result.getCode()!=What.WHAT_SUCCEED))?result:executeResult;
             }
             return executeResult;
         }

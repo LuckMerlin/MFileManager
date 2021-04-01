@@ -11,6 +11,7 @@ import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.nas.Nas;
+import com.luckmerlin.file.util.FileSize;
 import com.luckmerlin.file.util.Time;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Response;
@@ -83,7 +84,7 @@ public class UploadTask extends ActionFolderTask{
                     continue;
                 }
                 Response childResult = uploadFileToCloud(childFile, folder, rootPath, callback);
-                result = null != childResult && !isResultSucceed(childResult) ? childResult : result;
+                result = (null == childResult || !isResponseSucceed(childResult)) ? childResult : result;
             }
             return result;
         }
@@ -106,11 +107,16 @@ public class UploadTask extends ActionFolderTask{
                 Debug.W("Can't upload file while fetch exist length invalid.");
                 return response(What.WHAT_ERROR);
             } else if (from >= fileLength&&cover!=What.WHAT_REPLACE) {
-                Debug.D("File already uploaded." + filePath);
-                return response(What.WHAT_ALREADY_DONE);
+                String cloudMd5=exist.getMd5(null);
+                if ((null!=cloudMd5&&null!=localMd5)||(null!=cloudMd5&&null!=localMd5&&cloudMd5.equals(localMd5))){
+                    Debug.D("File already uploaded. "+ FileSize.formatSizeText(fileLength)+" " + filePath);
+                    return response(What.WHAT_ALREADY_DONE);
+                }
+                Debug.D("File already uploaded but md5 not match." + filePath+"\n "+localMd5+" "+cloudMd5);
+                return response(What.WHAT_FAIL);
             }
         }
-        return nas.upload(file, folderHostUrl, targetPath, from, cover,(Progress progress) -> {
+        return nas.upload(file, folderHostUrl, targetPath, from, cover,localMd5,(Progress progress) -> {
             notifyTaskUpdate(Status.EXECUTING, progress,callback);
             return super.isCanceled() ? true : null;
         }, null);

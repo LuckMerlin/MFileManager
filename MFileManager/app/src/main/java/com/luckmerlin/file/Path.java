@@ -13,6 +13,7 @@ public abstract class  Path implements Permission {
     public abstract long getTotal();
     public abstract int getPermission();
     public abstract String getMime();
+    public abstract String getMd5(Boolean force);
 
     public final String getNameWithExtension(){
         String sep=getSep();

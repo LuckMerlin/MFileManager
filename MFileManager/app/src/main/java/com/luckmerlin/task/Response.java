@@ -1,5 +1,6 @@
 package com.luckmerlin.task;
 
-public interface Response {
+public interface Response<T> {
    int getCode();
+   T getResult();
 }

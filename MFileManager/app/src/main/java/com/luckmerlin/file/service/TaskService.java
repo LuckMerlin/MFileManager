@@ -88,7 +88,7 @@ public final class TaskService extends Service implements Tasker{
             return false;
         }
         if (finalTask instanceof FilesTask){//Test
-            ((FilesTask)finalTask).setCover(What.WHAT_REPLACE);
+//            ((FilesTask)finalTask).setCover(What.N);
         }
 
         return null!=executor.submit(()-> { finalTask.execute(mInnerUpdate); });

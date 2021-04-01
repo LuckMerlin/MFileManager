@@ -10,4 +10,9 @@ public final class MapResult<T extends Task,V extends Response> extends HashMap<
     public int getCode() {
         return 0;
     }
+
+    @Override
+    public Object getResult() {
+        return null;
+    }
 }

@@ -6,11 +6,23 @@ public final class LocalPath extends Path {
     private final String mParent;
     private final String mName;
     private final String mExtension;
+    private String mMD5;
 
     public LocalPath(String parent,String name,String extension){
         mParent=parent;
         mName=name;
         mExtension=extension;
+    }
+
+    @Override
+    public String getMd5(Boolean force) {
+        if (null!=force){
+            if (null==mMD5||force){
+                String filePath=getPath();
+                mMD5=null!=filePath&&filePath.length()>0?new MD5().getFileMD5(new File(filePath)):mMD5;
+            }
+        }
+        return mMD5;
     }
 
     public static LocalPath create(File file){

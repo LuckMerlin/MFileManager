@@ -12,6 +12,7 @@ public final class NasPath extends Path{
     private String mime;
     private String pathSep;
     private int permissions;
+    private String md5;
 
     public NasPath setExtension(String extension) {
         this.extension = extension;
@@ -56,6 +57,11 @@ public final class NasPath extends Path{
     public NasPath setPermissions(int permissions) {
         this.permissions = permissions;
         return this;
+    }
+
+    @Override
+    public String getMd5(Boolean force) {
+        return md5;
     }
 
     public NasPath setPort(int port) {

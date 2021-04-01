@@ -38,7 +38,7 @@ public abstract class Task implements Status{
             }
         });
         mEndTime=System.currentTimeMillis();
-        Debug.D("Finish execute task "+(null!=name?name:".")+" "+isResultSucceed(response));
+        Debug.D("Finish execute task "+(null!=name?name:".")+" "+isResponseSucceed(response));
         notifyTaskUpdate(Status.IDLE,null,callback);
         return true;
     }
@@ -58,7 +58,7 @@ public abstract class Task implements Status{
     }
 
     public final boolean isSucceed(){
-        return isResultSucceed(mResponse);
+        return isResponseSucceed(mResponse);
     }
 
     public final boolean isCanceled(){
@@ -91,12 +91,17 @@ public abstract class Task implements Status{
         return mStatus!=Status.IDLE;
     }
 
-    protected final boolean isResultSucceed(Response result){
-        return null!=result&&result.getCode()==What.WHAT_SUCCEED;
+    protected final boolean isResponseSucceed(Response result){
+        int code=null!=result?result.getCode():What.WHAT_FAIL;
+        return (code==What.WHAT_SUCCEED)||(code==What.WHAT_ALREADY_DONE);
     }
 
     public final Response response(int code){
-        return new AbsResponse(code);
+        return response(code,null);
+    }
+
+    public final Response response(int code,Object result){
+        return new AbsResponse(code,result);
     }
 
     public final boolean isAnyStatus(int ...status) {
@@ -147,16 +152,23 @@ public abstract class Task implements Status{
         }
     }
 
-    protected static class AbsResponse implements Response {
+    protected static final class AbsResponse<T> implements Response<T> {
         final int mCode;
+        final T mResult;
 
-        protected AbsResponse(int code){
+        protected AbsResponse(int code,T result){
             mCode=code;
+            mResult=result;
         }
 
         @Override
         public int getCode() {
             return mCode;
+        }
+
+        @Override
+        public T getResult() {
+            return mResult;
         }
     }
 }

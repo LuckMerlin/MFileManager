@@ -58,7 +58,6 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
            case R.string.started:
                return startTask(o)||true;
            case R.string.cancel:
-               
                return cancelTask(o)||true;
        }
         return false;

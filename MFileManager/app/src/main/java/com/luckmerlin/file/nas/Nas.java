@@ -2,6 +2,7 @@ package com.luckmerlin.file.nas;
 
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.util.Closer;
+import com.luckmerlin.file.MD5;
 import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.Reply;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -44,7 +46,7 @@ public final class Nas {
     public interface ApiSaveFile {
         @POST("/file/upload")
         @Multipart
-        Call<Reply<NasPath>> save(@PartMap Map<String, RequestBody> args,@Part MultipartBody.Part file);
+        Call<Reply<List<Reply<NasPath>>>> save(@PartMap Map<String, RequestBody> args, @Part MultipartBody.Part file);
 
         @GET("/file/head")
         Call<Reply<NasPath>> getFileData(@QueryMap Map<String,String> maps);
@@ -79,9 +81,9 @@ public final class Nas {
         return null;
     }
 
-    public final Response upload(File file, String serverUrl, String toPath, long seek, int cover,
+    public final Response upload(File file, String serverUrl, String toPath, long seek, int cover,String localMd5,
                                  OnUploadProgressChange callback, String debug){
-        final UploadRequestBody uploadBody=new UploadRequestBody(file){
+        final UploadRequestBody uploadBody=new UploadRequestBody(file,seek){
             @Override
             protected Boolean onProgress(long upload, long length,float speed) {
                 return null!=callback?callback.onProgressChanged(mProgress):null;
@@ -94,19 +96,32 @@ public final class Nas {
             StringBuilder disposition = new StringBuilder("form-data; name=" + file.getName()+ ";filename=luckmerlin");
             Headers.Builder headersBuilder = new Headers.Builder().addUnsafeNonAscii("Content-Disposition", disposition.toString());
             final String encoding="utf-8";
+            localMd5=null!=localMd5&&localMd5.length()>0?localMd5:new MD5().getFileMD5(file);
             headersBuilder.add(Label.LABEL_PATH,encode(toPath, "", encoding));
             headersBuilder.add(Label.LABEL_LENGTH,encode(Long.toString(file.length()), "", encoding));
             headersBuilder.add(Label.LABEL_POSITION,encode(Long.toString(seek), "", encoding));
+            headersBuilder.add(Label.LABEL_MD5,encode(localMd5, "", encoding));
             headersBuilder.add(Label.LABEL_MODE,encode(Long.toString(cover), "", encoding));
-            Call<Reply<NasPath>> call= mRetrofit.prepare(ApiSaveFile.class, serverUrl).save(map,
+            Call<Reply<List<Reply<NasPath>>>> call= mRetrofit.prepare(ApiSaveFile.class, serverUrl).save(map,
                     MultipartBody.Part.create(headersBuilder.build(),uploadBody));
-            retrofit2.Response<Reply<NasPath>> response=null!=call?call.execute():null;
-            Reply<NasPath> reply= null!=response&&response.isSuccessful()?response.body():null;
-            Debug.D("EEEEEEEEEEE "+reply);
+            retrofit2.Response<Reply<List<Reply<NasPath>>>> response=null!=call?call.execute():null;
+            Reply<List<Reply<NasPath>>> reply= null!=response&&response.isSuccessful()?response.body():null;
+            List<Reply<NasPath>> list=null!=reply?reply.getData():null;
+            Reply<NasPath> nasPathReply=null!=list&&list.size()>0?list.get(0):null;
+            boolean succeed=null!=nasPathReply&&nasPathReply.getWhat()==What.WHAT_SUCCEED;
+            NasPath nasPath=null!=nasPathReply?nasPathReply.getData():null;
+            String md5=succeed&&null!=nasPath?nasPath.getMd5(null):null;
+            int code=succeed&&((null==md5&&null==localMd5)||(null!=md5&&null!=localMd5&&
+                    md5.equals(localMd5)))?What.WHAT_SUCCEED:What.WHAT_FAIL;
             return new Response() {
                 @Override
                 public int getCode() {
-                    return null!=reply?reply.getWhat(): What.WHAT_FAIL;
+                    return code;
+                }
+
+                @Override
+                public Object getResult() {
+                    return nasPath;
                 }
             };
         } catch (IOException e) {
@@ -120,7 +135,7 @@ public final class Nas {
         private final File mFile;
         private final String mTitle;
         private boolean mCancel=false;
-        private long mUploaded = 0;
+        private long mUploaded ;
         private final long mTotal;
         private long mSpeed;
 
@@ -147,8 +162,9 @@ public final class Nas {
 
         protected abstract Boolean onProgress(long upload,long length,float speed);
 
-        private UploadRequestBody(File file){
+        private UploadRequestBody(File file,long seek){
             mFile=file;
+            mUploaded=seek;
             mTotal=null!=file?file.length():0;
             mTitle=null!=file?file.getName():null;
         }
@@ -165,14 +181,19 @@ public final class Nas {
             if (null != file && file.exists()) {
                 if (file.isFile()) {
                     final long length=file.length();
-                    Debug.D("Uploading file "+ FileSize.formatSizeText(length) +" "+file.getAbsolutePath());
                     FileInputStream in = null;
                     try {
-                        int bufferSize = 1024;
+                        int bufferSize = 1024*1024;
                         byte[] buffer = new byte[bufferSize];
                         long startTime=0;
                         in = new FileInputStream(file);
                         if (!mCancel) {
+                            long seek=mUploaded;
+                            if ((mUploaded=(seek=(seek<=0?0:seek)))>0&&seek<=length){
+                                in.skip(seek);
+                            }
+                            Debug.D("Uploading file  "+FileSize.formatSizeText(mUploaded)+"-"
+                                    + FileSize.formatSizeText(length) +" "+file.getAbsolutePath());
                             int read;
                             succeed = true;
                             while ((read = in.read(buffer)) >=0) {
@@ -196,10 +217,11 @@ public final class Nas {
                             }
                         }
                         sink.flush();
+                        sink.emit();
                     } catch (Exception e) {
                         succeed = false;
                     } finally {
-//                        new Closer().close(in,sink);
+                        new Closer().close(in);
                     }
                 }
             }
