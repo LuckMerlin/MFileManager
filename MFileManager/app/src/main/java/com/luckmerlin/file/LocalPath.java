@@ -1,11 +1,14 @@
 package com.luckmerlin.file;
 
+import com.luckmerlin.file.api.Reply;
+
 import java.io.File;
 
 public final class LocalPath extends Path implements Comparable {
     private final String mParent;
     private final String mName;
     private final String mExtension;
+    private Reply<Path> mSync;
     private String mMD5;
 
     public LocalPath(String parent,String name,String extension){
@@ -27,6 +30,16 @@ public final class LocalPath extends Path implements Comparable {
     @Override
     public String getMd5() {
         return mMD5;
+    }
+
+    public LocalPath load(boolean load, Cancel cancel){
+        String path=getPath();
+        File file=null!=path&&path.length()>0?new File(path):null;
+        if (load&&file.isFile()&&file.length()>0){
+            String md5=new MD5().getFileMD5(file,cancel);
+            mMD5=null!=md5&&md5.length()>0?md5:mMD5;
+        }
+        return this;
     }
 
     public static LocalPath create(File file){
@@ -54,13 +67,18 @@ public final class LocalPath extends Path implements Comparable {
                     }
                 }
             }
-            LocalPath localPath= new LocalPath(parent,name,extension);
-            if (load&&file.isFile()&&file.length()>0){
-                localPath.mMD5=new MD5().getFileMD5(file,cancel);
-            }
-            return localPath;
+            return new LocalPath(parent,name,extension).load(load,cancel);
         }
         return null;
+    }
+
+    public Reply<Path> getSync() {
+        return mSync;
+    }
+
+    public LocalPath setSync(Reply<Path> sync) {
+        this.mSync = sync;
+        return this;
     }
 
     @Override

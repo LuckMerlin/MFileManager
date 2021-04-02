@@ -1,6 +1,7 @@
 package com.luckmerlin.file.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.ViewGroup;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ViewDataBinding;
@@ -14,6 +15,7 @@ import com.luckmerlin.adapter.recycleview.SectionRequest;
 import com.luckmerlin.core.Canceler;
 import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Folder;
+import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
@@ -114,6 +116,24 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
             ItemListFileBinding fileBinding=(ItemListFileBinding)binding;
             fileBinding.setPath(data);
             fileBinding.setPosition(i+1);
+            int syncColor=Color.TRANSPARENT;
+            if (null!=data&&data instanceof LocalPath){
+                LocalPath localPath=(LocalPath)data;
+                String md5=!localPath.isDirectory()?data.getMd5():null;
+                if (null!=md5&&md5.length()>0){
+                    Reply<Path> reply=localPath.getSync();
+                    if (null==reply){
+                        syncColor=Color.WHITE;
+                    }else if (reply.getWhat()==What.WHAT_NOT_EXIST){
+                        syncColor=Color.GRAY;
+                    }else if (reply.getWhat()==What.WHAT_SUCCEED&&null!=reply.getData()){
+                        syncColor=Color.GREEN;
+                    }else{
+                        syncColor=Color.RED;
+                    }
+                }
+            }
+            fileBinding.setSyncColor(syncColor);
         }else if (null!=binding&&binding instanceof ItemContentEmptyBinding){
             ItemContentEmptyBinding emptyBinding=(ItemContentEmptyBinding)binding;
             switch (mLoadWhat){

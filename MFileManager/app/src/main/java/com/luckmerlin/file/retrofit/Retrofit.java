@@ -36,7 +36,6 @@ public class Retrofit {
     }
 
     protected String onResolveUrl(Class<?> cls,Executor callbackExecutor){
-
         return null;
     }
 

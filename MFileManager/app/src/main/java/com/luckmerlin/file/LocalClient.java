@@ -18,7 +18,14 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Scheduler;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
@@ -26,13 +33,12 @@ import retrofit2.http.POST;
 public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalPath>{
     private String mName;
     private final String mRootPath;
-    private String mCloudHostUrl;
-    private final Retrofit mRetrofit=new Retrofit();
+    private String mCloudHostUrl="http://192.168.0.4:2019";
 
     private interface Api{
         @POST("/file/query")
         @FormUrlEncoded
-        Observable<Reply<List<Reply<NasPath>>>> queryFiles(@Field(Label.LABEL_MD5) List<String> md5s);
+        Call<Reply<List<Reply<NasPath>>>> queryFiles(@Field(Label.LABEL_MD5) List<String> md5s);
     }
 
     public LocalClient(String rootPath,String name){
@@ -85,18 +91,17 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
         final List<LocalPath> list=new ArrayList<>();
         final LocalPath currentPath=LocalPath.create(browserFile);
         browserFile.listFiles((File file)-> {
-            if (null==file){
-                return false;
-            }
-            String fileName=file.getName();
-            if (null!=filterName&&filterName.length()>0){
-                if (null==fileName||!fileName.contains(filterName)){
-                    return false;
+            if (null!=file){
+                String fileName=file.getName();
+                if (null!=filterName&&filterName.length()>0){
+                    if (null==fileName||!fileName.contains(filterName)){
+                        return false;
+                    }
                 }
-            }
-            LocalPath child=LocalPath.create(browserFile,false,null);
-            if (null!=child){
-                list.add(child);
+                LocalPath child=LocalPath.create(file,false,null);
+                if (null!=child){
+                    list.add(child);
+                }
             }
             return false;
         });
@@ -112,7 +117,42 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
         LocalFolder<Query> localFolder=new LocalFolder<>(currentPath,path,from,to,list);
         Reply<LocalFolder<Query>> reply=new Reply<LocalFolder<Query>>(true, code,null,localFolder);
         notifyApiFinish(code,null,reply,localFolder,callback);
-        mRetrofit.call(mRetrofit.prepare(Api.class,mCloudHostUrl).queryFiles(null), );
-        return null!=list&&list.size()>0?mRetrofit.prepare(Api.class,mCloudHostUrl).queryFiles(null):(a,b  )->true;
+        String serverUrl=mCloudHostUrl;
+        if (null==list||list.size()<=0||null==serverUrl||serverUrl.length()<=0){
+            return (a,b  )->true;
+        }
+        final Disposable[] disposables=new Disposable[1];
+        final Cancel canceler=new Cancel(false){
+            @Override
+            protected void onCancelChange(boolean canceled) {
+                Disposable disposable=disposables[0];
+                if (null!=disposable&&canceled){
+                    Debug.D("Cancel query local folder while cancel.");
+                    disposable.dispose();
+                }
+            }
+        };
+        final Disposable disposable=disposables[0]=Observable.create((ObservableEmitter<List<LocalPath>> emitter)-> {
+            for (LocalPath localPath:list) {
+                if (canceler.isCanceled()){
+                    break;
+                }else if (null!=localPath){
+                    localPath.load(true,canceler);
+                    Debug.D("AAAAAAAAAAAa "+localPath.getMd5());
+                }
+            }
+            if (!canceler.isCanceled()){
+                Retrofit retrofit=new Retrofit();
+                Call<Reply<List<Reply<NasPath>>>> call=retrofit.prepare(Api.class,serverUrl).queryFiles(null);
+                Response<Reply<List<Reply<NasPath>>>> response=call.execute();
+                Reply<List<Reply<NasPath>>> callReply=null!=response&&response.isSuccessful()?response.body():null;
+                Debug.D("EEEEEEEEEEEEE "+callReply);
+            }
+        }).subscribeOn(Schedulers.io()).subscribe();
+        if (canceler.isCanceled()&&null!=disposable){
+            Debug.D("Cancel query local folder while canceled.");
+            disposable.dispose();
+        }
+        return canceler ;
     }
 }

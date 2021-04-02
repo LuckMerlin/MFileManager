@@ -45,7 +45,7 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-//        add(new LocalClient("/sdcard",getString(R.string.local,null)),"");
+        add(new LocalClient("/sdcard",getString(R.string.local,null)),"");
         add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
 //        add(new NasClient("http://http://192.168.0.10",80,"NAS"),"");
         //

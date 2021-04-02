@@ -13,10 +13,15 @@ public class Cancel implements Canceler {
         return mCanceled;
     }
 
+    protected void onCancelChange(boolean canceled){
+        //Do nothing
+    }
+
     @Override
     public final boolean cancel(boolean b, String s) {
         if (b!=mCanceled){
             mCanceled=b;
+            onCancelChange(b);
             return true;
         }
         return false;

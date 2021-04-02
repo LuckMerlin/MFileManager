@@ -6,70 +6,41 @@
         <variable name="isChoose" type="boolean" />
         <variable name="path" type="com.luckmerlin.file.Path" />
         <variable name="position" type="int" />
+        <variable name="syncColor" type="int" />
         <import type="android.view.View"/>
         <import type="com.luckmerlin.file.util.FileSize"/>
         <import type="com.luckmerlin.file.binding.ImageBinding"/>
         <import type="com.luckmerlin.file.util.Time"/>
         <import type="com.luckmerlin.databinding.view.Touch"/>
     </data>
-    <RelativeLayout
-        android:clickable="true"
-        binding:lmBinding="@{Touch.dispatch(Touch.CLICK|Touch.LONG_CLICK,path)}"
-        android:layout_marginBottom="4dp"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/listItemNormal">
+    <LinearLayout android:clickable="true" binding:lmBinding="@{Touch.dispatch(Touch.CLICK|Touch.LONG_CLICK,path)}"
+        android:orientation="horizontal" android:layout_marginBottom="4dp"
+        android:layout_width="match_parent" android:layout_height="@dimen/listItemNormal">
 
-            <ImageView
-                android:id="@+id/itemListFile_icon"
-                binding:lmBinding="@{ImageBinding.image(path)}"
-                android:layout_alignParentLeft="true"
-                android:padding="2dp"
-                android:layout_margin="1dp"
-                android:layout_width="@dimen/listItemNormal"
-                android:layout_height="@dimen/listItemNormal"/>
-            <LinearLayout
-                android:layout_toRightOf="@id/itemListFile_icon"
-                android:layout_width="match_parent"
-                android:orientation="vertical"
-                android:layout_margin="5dp"
-                android:layout_height="wrap_content">
+            <ImageView android:id="@+id/itemListFile_icon" binding:lmBinding="@{ImageBinding.image(path)}"
+                android:layout_alignParentLeft="true" android:padding="2dp" android:layout_margin="1dp"
+                android:layout_width="@dimen/listItemNormal" android:layout_height="@dimen/listItemNormal"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:textSize="@dimen/textTitle"
-                    android:singleLine="true"
-                    android:text="@{path.name??``}"
-                    android:textColor="@color/textTitle"
-                    android:layout_height="wrap_content"/>
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
+            <View android:backgroundColor="@{syncColor}" android:layout_width="2dp" android:layout_height="2dp"
+                android:layout_gravity="center_vertical" android:alpha="0.6"/>
+
+            <LinearLayout android:layout_toRightOf="@id/itemListFile_icon" android:layout_width="match_parent"
+                android:layout_weight="1" android:orientation="vertical"
+                android:layout_margin="5dp" android:layout_height="wrap_content">
+                <TextView android:layout_width="match_parent" android:textSize="@dimen/textTitle" android:singleLine="true"
+                    android:text="@{path.name??``}" android:textColor="@color/textTitle" android:layout_height="wrap_content"/>
+                <LinearLayout android:orientation="horizontal" android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <View
-                        android:alpha="0.9"
-                        android:layout_marginTop="3dp"
-                        android:visibility="gone"
-                        android:layout_marginBottom="3dp"
-                        android:layout_width="3dp"
-                        android:layout_height="3dp"/>
-                    <TextView
-                        style="@style/titleSmallTextView"
+                    <View android:alpha="0.9" android:layout_marginTop="3dp" android:visibility="gone"
+                        android:layout_marginBottom="3dp" android:layout_width="3dp" android:layout_height="3dp"/>
+                    <TextView style="@style/titleSmallTextView"
                         android:text="@{path.directory?`(`+(path.total)+`)`:FileSize.formatSizeText((double)path.length)+` `+(path.extension??``)}"/>
-                    <TextView
-                        style="@style/titleSmallTextView"
-                        android:text="@{Time.formatTime(path.modifyTime)}"/>
+                    <TextView style="@style/titleSmallTextView" android:text="@{Time.formatTime(path.modifyTime)}"/>
                 </LinearLayout>
             </LinearLayout>
-            <CheckBox
-                android:id="@+id/itemListFile_selectCB"
-                android:layout_alignParentRight="true"
-                style="@style/checkboxStyle"
-                android:clickable="false"
-                android:duplicateParentState="true"
-                android:visibility="@{isMultiChoose?View.VISIBLE:View.GONE}"
-                android:layout_centerVertical="true"
-                android:checked="@{isChoose}"
-                android:layout_width="@dimen/listIconNormal"
-                android:layout_height="@dimen/listIconNormal"/>
-        </RelativeLayout>
+
+            <CheckBox android:id="@+id/itemListFile_selectCB" android:layout_alignParentRight="true" style="@style/checkboxStyle"
+                android:clickable="false" android:duplicateParentState="true" android:visibility="@{isMultiChoose?View.VISIBLE:View.GONE}"
+                android:layout_centerVertical="true" android:checked="@{isChoose}" android:layout_width="@dimen/listIconNormal" android:layout_height="@dimen/listIconNormal"/>
+        </LinearLayout>
     </layout>
