@@ -77,6 +77,9 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     }
 
     public final boolean selectMode(Mode mode,String debug){
+        if (null!=mode){
+            mode.cleanArgs();
+        }
         mBrowserMode.set(mode);
         return true;
     }

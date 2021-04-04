@@ -201,7 +201,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
                 }else if (what==What.WHAT_NOT_EXIST){
                     syncColor=Color.GRAY;
                 }else if (what==What.WHAT_NORMAL){
-                    syncColor=Color.parseColor("#22ffffff");
+                    syncColor=Color.parseColor("#4400ff00");
                 }else if (what==What.WHAT_SUCCEED&&null!=reply.getData()){
                     syncColor=Color.GREEN;
                 }else{

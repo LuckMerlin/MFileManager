@@ -21,8 +21,7 @@
                 android:layout_alignParentLeft="true" android:padding="2dp" android:layout_margin="1dp"
                 android:layout_width="@dimen/listItemNormal" android:layout_height="@dimen/listItemNormal"/>
 
-            <View android:backgroundColor="@{syncColor}" android:layout_width="2dp" android:layout_height="2dp"
-                android:layout_gravity="bottom" android:alpha="0.6"/>
+            <View android:backgroundColor="@{syncColor}" android:layout_width="2dp" android:layout_height="2dp" android:layout_gravity="bottom"/>
 
             <LinearLayout android:layout_toRightOf="@id/itemListFile_icon" android:layout_width="match_parent"
                 android:layout_weight="1" android:orientation="vertical"

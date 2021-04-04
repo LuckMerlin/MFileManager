@@ -33,6 +33,16 @@ public final class Mode {
         return this;
     }
 
+    public boolean cleanArgs(){
+        ArrayList<Path> args=mArgs;
+        if (null!=args){
+            args.clear();
+            mArgs=null;
+            return true;
+        }
+        return false;
+    }
+
     public ArrayList<Path> getArgs() {
         return mArgs;
     }
