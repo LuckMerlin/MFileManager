@@ -6,8 +6,12 @@ import com.luckmerlin.file.api.Callback;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
+
+import java.net.SocketTimeoutException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
@@ -144,6 +148,9 @@ public class Retrofit {
                     note="Token invalid.";
                     what=What.WHAT_TOKEN_INVALID;
                 }
+            }else if (e instanceof SocketTimeoutException){
+                note = "Request timeout.";
+                what=What.WHAT_TIMEOUT;
             }
             finishCall(what,null,mCallbacks,note);
         }
@@ -154,7 +161,7 @@ public class Retrofit {
                     if(null==callback||!(callback instanceof OnApiFinish)){
                         continue;
                     }
-                    int childWhat=What.WHAT_FAIL;boolean succeed=false;
+                    int childWhat=null!=what?what:What.WHAT_FAIL;boolean succeed=false;
                     data=data!=null&&checkDataGeneric(data,callback)?data:null;
                     if (null!=data&&data instanceof Reply){
                         Reply reply=(Reply)data;

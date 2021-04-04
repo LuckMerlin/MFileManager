@@ -12,8 +12,8 @@
     <ScrollView android:background="@drawable/dialog_round_corner_gray" android:layout_width="wrap_content" android:scrollbars="none"
         android:paddingLeft="20dp" android:paddingRight="20dp" android:layout_marginTop="50dp" android:layout_marginBottom="50dp"
         android:paddingBottom="20dp" android:layout_height="wrap_content">
-        <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
-            <TextView android:textSize="@dimen/textTitle" android:textStyle="bold" android:layout_gravity="center"
+        <LinearLayout android:orientation="vertical" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="@dimen/textTitle" android:textStyle="bold" android:layout_gravity="center" android:singleLine="true"
                 android:text="@{vm.path.name??``}" android:textColor="@color/textTitle" android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:layout_marginBottom="10dp"/>
             <include binding:menu="@{ContextMenu.create(R.string.download,vm.path)}" android:visibility="@{vm.path instanceof NasPath?View.VISIBLE:View.GONE}" layout="@layout/item_context_menu" />

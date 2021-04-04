@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="message" type="String" />
+        <variable name="resetEnable" type="boolean" />
+        <import type="android.view.View"/>
+        <import type="com.luckmerlin.databinding.view.Touch"/>
+        <import type="com.luckmerlin.file.R"/>
+    </data>
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="match_parent" android:gravity="center">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:gravity="center_horizontal" android:text="@{message.length()&lt;=0?@string/emptyContent:message}"
+            android:padding="10dp" android:minWidth="150dp" android:minHeight="20dp" android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp" android:textSize="@dimen/textTitle" android:textColor="@color/textTitle"
+            android:textStyle="bold"/>
+
+        <TextView binding:lmBinding="@{Touch.textRes(R.string.reset,null,Touch.CLICK)}"
+            android:visibility="@{resetEnable?View.VISIBLE:View.GONE}" android:paddingLeft="20dp"
+            android:paddingRight="20dp" android:paddingTop="5dp" android:paddingBottom="5dp"
+            android:background="@drawable/selector_text_button_bg" android:textSize="@dimen/textTitle"
+            android:textColor="@color/textTitle" android:textStyle="bold" android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</layout>

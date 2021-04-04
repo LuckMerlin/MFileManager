@@ -88,6 +88,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
             Client current=getCurrentClient();
             int index=null!=current?clients.indexOf(current):-1;
             index=(index<0?-1:index)+1;
+            mCurrentFolder.set(null);//Clean
             return setClientSelect(clients.get(index>=0&&index<size?index:0),debug);
         }
         return false;

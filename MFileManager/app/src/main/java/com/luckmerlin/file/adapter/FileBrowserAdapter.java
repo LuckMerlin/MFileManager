@@ -2,10 +2,15 @@ package com.luckmerlin.file.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+
 import androidx.databinding.ObservableField;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.luckmerlin.adapter.OnSectionLoadFinish;
 import com.luckmerlin.adapter.recycleview.ItemSlideRemover;
 import com.luckmerlin.adapter.recycleview.ItemTouchInterrupt;
@@ -14,6 +19,7 @@ import com.luckmerlin.adapter.recycleview.SectionListAdapter;
 import com.luckmerlin.adapter.recycleview.SectionRequest;
 import com.luckmerlin.core.Canceler;
 import com.luckmerlin.core.debug.Debug;
+import com.luckmerlin.databinding.touch.OnViewClick;
 import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalPath;
@@ -24,35 +30,70 @@ import com.luckmerlin.file.R;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
+import com.luckmerlin.file.databinding.ItemBrowserEmptyBinding;
 import com.luckmerlin.file.databinding.ItemContentEmptyBinding;
 import com.luckmerlin.file.databinding.ItemListFileBinding;
 import java.util.List;
 
-public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implements OnItemTouchResolver {
+public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implements OnItemTouchResolver, OnViewClick {
     private final ObservableField<Client> mCurrentClient=new ObservableField<Client>();
     private int mLoadWhat;
+    private OnSyncApiFinish mLoading=null;
 
     @Override
     protected void onResolveFixedViewItem(RecyclerView recyclerView) {
         Context context=null!=recyclerView?recyclerView.getContext():null;
         if (null!=context){
-            setFixHolder(TYPE_EMPTY,generateViewHolder(context,R.layout.item_content_empty));
+            setFixHolder(TYPE_EMPTY,generateViewHolder(context,R.layout.item_browser_empty));
         }
+    }
+
+    private boolean enableRefreshing(boolean enable){
+        RecyclerView recyclerView=getRecyclerView();
+        ViewParent parent=null!=recyclerView?recyclerView.getParent():null;
+        if (null!=parent&&parent instanceof SwipeRefreshLayout){
+            return ((SwipeRefreshLayout)parent).post(()->((SwipeRefreshLayout)parent).setRefreshing(enable));
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onViewClick(View view, int i, int i1, Object o) {
+        switch (i){
+            case R.string.reset:
+                return reset("While reset view click.");
+        }
+        return false;
     }
 
     @Override
     protected final Canceler onNextSectionLoad(SectionRequest<Query> request, OnSectionLoadFinish<Query, Path> callback, String s) {
         Client client=mCurrentClient.get();
-        return null!=client?client.onNextSectionLoad(request, new OnSyncApiFinish<Reply<Folder<Query,Path>>>(){
+        if (null==client){
+            return null;
+        }
+        enableRefreshing(true);
+        if (getDataCount()==0){
+            notifyDataSetChanged();//Update empty view
+        }
+        return client.onNextSectionLoad(request, mLoading=new OnSyncApiFinish<Reply<Folder<Query,Path>>>(){
             @Override
             public void onApiFinish(int what, String note, Reply<Folder<Query, Path>> data, Object arg) {
-                mLoadWhat=null!=data?data.getWhat():What.WHAT_FAIL;
+                mLoadWhat=null!=data?data.getWhat():what;
                 boolean succeed=what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess();
                 Folder<Query,Path> folder=null!=data?data.getData():null;
                 if (null!=callback){
                     callback.onSectionLoadFinish(succeed,note,folder);
                 }
                 onSectionLoadFinish(succeed,folder);
+                OnSyncApiFinish current=mLoading;
+                if (null!=current&&current==this){
+                    mLoading=null;
+                    enableRefreshing(false);
+                    if (getDataCount()==0){
+                        notifyDataSetChanged();//Update empty view
+                    }
+                }
             }
 
             @Override
@@ -62,7 +103,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
                     recyclerView.post(()-> replace(reply,"While path update."));
                 }
             }
-        }, s):null;
+        }, s);
     }
 
     protected void onSectionLoadFinish(boolean succeed,Folder<Query,Path> folder){
@@ -146,19 +187,30 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
                 }
             }
             fileBinding.setSyncColor(syncColor);
-        }else if (null!=binding&&binding instanceof ItemContentEmptyBinding){
-            ItemContentEmptyBinding emptyBinding=(ItemContentEmptyBinding)binding;
-            switch (mLoadWhat){
-                case What.WHAT_SUCCEED:
-                    emptyBinding.setMessage(null);
-                    break;
-                case What.WHAT_NONE_PERMISSION:
-                    emptyBinding.setMessage(getText(R.string.noneWhichPermission,getText(R.string.browser)));
-                    break;
-                default:
-                    emptyBinding.setMessage(getText(R.string.whichFailed,getText(R.string.browser)));
-                    break;
+        }else if (null!=binding&&binding instanceof ItemBrowserEmptyBinding){
+            ItemBrowserEmptyBinding emptyBinding=(ItemBrowserEmptyBinding)binding;
+            boolean resetEnable=true;
+            if (null!=mLoading){
+                resetEnable=false;
+                emptyBinding.setMessage(getText(R.string.doingWhich,getText(R.string.load)));
+            }else{
+                switch (mLoadWhat){
+                    case What.WHAT_SUCCEED:
+                        emptyBinding.setMessage(null);
+                        resetEnable=false;
+                        break;
+                    case What.WHAT_NONE_PERMISSION:
+                        emptyBinding.setMessage(getText(R.string.noneWhichPermission,getText(R.string.browser)));
+                        break;
+                    case What.WHAT_TIMEOUT:
+                        emptyBinding.setMessage(getText(R.string.timeoutWhich,getText(R.string.load)));
+                        break;
+                    default:
+                        emptyBinding.setMessage(getText(R.string.whichFailed,getText(R.string.browser)));
+                        break;
+                }
             }
+            emptyBinding.setResetEnable(resetEnable);
         }
     }
 
