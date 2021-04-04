@@ -13,9 +13,11 @@ import com.luckmerlin.adapter.recycleview.OnItemTouchResolver;
 import com.luckmerlin.adapter.recycleview.SectionListAdapter;
 import com.luckmerlin.adapter.recycleview.SectionRequest;
 import com.luckmerlin.core.Canceler;
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalPath;
+import com.luckmerlin.file.OnPathUpdate;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
@@ -41,15 +43,25 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
     @Override
     protected final Canceler onNextSectionLoad(SectionRequest<Query> request, OnSectionLoadFinish<Query, Path> callback, String s) {
         Client client=mCurrentClient.get();
-        return null!=client?client.onNextSectionLoad(request, (OnApiFinish<Reply<Folder<Query,Path>>>)
-                (int what, String note, Reply<Folder<Query,Path>> data, Object arg)-> {
-                 mLoadWhat=null!=data?data.getWhat():What.WHAT_FAIL;
+        return null!=client?client.onNextSectionLoad(request, new OnSyncApiFinish<Reply<Folder<Query,Path>>>(){
+            @Override
+            public void onApiFinish(int what, String note, Reply<Folder<Query, Path>> data, Object arg) {
+                mLoadWhat=null!=data?data.getWhat():What.WHAT_FAIL;
                 boolean succeed=what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess();
                 Folder<Query,Path> folder=null!=data?data.getData():null;
                 if (null!=callback){
                     callback.onSectionLoadFinish(succeed,note,folder);
                 }
                 onSectionLoadFinish(succeed,folder);
+            }
+
+            @Override
+            public void onPathUpdate(Path reply) {
+                RecyclerView recyclerView=getRecyclerView();
+                if (null!=recyclerView){
+                    recyclerView.post(()-> replace(reply,"While path update."));
+                }
+            }
         }, s):null;
     }
 
@@ -121,9 +133,9 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
                 LocalPath localPath=(LocalPath)data;
                 String md5=!localPath.isDirectory()?data.getMd5():null;
                 if (null!=md5&&md5.length()>0){
-                    Reply<Path> reply=localPath.getSync();
+                    Reply<?extends Path> reply=localPath.getSync();
                     if (null==reply){
-                        syncColor=Color.WHITE;
+                        syncColor=Color.YELLOW;
                     }else if (reply.getWhat()==What.WHAT_NOT_EXIST){
                         syncColor=Color.GRAY;
                     }else if (reply.getWhat()==What.WHAT_SUCCEED&&null!=reply.getData()){
@@ -160,4 +172,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         };
     }
 
+    private interface OnSyncApiFinish<A> extends OnApiFinish<A>, OnPathUpdate {
+
+    }
 }

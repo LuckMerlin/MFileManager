@@ -8,7 +8,7 @@ public final class LocalPath extends Path implements Comparable {
     private final String mParent;
     private final String mName;
     private final String mExtension;
-    private Reply<Path> mSync;
+    private Reply<?extends Path> mSync;
     private String mMD5;
 
     public LocalPath(String parent,String name,String extension){
@@ -72,11 +72,11 @@ public final class LocalPath extends Path implements Comparable {
         return null;
     }
 
-    public Reply<Path> getSync() {
+    public Reply<?extends Path> getSync() {
         return mSync;
     }
 
-    public LocalPath setSync(Reply<Path> sync) {
+    public LocalPath setSync(Reply<?extends Path> sync) {
         this.mSync = sync;
         return this;
     }

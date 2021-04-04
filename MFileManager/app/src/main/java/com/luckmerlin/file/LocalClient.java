@@ -6,22 +6,19 @@ import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
-import com.luckmerlin.file.nas.Nas;
 import com.luckmerlin.file.retrofit.Retrofit;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Scheduler;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
@@ -34,11 +31,12 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
     private String mName;
     private final String mRootPath;
     private String mCloudHostUrl="http://192.168.0.4:2019";
+    private Querying mQuerying;
 
     private interface Api{
         @POST("/file/query")
         @FormUrlEncoded
-        Call<Reply<List<Reply<NasPath>>>> queryFiles(@Field(Label.LABEL_MD5) List<String> md5s);
+        Call<Reply<Map<String,Reply<NasPath>>>> queryFiles(@Field(Label.LABEL_MD5) Collection<String> md5s);
     }
 
     public LocalClient(String rootPath,String name){
@@ -115,14 +113,15 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
             return directory1?-1:directory2?1:0;
         });
         LocalFolder<Query> localFolder=new LocalFolder<>(currentPath,path,from,to,list);
-        Reply<LocalFolder<Query>> reply=new Reply<LocalFolder<Query>>(true, code,null,localFolder);
+        final Reply<LocalFolder<Query>> reply=new Reply<LocalFolder<Query>>(true, code,null,localFolder);
         notifyApiFinish(code,null,reply,localFolder,callback);
         String serverUrl=mCloudHostUrl;
-        if (null==list||list.size()<=0||null==serverUrl||serverUrl.length()<=0){
-            return (a,b  )->true;
+        if (null==list||list.size()<=0||null==serverUrl||serverUrl.length()<=0||null==callback||!(callback instanceof OnPathUpdate)){
+            return (a,b)->true;
         }
+        final OnPathUpdate onSyncUpdate=(OnPathUpdate)callback;
         final Disposable[] disposables=new Disposable[1];
-        final Cancel canceler=new Cancel(false){
+        final Querying querying=new Querying(path,from,to,false){
             @Override
             protected void onCancelChange(boolean canceled) {
                 Disposable disposable=disposables[0];
@@ -132,27 +131,85 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
                 }
             }
         };
+        Cancel lastSyncCanceler=mQuerying;
+        if (null!=lastSyncCanceler&&lastSyncCanceler.equals(querying)){
+            lastSyncCanceler.cancel(true,"While start new sync.");
+        }
+        mQuerying=querying;
         final Disposable disposable=disposables[0]=Observable.create((ObservableEmitter<List<LocalPath>> emitter)-> {
-            for (LocalPath localPath:list) {
-                if (canceler.isCanceled()){
-                    break;
-                }else if (null!=localPath){
-                    localPath.load(true,canceler);
-                    Debug.D("AAAAAAAAAAAa "+localPath.getMd5());
+                Map<String,LocalPath> md5Maps=new HashMap<>();
+                String md5=null;
+                for (LocalPath localPath:list) {
+                    if (querying.isCanceled()){
+                        break;
+                    }else if (null!=localPath&&null!=(md5=localPath.load(true,querying).getMd5())){
+                        md5Maps.put(md5,localPath);
+                    }
+                    onSyncUpdate.onPathUpdate(localPath);
                 }
-            }
-            if (!canceler.isCanceled()){
-                Retrofit retrofit=new Retrofit();
-                Call<Reply<List<Reply<NasPath>>>> call=retrofit.prepare(Api.class,serverUrl).queryFiles(null);
-                Response<Reply<List<Reply<NasPath>>>> response=call.execute();
-                Reply<List<Reply<NasPath>>> callReply=null!=response&&response.isSuccessful()?response.body():null;
-                Debug.D("EEEEEEEEEEEEE "+callReply);
+                if (querying.isCanceled()){
+                    notifyApiFinish(What.WHAT_CANCEL,null,reply,null,callback);
+                    return;
+                }
+                Set<String> md5Set=md5Maps.keySet();
+                if (null!=md5Set&&md5Set.size()>0){
+                    Map<String,Reply<NasPath>> replyList=null;
+                    try {
+                        if (!querying.isCanceled()){
+                            Retrofit retrofit=new Retrofit();
+                            Response<Reply<Map<String,Reply<NasPath>>>> response=retrofit.prepare(Api.class, serverUrl).queryFiles(md5Set).execute();
+                            Reply<Map<String,Reply<NasPath>>> responseReply=null!=response?response.body():null;
+                            replyList=null!=responseReply?responseReply.getData():null;
+                        }
+                    }catch (Exception e){
+                        //Do nothing
+                    }finally {
+                        for (String child:md5Set) {
+                            LocalPath childPath=md5Maps.get(child);
+                            if (null!=childPath&&!querying.isCanceled()){
+                                Reply<NasPath> childReply=null!=replyList&&null!=child?replyList.get(child):null;
+                                childPath.setSync(null!=childReply?childReply:new Reply<>(false,What.WHAT_FAIL,null,null));
+                                onSyncUpdate.onPathUpdate(childPath);
+                            }
+                        }
+                    }
+                }
+            Cancel current=mQuerying;
+            if (null!=current&&current==querying) {
+                mQuerying = null;
             }
         }).subscribeOn(Schedulers.io()).subscribe();
-        if (canceler.isCanceled()&&null!=disposable){
+        if (querying.isCanceled()&&null!=disposable){
             Debug.D("Cancel query local folder while canceled.");
             disposable.dispose();
         }
-        return canceler ;
+        return querying;
+    }
+
+    private static class Querying extends Cancel{
+        private final Query mQuery;
+        private final long mFrom;
+        private final long mTo;
+
+        public Querying(Query query,long from,long to,boolean canceled) {
+            super(canceled);
+            mQuery=query;
+            mFrom=from;
+            mTo=to;
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (null!=object&&object instanceof Querying){
+                Querying querying=(Querying)object;
+                Query query=querying.mQuery;
+                Query current=mQuery;
+                if (mFrom==querying.mFrom&&mTo==querying.mTo&&((null==query&&null==current)||(null!=query&&
+                        null!=current&&query.equals(current)))){
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

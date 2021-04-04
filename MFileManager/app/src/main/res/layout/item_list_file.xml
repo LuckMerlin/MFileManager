@@ -22,7 +22,7 @@
                 android:layout_width="@dimen/listItemNormal" android:layout_height="@dimen/listItemNormal"/>
 
             <View android:backgroundColor="@{syncColor}" android:layout_width="2dp" android:layout_height="2dp"
-                android:layout_gravity="center_vertical" android:alpha="0.6"/>
+                android:layout_gravity="bottom" android:alpha="0.6"/>
 
             <LinearLayout android:layout_toRightOf="@id/itemListFile_icon" android:layout_width="match_parent"
                 android:layout_weight="1" android:orientation="vertical"
