@@ -142,8 +142,12 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
                 for (LocalPath localPath:list) {
                     if (querying.isCanceled()){
                         break;
-                    }else if (null!=localPath&&null!=(md5=localPath.load(true,querying).getMd5())){
-                        md5Maps.put(md5,localPath);
+                    }else if (null!=localPath){
+                        if (null!=(md5=localPath.load(true,querying).getMd5())){
+                            md5Maps.put(md5,localPath);
+                        }else{
+                            localPath.setSync(new Reply<>(true,What.WHAT_NORMAL,null,null));
+                        }
                     }
                     onSyncUpdate.onPathUpdate(localPath);
                 }
@@ -153,6 +157,7 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
                 }
                 Set<String> md5Set=md5Maps.keySet();
                 if (null!=md5Set&&md5Set.size()>0){
+                    Debug.D("AAAAAAAAAAAAAAA "+md5Set.size());
                     Map<String,Reply<NasPath>> replyList=null;
                     try {
                         if (!querying.isCanceled()){

@@ -48,6 +48,26 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         }
     }
 
+    @Override
+    protected void onAttachRecyclerView(RecyclerView recyclerView) {
+        super.onAttachRecyclerView(recyclerView);
+        ViewParent parent=null!=recyclerView?recyclerView.getParent():null;
+        if (null!=parent&&parent instanceof SwipeRefreshLayout){
+            SwipeRefreshLayout layout=(SwipeRefreshLayout)parent;
+            layout.setOnRefreshListener(()-> reset("While refresh drag."));
+        }
+    }
+
+    @Override
+    protected void onDetachRecyclerView(RecyclerView recyclerView) {
+        super.onDetachRecyclerView(recyclerView);
+        ViewParent parent=null!=recyclerView?recyclerView.getParent():null;
+        if (null!=parent&&parent instanceof SwipeRefreshLayout){
+            SwipeRefreshLayout layout=(SwipeRefreshLayout)parent;
+            layout.setOnRefreshListener(null);
+        }
+    }
+
     private boolean enableRefreshing(boolean enable){
         RecyclerView recyclerView=getRecyclerView();
         ViewParent parent=null!=recyclerView?recyclerView.getParent():null;
@@ -172,18 +192,18 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
             int syncColor=Color.TRANSPARENT;
             if (null!=data&&data instanceof LocalPath){
                 LocalPath localPath=(LocalPath)data;
-                String md5=!localPath.isDirectory()?data.getMd5():null;
-                if (null!=md5&&md5.length()>0){
-                    Reply<?extends Path> reply=localPath.getSync();
-                    if (null==reply){
-                        syncColor=Color.YELLOW;
-                    }else if (reply.getWhat()==What.WHAT_NOT_EXIST){
-                        syncColor=Color.GRAY;
-                    }else if (reply.getWhat()==What.WHAT_SUCCEED&&null!=reply.getData()){
-                        syncColor=Color.GREEN;
-                    }else{
-                        syncColor=Color.RED;
-                    }
+                Reply<?extends Path> reply=localPath.getSync();
+                Integer what=null!=reply?reply.getWhat():null;
+                if (null==what){
+                    syncColor=Color.YELLOW;
+                }else if (what==What.WHAT_NOT_EXIST){
+                    syncColor=Color.GRAY;
+                }else if (what==What.WHAT_NORMAL){
+                    syncColor=Color.parseColor("#22ffffff");
+                }else if (what==What.WHAT_SUCCEED&&null!=reply.getData()){
+                    syncColor=Color.GREEN;
+                }else{
+                    syncColor=Color.RED;
                 }
             }
             fileBinding.setSyncColor(syncColor);
