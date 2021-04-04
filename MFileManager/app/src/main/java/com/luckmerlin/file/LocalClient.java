@@ -157,7 +157,6 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
                 }
                 Set<String> md5Set=md5Maps.keySet();
                 if (null!=md5Set&&md5Set.size()>0){
-                    Debug.D("AAAAAAAAAAAAAAA "+md5Set.size());
                     Map<String,Reply<NasPath>> replyList=null;
                     try {
                         if (!querying.isCanceled()){

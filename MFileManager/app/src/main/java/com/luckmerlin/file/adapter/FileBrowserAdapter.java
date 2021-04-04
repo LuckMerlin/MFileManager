@@ -54,7 +54,9 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         ViewParent parent=null!=recyclerView?recyclerView.getParent():null;
         if (null!=parent&&parent instanceof SwipeRefreshLayout){
             SwipeRefreshLayout layout=(SwipeRefreshLayout)parent;
-            layout.setOnRefreshListener(()-> reset("While refresh drag."));
+            layout.setOnRefreshListener(()-> {
+                reset("While refresh drag.");
+            });
         }
     }
 
@@ -64,7 +66,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         ViewParent parent=null!=recyclerView?recyclerView.getParent():null;
         if (null!=parent&&parent instanceof SwipeRefreshLayout){
             SwipeRefreshLayout layout=(SwipeRefreshLayout)parent;
-            layout.setOnRefreshListener(null);
+//            layout.setOnRefreshListener(null);
         }
     }
 
