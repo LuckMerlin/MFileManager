@@ -55,7 +55,7 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
        switch (resId){
            case R.drawable.selector_back:
                return onBackPressed(null);
-           case R.string.started:
+           case R.string.start:
                return startTask(o)||true;
            case R.string.cancel:
                return cancelTask(o)||true;

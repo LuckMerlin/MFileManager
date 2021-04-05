@@ -1,25 +1,20 @@
 package com.luckmerlin.file.service;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
-import com.google.gson.Gson;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.match.Matchable;
 import com.luckmerlin.core.match.Matcher;
-import com.luckmerlin.file.api.What;
-import com.luckmerlin.file.task.FilesTask;
+import com.luckmerlin.file.task.GroupTask;
 import com.luckmerlin.task.OnTaskUpdate;
-import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 import com.luckmerlin.task.TaskExecutor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,7 +82,7 @@ public final class TaskService extends Service implements Tasker{
             Debug.W("Can't start task while task already started.");
             return false;
         }
-        if (finalTask instanceof FilesTask){//Test
+        if (finalTask instanceof GroupTask){//Test
 //            ((FilesTask)finalTask).setCover(What.N);
         }
 

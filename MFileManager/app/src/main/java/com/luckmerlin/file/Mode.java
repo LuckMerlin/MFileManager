@@ -1,6 +1,8 @@
 package com.luckmerlin.file;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Mode {
     public final static int MODE_MULTI_CHOOSE=R.string.multiChoose;
@@ -10,6 +12,7 @@ public final class Mode {
     public final static int MODE_COPY=R.string.copy;
     private ArrayList<Path> mArgs;
     private final int mMode;
+    private Map<String,String> mExtra;
 
     public Mode(int mode){
         this(mode,null);
@@ -33,14 +36,50 @@ public final class Mode {
         return this;
     }
 
-    public boolean cleanArgs(){
+    public Mode cleanArgs(){
         ArrayList<Path> args=mArgs;
         if (null!=args){
             args.clear();
             mArgs=null;
-            return true;
         }
-        return false;
+        return this;
+    }
+
+    public Mode setExtra(Map<String,String> extra){
+        mExtra=extra;
+        return this;
+    }
+
+    public boolean isExistExtra(String key,String value){
+        String data=getExtra(key,null);
+        return (null==value&&null==data)||(null!=data&&null!=value&&data.equals(value));
+    }
+
+    public Mode setExtra(String key,String value){
+        if (null!=key){
+            Map<String,String> extra=mExtra;
+            if (null==value){
+                if (null!=extra){
+                    extra.remove(key);
+                    if (extra.size()<=0){
+                        mExtra=null;
+                    }
+                }
+            }else{
+                extra=null!=extra?extra:(mExtra=new HashMap<>());
+                extra.put(key,value);
+            }
+        }
+        return this;
+    }
+
+    public Map<String, String> getExtra() {
+        return mExtra;
+    }
+
+    public String getExtra(String key,String def) {
+        Map<String,String> extra=mExtra;
+        return null!=extra&&null!=key?extra.get(key):def;
     }
 
     public ArrayList<Path> getArgs() {

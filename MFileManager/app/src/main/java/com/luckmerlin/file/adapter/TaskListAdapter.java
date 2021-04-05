@@ -11,7 +11,12 @@ import android.view.ViewGroup;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.luckmerlin.adapter.recycleview.ItemSlideRemover;
+import com.luckmerlin.adapter.recycleview.ItemTouchInterrupt;
 import com.luckmerlin.adapter.recycleview.ListAdapter;
+import com.luckmerlin.adapter.recycleview.OnItemSlideRemove;
+import com.luckmerlin.adapter.recycleview.OnItemTouchResolver;
+import com.luckmerlin.adapter.recycleview.Remover;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.Thumbs;
@@ -22,7 +27,7 @@ import com.luckmerlin.task.Task;
 
 import java.util.List;
 
-public class TaskListAdapter extends ListAdapter<Task> {
+public class TaskListAdapter extends ListAdapter<Task> implements OnItemTouchResolver {
 
     @Override
     protected void onResolveFixedViewItem(RecyclerView recyclerView) {
@@ -47,26 +52,16 @@ public class TaskListAdapter extends ListAdapter<Task> {
             ItemTaskBinding taskBinding=(ItemTaskBinding)binding;
             taskBinding.setTask(task);
             task.getProgress();
-            //
-            int status=null!=task?task.getStatus(): Status.IDLE;
-            Debug.D("AAAAAAAAAAAAAAAA "+status);
-            String buttonBgColor="ffffff";
-            Object buttonText=R.string.cancel;
-            switch (status){
-                case Status.EXECUTING:
-                    buttonBgColor="008000";
-                    break;
-                case Status.PREPARING:
-                    buttonBgColor="FFD700";
-                    break;
-                case Status.STARTED:
-                    buttonBgColor="7CFC00";
-                    break;
-                default:
-                    buttonText=null!=task&&task.isAnyStatus(Status.IDLE)&&task.isSucceed()?R.string.succeed:R.string.started;
-                    break;
-            }
+            Object buttonText=null!=task?(task.isAnyStatus(Status.IDLE)?task.isSucceed()?
+                    R.string.succeed:R.string.start:R.string.cancel):null;
             taskBinding.setButtonText(buttonText);
+            switch (task.getStatus()){
+                case Status.EXECUTING: taskBinding.setStatusText(getText(R.string.executing));break;
+                case Status.IDLE: taskBinding.setStatusText(R.string.idle);break;
+                case Status.PREPARING: taskBinding.setStatusText(R.string.prepare);break;
+                case Status.STARTED: taskBinding.setStatusText(R.string.start);break;
+                default:taskBinding.setStatusText(null);
+            }
             //Button color
             float[] outerR = new float[] { 20, 20, 20, 20, 20, 20, 20, 20 };
             RoundRectShape rr = new RoundRectShape(outerR, null, null);
@@ -87,5 +82,15 @@ public class TaskListAdapter extends ListAdapter<Task> {
             drawable.addState(STATE_NORMAL,drawableNormal);
             taskBinding.setButtonBackground(drawable);
         }
+    }
+
+    @Override
+    public final Object onResolveItemTouch(RecyclerView recyclerView) {
+        return new ItemTouchInterrupt(){
+            @Override
+            protected Integer onResolveSlide(RecyclerView.ViewHolder holder, RecyclerView.LayoutManager manager) {
+                return new ItemSlideRemover().onResolveSlide(holder,manager);
+            }
+        };
     }
 }

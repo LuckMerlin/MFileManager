@@ -207,7 +207,6 @@ public final class Nas {
                                     startTime=System.nanoTime();
                                     mUploaded += read;
                                     sink.write(buffer, 0, read);
-                                    Thread.sleep(1000);
                                     Boolean interruptUpload=onProgress(mUploaded, length ,-1);
                                     if (null!=interruptUpload&&interruptUpload){
                                         Debug.D("File upload interrupted.");

@@ -50,8 +50,8 @@ public class UploadTask extends ActionFolderTask{
                response= uploadFileToCloud(file,(NasFolder)folder,null,callback);
            }
            if (null!=file&&file.isFile()&&mDeleteAfterSucceed&&null!=response&&response.getCode()==What.WHAT_SUCCEED){
-               Debug.D("Delete upload succeed file."+file);
-               file.delete();
+               boolean succeed=file.delete();
+               Debug.D("Delete upload succeed file."+succeed+" "+file);
            }
            return response;
         }

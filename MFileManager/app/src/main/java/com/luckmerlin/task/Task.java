@@ -1,6 +1,9 @@
 package com.luckmerlin.task;
 
+import android.graphics.Color;
+
 import com.luckmerlin.core.debug.Debug;
+import com.luckmerlin.file.R;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.task.Progress;
 
@@ -71,6 +74,28 @@ public abstract class Task implements Status{
             return true;
         }
         return false;
+    }
+
+    public int getStatusColor(){
+        switch (mStatus) {
+            case Status.EXECUTING:
+                return Color.parseColor("#008000");
+            case Status.PREPARING:
+                return Color.parseColor("#FFD700");
+            case Status.STARTED:
+                return Color.parseColor("#7CFC00");
+            case Status.IDLE:
+                Response response=mResponse;
+                if (null==response){
+                    return Color.WHITE;
+                }else if (isResponseSucceed(response)){
+                    return Color.GREEN;
+                }else if (response.getCode()==What.WHAT_ALREADY_DONE){
+                    return Color.parseColor("#5500ff00");
+                }
+                return Color.RED;
+        }
+        return Color.TRANSPARENT;
     }
 
     public final String getName() {

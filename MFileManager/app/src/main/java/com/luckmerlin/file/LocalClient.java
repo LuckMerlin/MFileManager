@@ -30,7 +30,7 @@ import retrofit2.http.POST;
 public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalPath>{
     private String mName;
     private final String mRootPath;
-    private String mCloudHostUrl="http://192.168.0.4:2019";
+    private String mSyncHost;
     private Querying mQuerying;
 
     private interface Api{
@@ -42,6 +42,11 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
     public LocalClient(String rootPath,String name){
         mRootPath=rootPath;
         mName=name;
+    }
+
+    public LocalClient setSyncHost(String syncHost){
+        mSyncHost=syncHost;
+        return this;
     }
 
     public String getName() {
@@ -115,7 +120,7 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
         LocalFolder<Query> localFolder=new LocalFolder<>(currentPath,path,from,to,list);
         final Reply<LocalFolder<Query>> reply=new Reply<LocalFolder<Query>>(true, code,null,localFolder);
         notifyApiFinish(code,null,reply,localFolder,callback);
-        String serverUrl=mCloudHostUrl;
+        String serverUrl=mSyncHost;
         if (null==list||list.size()<=0||null==serverUrl||serverUrl.length()<=0||null==callback||!(callback instanceof OnPathUpdate)){
             return (a,b)->true;
         }

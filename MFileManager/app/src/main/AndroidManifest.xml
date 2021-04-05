@@ -29,6 +29,7 @@
                 <data android:mimeType="*/*"></data>
             </intent-filter>
         </activity>
+
         <activity android:name=".TaskListActivity"/>
         <service android:name=".service.TaskService"></service>
         <provider android:name="androidx.core.content.FileProvider"

@@ -21,15 +21,15 @@
                 android:layout_alignParentLeft="true" android:padding="2dp" android:layout_margin="1dp"
                 android:layout_width="@dimen/listItemNormal" android:layout_height="@dimen/listItemNormal"/>
 
-            <View android:backgroundColor="@{syncColor}" android:layout_width="2dp" android:layout_height="2dp" android:layout_gravity="bottom"/>
+            <View android:backgroundColor="@{syncColor}" android:layout_width="3dp"
+                android:layout_height="3dp" android:layout_gravity="bottom"/>
 
             <LinearLayout android:layout_toRightOf="@id/itemListFile_icon" android:layout_width="match_parent"
                 android:layout_weight="1" android:orientation="vertical"
                 android:layout_margin="5dp" android:layout_height="wrap_content">
                 <TextView android:layout_width="match_parent" android:textSize="@dimen/textTitle" android:singleLine="true"
                     android:text="@{path.name??``}" android:textColor="@color/textTitle" android:layout_height="wrap_content"/>
-                <LinearLayout android:orientation="horizontal" android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
                     <View android:alpha="0.9" android:layout_marginTop="3dp" android:visibility="gone"
                         android:layout_marginBottom="3dp" android:layout_width="3dp" android:layout_height="3dp"/>
                     <TextView style="@style/titleSmallTextView"

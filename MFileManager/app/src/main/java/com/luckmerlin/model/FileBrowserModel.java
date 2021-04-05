@@ -9,28 +9,31 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.view.View;
+import android.view.Gravity;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.databinding.ObservableField;
 
 import com.luckmerlin.adapter.recycleview.Section;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.Model;
+import com.luckmerlin.databinding.dialog.Dialog;
 import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Folder;
+import com.luckmerlin.file.LocalClient;
 import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Mode;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.adapter.FileBrowserAdapter;
+import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
 import com.luckmerlin.file.task.ActionFolderTask;
-import com.luckmerlin.file.task.FilesTask;
+import com.luckmerlin.file.task.GroupTask;
 import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.file.ui.OnPathSpanClick;
 import com.luckmerlin.file.ui.UriPath;
@@ -40,7 +43,6 @@ import com.luckmerlin.mvvm.activity.OnActivityStart;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
-import com.luckmerlin.task.Response;
 import com.luckmerlin.task.Task;
 
 import java.io.File;
@@ -77,24 +79,36 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     }
 
     public final boolean selectMode(Mode mode,String debug){
-        if (null!=mode){
-            mode.cleanArgs();
-        }
         mBrowserMode.set(mode);
         return true;
     }
 
-    protected final boolean switchSelectClient(String debug){
-        List<Client> clients=getClients();
-        int size=null!=clients?clients.size():-1;
-        if (size>0){
-            Client current=getCurrentClient();
-            int index=null!=current?clients.indexOf(current):-1;
-            index=(index<0?-1:index)+1;
+    protected final boolean switchSelectClient(Boolean local,String debug){
+        Client nextClient=nextClient(local);
+        if (null!=nextClient){
             mCurrentFolder.set(null);//Clean
-            return setClientSelect(clients.get(index>=0&&index<size?index:0),debug);
+            return setClientSelect(nextClient,debug);
         }
         return false;
+    }
+
+    public final Client nextClient(Boolean local){
+        List<Client> clients=getClients();
+        int size=null!=clients?clients.size():-1;
+        Client current = getCurrentClient();
+        int index = null != current ? clients.indexOf(current) : -1;
+        for (int i = 0; i < size; i++) {
+            index=(index < 0 ? -1 : index) + 1;
+            index=index>=size?index-size:index;
+            Client client=clients.get(index);
+            if(null!=client){
+                if (null==local){
+                    return client;
+                }
+                return local?client instanceof LocalClient?client:null:client instanceof LocalClient?null:client;
+            }
+        }
+        return null;
     }
 
     public final List<Client> getClients() {
@@ -103,10 +117,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
 
     protected final boolean setClientSelect(Client client, String debug){
         FileBrowserAdapter browserAdapter=mBrowserAdapter;
-        if (null!=browserAdapter){
-            return browserAdapter.setClient(client,debug);
-        }
-        return false;
+        return null!=browserAdapter&&browserAdapter.setClient(client,debug);
     }
 
     @Override
@@ -145,6 +156,12 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         }else if ((files instanceof String)||(files instanceof Uri)||(files instanceof File)){
             return startUploadFiles(new ArraysList<>().addData(files),debug);
         }else if (files instanceof Collection){
+            Client currentClient=getCurrentClient();
+            Client cloudClient=nextClient(false);
+            if (null!=cloudClient&&(null==currentClient||currentClient!=cloudClient)){
+                setClientSelect(cloudClient,"Before start upload files.");
+            }
+            //
             Mode mode=new Mode(Mode.MODE_UPLOAD);
             Collection collection=(Collection)files;
             UriPath uriPath=new UriPath();
@@ -157,7 +174,53 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
                     mode.add((Path)child);
                 }
             }
-            return selectMode(mode,debug);
+            //
+            Dialog dialog=new Dialog(getContext());
+            LinearLayout linearLayout=new LinearLayout(getContext());
+            linearLayout.setPadding(20,20,20,20);
+            linearLayout.setBackgroundColor(Color.parseColor("#88000000"));
+            linearLayout.setOrientation(LinearLayout.VERTICAL);
+            linearLayout.setGravity(Gravity.CENTER);
+            TextView textView=new TextView(getContext());
+            textView.setTextColor(Color.WHITE);
+            textView.setTextSize(20);
+            textView.setPadding(40,20,40,20);
+            textView.setText(R.string.upload);
+            textView.setOnClickListener((v)->{dialog.dismiss();
+                selectMode(mode.setExtra(Label.LABEL_DELETE,null),debug);});
+            linearLayout.addView(textView);
+            //
+            textView=new TextView(getContext());
+            textView.setText(R.string.uploadWithDel);
+            textView.setTextColor(Color.WHITE);
+            textView.setTextSize(20);
+            textView.setPadding(40,20,40,20);
+            textView.setOnClickListener((v)->{dialog.dismiss();
+                selectMode(mode.setExtra(Label.LABEL_DELETE,Label.LABEL_DELETE),debug);});
+            linearLayout.addView(textView);
+            //
+            textView=new TextView(getContext());
+            textView.setText(R.string.cancel);
+            textView.setTextColor(Color.WHITE);
+            textView.setTextSize(20);
+            textView.setPadding(40,20,40,20);
+            textView.setOnClickListener((v)->{dialog.dismiss();});
+            linearLayout.addView(textView);
+            //
+            dialog.setContentView(linearLayout);
+//            return selectMode(mode.setExtra(Label.LABEL_DELETE,null),debug);
+            return dialog.show();
+//            Dialog dialog=new Dialog(getContext());
+//            AlertDialogModel model=new AlertDialogModel(R.string.upload).setLeftText(R.string.upload).
+//                    setCenterText(R.string.uploadWithDel).setRightText(R.string.cancel);
+//            return dialog.setContentView(model).show((OnViewClick)(View view, int i, int i1, Object o)-> {
+//                   switch (i){
+//                       case R.string.upload:selectMode(mode.setExtra(Label.LABEL_DELETE,null),debug);break;
+//                       case R.string.uploadWithDel:selectMode(mode.setExtra(Label.LABEL_DELETE,Label.LABEL_DELETE),debug);break;
+//                   }
+//                   dialog.dismiss();
+//                  return true;
+//            });
         }
         return false;
     }
@@ -234,14 +297,19 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
             }
             charSequence=builder;
         }
-        mNotifyText.set(charSequence);
+        showNotify(charSequence,null);
+    }
+
+    protected boolean showNotify(CharSequence text,String debug){
+        mNotifyText.set(text);
+        return true;
     }
 
     protected final boolean startTask(Task task,String debug){
         if (null==task){
             return false;
         }
-        if (task instanceof FilesTask &&((FilesTask)task).isEmpty()){
+        if (task instanceof GroupTask &&((GroupTask)task).isEmpty()){
             return toast(R.string.emptyContent)&&false;
         }
         if (task instanceof ActionFolderTask){

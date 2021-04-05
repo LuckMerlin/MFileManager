@@ -6,7 +6,7 @@ import com.luckmerlin.file.Path;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class ActionFolderTask extends FilesTask {
+public abstract class ActionFolderTask extends FileGroupTask {
     private final Folder mFolder;
 
     public ActionFolderTask(){
@@ -27,7 +27,7 @@ public abstract class ActionFolderTask extends FilesTask {
         String folderPath=null!=folder?folder.getPath():null;
         String folderDivider=null!=folder?folder.getSep():null;
         folderPath=null!=folderDivider&&null!=folderPath&&!folderPath.endsWith(folderDivider)?folderPath+folderDivider:folderPath;
-        Collection<Path> paths=getPaths();
+        Collection<Path> paths=getTasks();
         if (null!=paths&&null!=folderPath){
             for (Path child:paths) {
                 String childParent=null!=child?child.getParent():null;

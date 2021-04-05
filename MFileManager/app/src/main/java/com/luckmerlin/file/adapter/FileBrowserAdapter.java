@@ -66,7 +66,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         ViewParent parent=null!=recyclerView?recyclerView.getParent():null;
         if (null!=parent&&parent instanceof SwipeRefreshLayout){
             SwipeRefreshLayout layout=(SwipeRefreshLayout)parent;
-//            layout.setOnRefreshListener(null);
+            layout.setOnRefreshListener(null);
         }
     }
 
@@ -191,24 +191,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
             ItemListFileBinding fileBinding=(ItemListFileBinding)binding;
             fileBinding.setPath(data);
             fileBinding.setPosition(i+1);
-            int syncColor=Color.TRANSPARENT;
-            if (null!=data&&data instanceof LocalPath){
-                LocalPath localPath=(LocalPath)data;
-                Reply<?extends Path> reply=localPath.getSync();
-                Integer what=null!=reply?reply.getWhat():null;
-                if (null==what){
-                    syncColor=Color.YELLOW;
-                }else if (what==What.WHAT_NOT_EXIST){
-                    syncColor=Color.GRAY;
-                }else if (what==What.WHAT_NORMAL){
-                    syncColor=Color.parseColor("#4400ff00");
-                }else if (what==What.WHAT_SUCCEED&&null!=reply.getData()){
-                    syncColor=Color.GREEN;
-                }else{
-                    syncColor=Color.RED;
-                }
-            }
-            fileBinding.setSyncColor(syncColor);
+            fileBinding.setSyncColor(null!=data&&data instanceof LocalPath?((LocalPath)data).getSyncColor():Color.TRANSPARENT);
         }else if (null!=binding&&binding instanceof ItemBrowserEmptyBinding){
             ItemBrowserEmptyBinding emptyBinding=(ItemBrowserEmptyBinding)binding;
             boolean resetEnable=true;

@@ -30,6 +30,7 @@ import com.luckmerlin.file.R;
 import com.luckmerlin.file.TaskListActivity;
 import com.luckmerlin.file.adapter.ClientAdapter;
 import com.luckmerlin.file.adapter.FileBrowserAdapter;
+import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.databinding.FileBrowserMenuBinding;
 import com.luckmerlin.file.nas.Nas;
 import com.luckmerlin.file.task.DownloadTask;
@@ -45,32 +46,10 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-        add(new LocalClient("/sdcard/1Log",getString(R.string.local,null)),"");
-        add(new NasClient("http://192.168.0.4",2019,"NAS"),"");
-//        add(new NasClient("http://http://192.168.0.10",80,"NAS"),"");
-        //
-        post(new Runnable() {
-            @Override
-            public void run() {
-//                List<Path> paths=new ArrayList<>();
-//                paths.add(LocalPath.create(new File("/sdcard/android/data")));
-////                paths.add(LocalPath.create(new File("/sdcard/PictureseditedJPEG_20200224_173025.jpg")));
-//                NasFolder uploadFolder=new NasFolder();
-//                uploadFolder.setHost("http://192.168.0.4:2019");
-//                uploadFolder.setPort(2019);
-//                NasPath nasFolder=new NasPath();
-//                nasFolder.setParent("/Volumes/Work/LuckMerlinWorkspace");
-//                nasFolder.setName("FileManager");
-//                nasFolder.setPathSep("/");
-//                uploadFolder.setFolder(nasFolder);
-//                startTask(new UploadTask(paths, uploadFolder),"");
-//                new Gson().fromJson("{\"mName\":\"data\",\"mParent\":\"/sdcard/android\"}",LocalPath.create());
-//                Folder uploadFolder=null;
-//                startTask(new UploadTask(modeUpload.getArgs(), uploadFolder));
-            }
-        }, 3000);
-        //
-        startUploadFiles(new File("/sdcard/DCIM/Camera/IMG_20210110_161508.jpg"),null);
+        NasClient client=new NasClient("http://192.168.0.6",2018,"NAS");
+//        NasClient client=new NasClient("http://192.168.0.4",2019,"NAS");
+        add(new LocalClient("/sdcard/1Log",getString(R.string.local,null)).setSyncHost(client.getHostUri()),"");
+        add(client,"");
     }
 
     @Override
@@ -79,7 +58,7 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
             case R.drawable.selector_menu:
                 return showBrowserMenu(view,"While menu view click.");
             case R.id.fileBrowser_clientNameTV:
-                return null!=tag&&tag instanceof Client&&(i1<=1?switchSelectClient("While view click."):
+                return null!=tag&&tag instanceof Client&&(i1<=1?switchSelectClient(null,"While view click."):
                         showClientSelectOption(view,"While view click."));
             case R.string.exit:
                 return finishActivity("While exit view click.");
@@ -92,7 +71,8 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
             case R.string.upload:
                 Mode modeUpload=getMode();
                 if (null!=tag&&tag instanceof LocalPath){
-                    modeUpload=null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD?modeUpload:new Mode(Mode.MODE_UPLOAD);
+                    modeUpload=null!=(modeUpload=(null!=modeUpload?modeUpload.cleanArgs():null))&&
+                            modeUpload.getMode()==Mode.MODE_UPLOAD?modeUpload:new Mode(Mode.MODE_UPLOAD);
                     return selectMode(modeUpload.add((LocalPath)tag),"While upload view click.");
                 }
                 Folder uploadFolder=getCurrentFolder();
@@ -100,21 +80,21 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                     return toast(R.string.notActionHere)||true;
                 }
                 return null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD&&startTask(
-                        new UploadTask(getString(R.string.upload,null),modeUpload.getArgs(),
-                        uploadFolder),"While upload view click.")&&
-                        (selectMode(null,"While upload view click.")||true);
+                        new UploadTask(getString(R.string.upload,null),modeUpload.getArgs(), uploadFolder).enableDeleteAfterSucceed
+                                (modeUpload.isExistExtra(Label.LABEL_DELETE,Label.LABEL_DELETE)),
+                        "While upload view click.")&& (selectMode(null,"While upload view click.")||true);
             case R.string.download:
                 Mode modeDownload=getMode();
                 if (null!=tag&&tag instanceof NasPath){
-                    modeDownload=null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD?modeDownload:new Mode(Mode.MODE_DOWNLOAD);
+                    modeDownload=null!=(modeDownload=(null!=modeDownload?modeDownload.cleanArgs():null))
+                            &&modeDownload.getMode()==Mode.MODE_DOWNLOAD?modeDownload:new Mode(Mode.MODE_DOWNLOAD);
                     return selectMode(modeDownload.add((NasPath)tag),"While download view click.");
                 }
                 Folder downloadFolder=getCurrentFolder();
                 if (null==downloadFolder||!(downloadFolder instanceof LocalFolder)){
                     return toast(R.string.notActionHere)||true;
                 }
-                return null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD&&
-                        startTask(new DownloadTask(getString(R.string.download,null),modeDownload.getArgs(),
+                return null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD&& startTask(new DownloadTask(getString(R.string.download,null),modeDownload.getArgs(),
                         downloadFolder),"While download view click.")&&
                         (selectMode(null,"While download view click.")||true);
             case R.string.cancel:

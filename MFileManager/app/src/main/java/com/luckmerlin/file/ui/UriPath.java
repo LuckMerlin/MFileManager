@@ -15,6 +15,8 @@ import android.provider.OpenableColumns;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 
+import com.luckmerlin.core.util.Closer;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -168,16 +170,18 @@ public final class UriPath {
             Cursor cursor = contentResolver.query(uri, null, null, null, null);
             if (cursor.moveToFirst()) {
                 String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                InputStream is=null;
+                FileOutputStream fos=null;
                 try {
-                    InputStream is = contentResolver.openInputStream(uri);
+                    is = contentResolver.openInputStream(uri);
                     File cache = new File(context.getExternalCacheDir().getAbsolutePath(), Math.round((Math.random() + 1) * 1000) + displayName);
-                    FileOutputStream fos = new FileOutputStream(cache);
+                    fos = new FileOutputStream(cache);
                     FileUtils.copy(is, fos);
                     file = cache;
-                    fos.close();
-                    is.close();
                 } catch (IOException e) {
                     e.printStackTrace();
+                }finally {
+                    new Closer().close(fos,is);
                 }
             }
         }

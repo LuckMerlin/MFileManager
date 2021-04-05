@@ -1,6 +1,10 @@
 package com.luckmerlin.file;
 
+import android.graphics.Color;
+
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.api.Reply;
+import com.luckmerlin.file.api.What;
 
 import java.io.File;
 
@@ -59,10 +63,13 @@ public final class LocalPath extends Path implements Comparable {
                     lastNameIndex+=1;
                     if (lastNameIndex>=0&&lastNameIndex<length){
                         name=filePath.substring(lastNameIndex,length);
-                        final String extensionDivider=".";
-                        int lastExtensionIndex=filePath.lastIndexOf(extensionDivider,lastNameIndex);
-                        if (lastExtensionIndex>=0&&lastExtensionIndex<length){
-                            extension=filePath.substring(lastExtensionIndex);
+                        if (null!=name){
+                            final String extensionDivider=".";
+                            int lastExtensionIndex=name.lastIndexOf(extensionDivider);
+                            if (lastExtensionIndex>=0&&lastExtensionIndex<name.length()){
+                                extension=name.substring(lastExtensionIndex);
+                                name=name.substring(0,lastExtensionIndex);
+                            }
                         }
                     }
                 }
@@ -79,6 +86,21 @@ public final class LocalPath extends Path implements Comparable {
     public LocalPath setSync(Reply<?extends Path> sync) {
         this.mSync = sync;
         return this;
+    }
+
+    public int getSyncColor(){
+        Reply<?extends Path> reply=mSync;
+        Integer what=null!=reply?reply.getWhat():null;
+        if (null==what){
+            return Color.YELLOW;
+        }else if (what== What.WHAT_NOT_EXIST){
+            return Color.GRAY;
+        }else if (what==What.WHAT_NORMAL){
+            return Color.parseColor("#4400ff00");
+        }else if (what==What.WHAT_SUCCEED&&null!=reply.getData()){
+            return Color.GREEN;
+        }
+        return Color.RED;
     }
 
     @Override
