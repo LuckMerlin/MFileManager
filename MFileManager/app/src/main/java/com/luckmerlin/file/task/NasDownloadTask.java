@@ -6,7 +6,7 @@ import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Response;
 import com.luckmerlin.task.Task;
 
-public final class NasDownloadTask extends FileTask<NasPath,LocalPath> {
+public final class NasDownloadTask extends TestFileTask<NasPath,LocalPath> {
     private long mPerSecondSize;
 
     public NasDownloadTask(NasPath from, LocalPath to){

@@ -22,12 +22,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-public class UploadTask extends ActionFolderTask{
+public class UploadTask extends FileTask<Path,Folder>{
     private boolean mDeleteAfterSucceed=false;
+    private boolean mCheckMd5Existed=false;
 
-    public UploadTask(String name,List<Path> paths, Folder folder) {
-        super(name,paths,folder);
+    public UploadTask(){
+        this(null,null);
+    }
+
+    public UploadTask(Path path, Folder folder){
+        this(null,path,folder);
+    }
+
+    public UploadTask(String name,Path path, Folder folder) {
+        super(name,path,folder);
     }
 
     public final UploadTask enableDeleteAfterSucceed(boolean enable) {
@@ -36,14 +44,15 @@ public class UploadTask extends ActionFolderTask{
     }
 
     @Override
-    protected Response onExecute(Path child, Task task, OnTaskUpdate callback) {
-        Folder folder=getFolder();
+    protected Response onExecute(Task task, OnTaskUpdate callback) {
+        final Folder folder=getTo();
+        final Path path=getFrom();
         if (null==folder){
             return response(What.WHAT_ERROR);
-        }else if (null==child){
+        }else if (null==folder){
             return response(What.WHAT_ERROR);
-        }else if (child instanceof LocalPath){
-            String localFile=((LocalPath)child).getPath();
+        }else if (path instanceof LocalPath){
+            String localFile=path.getPath();
             File file=null!=localFile&&localFile.length()>0?new File(localFile):null;
             Response response=null;
            if (folder instanceof NasFolder){//Upload file into cloud
@@ -105,6 +114,7 @@ public class UploadTask extends ActionFolderTask{
         final String localMd5 = new MD5().getFileMD5(file);
         maps.put(Label.LABEL_PATH, null != targetPath ? targetPath : "");
         maps.put(Label.LABEL_MD5, null != localMd5 ? localMd5 : "");
+        maps.put(Label.LABEL_MODE, mCheckMd5Existed? Label.LABEL_MD5:null);
         maps.put(Label.LABEL_LENGTH, Long.toString(fileLength));
         Reply<NasPath> existReply = nas.getNasFileData(folderHostUrl, maps);
         final int cover=getCover();

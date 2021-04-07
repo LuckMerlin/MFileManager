@@ -13,4 +13,6 @@ public interface Client<A extends Folder<T,V>,T,V extends Path> {
     public long getTotal();
 
     Canceler onNextSectionLoad(SectionRequest<T> request, OnApiFinish<Reply<A>> callback, String s) ;
+
+    boolean setAsHome(Folder folder,OnApiFinish<Reply<? extends Path>> callback);
 }

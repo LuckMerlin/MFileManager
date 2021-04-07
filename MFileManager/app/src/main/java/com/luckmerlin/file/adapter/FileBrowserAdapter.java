@@ -55,7 +55,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         if (null!=parent&&parent instanceof SwipeRefreshLayout){
             SwipeRefreshLayout layout=(SwipeRefreshLayout)parent;
             layout.setOnRefreshListener(()-> {
-                reset("While refresh drag.");
+                resetSection(getLatestSectionArg(),true,null,"While refresh drag.");
             });
         }
     }

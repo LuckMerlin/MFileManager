@@ -22,7 +22,7 @@ import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NasUploadTask extends FileTask<LocalPath,NasPath> {
+public class NasUploadTask extends TestFileTask<LocalPath,NasPath> {
     private long mPerSecondSize;
 
     public NasUploadTask(LocalPath from, NasPath to) {

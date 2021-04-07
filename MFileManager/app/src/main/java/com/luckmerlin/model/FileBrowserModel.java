@@ -30,6 +30,9 @@ import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.adapter.FileBrowserAdapter;
 import com.luckmerlin.file.api.Label;
+import com.luckmerlin.file.api.OnApiFinish;
+import com.luckmerlin.file.api.Reply;
+import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
 import com.luckmerlin.file.task.ActionFolderTask;
@@ -109,6 +112,17 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
             }
         }
         return null;
+    }
+
+    protected final boolean createPath(boolean directory,String debug){
+        Client client=getCurrentClient();
+        if (null==client){
+            return toast(getString(R.string.whichFailed, "",getString(directory?R.string.createFolder:R.string.createFile,null)))&&false;
+        }
+        return false;
+//        return null!=createFolder&&createFolder.createPath(getCurrentFolder(), true, (OnApiFinish<Reply<Path>>) (int what, String note, Reply<Path> data, Object arg)-> {
+//            toast(getString(what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess()? R.string.whichSucceed:R.string.whichFailed,"",getString(R.string.createFolder,"")));
+//        });
     }
 
     public final List<Client> getClients() {

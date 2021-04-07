@@ -31,6 +31,9 @@ import com.luckmerlin.file.TaskListActivity;
 import com.luckmerlin.file.adapter.ClientAdapter;
 import com.luckmerlin.file.adapter.FileBrowserAdapter;
 import com.luckmerlin.file.api.Label;
+import com.luckmerlin.file.api.OnApiFinish;
+import com.luckmerlin.file.api.Reply;
+import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.databinding.FileBrowserMenuBinding;
 import com.luckmerlin.file.nas.Nas;
 import com.luckmerlin.file.task.DownloadTask;
@@ -64,6 +67,15 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                 return finishActivity("While exit view click.");
             case R.string.transportManager:
                 return startActivity(TaskListActivity.class,null,"After transport view click.");
+            case R.string.createFolder:
+                return createPath(true,"While view click.");
+            case R.string.createFile:
+                return createPath(false,"While view click.");
+            case R.string.setAsHome:
+                Client client=getCurrentClient();
+                return null!=client&&client.setAsHome(getCurrentFolder(), (OnApiFinish<Reply<Path>>) (int what, String note, Reply<Path> data, Object arg)-> {
+                    toast(getString(what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess()? R.string.whichSucceed:R.string.whichFailed,"",getString(R.string.setAsHome,"")));
+                });
             case R.string.multiChoose:
                 return selectMode(new Mode(Mode.MODE_MULTI_CHOOSE),"While multi choose view click.");
             case R.drawable.selector_back:
@@ -78,11 +90,19 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                 Folder uploadFolder=getCurrentFolder();
                 if (null==uploadFolder||!(uploadFolder instanceof NasFolder)){
                     return toast(R.string.notActionHere)||true;
+                }else if (null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD){
+                    ArrayList<Path> paths=modeUpload.getArgs();
+                    if (null==paths||paths.size()<=0){
+                        return toast(R.string.emptyContent);
+                    }
+                    boolean deleteSucceed=modeUpload.isExistExtra(Label.LABEL_DELETE,Label.LABEL_DELETE);
+                    for (Path child:paths){
+                        startTask(new UploadTask(null,child,uploadFolder).
+                                enableDeleteAfterSucceed(deleteSucceed),"While upload view click.");
+                    }
+                    return selectMode(null,"While upload view click.");
                 }
-                return null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD&&startTask(
-                        new UploadTask(getString(R.string.upload,null),modeUpload.getArgs(), uploadFolder).enableDeleteAfterSucceed
-                                (modeUpload.isExistExtra(Label.LABEL_DELETE,Label.LABEL_DELETE)),
-                        "While upload view click.")&& (selectMode(null,"While upload view click.")||true);
+                return true;
             case R.string.download:
                 Mode modeDownload=getMode();
                 if (null!=tag&&tag instanceof NasPath){

@@ -12,6 +12,7 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 
 public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
+    private final Retrofit mRetrofit=new Retrofit();
     private final String mHostUrl;
     private final int mHostPort;
     private String name;
@@ -21,14 +22,21 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
         @FormUrlEncoded
         Observable<Reply<NasFolder<Query>>> queryFiles(@Field(Label.LABEL_PATH) String path, @Field(Label.LABEL_NAME) String name,@Field(Label.LABEL_FROM) long from,
                                                    @Field(Label.LABEL_TO) long to);
-    }
 
-    private final Retrofit mRetrofit=new Retrofit();
+        @POST("/file/home")
+        @FormUrlEncoded
+        Observable<Reply<NasPath>> setUserHome(@Field(Label.LABEL_PATH) String path);
+    }
 
     public NasClient(String hostUrl,int hostPort,String name){
         mHostUrl=hostUrl;
         mHostPort=hostPort;
         this.name=name;
+    }
+
+    @Override
+    public boolean setAsHome(Folder folder, OnApiFinish<Reply<? extends Path>> callback) {
+        return null!=folder&&null!=mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).setUserHome(folder.getPath()),callback);
     }
 
     @Override

@@ -22,11 +22,11 @@
                 binding:menu="@{ContextMenu.create(@string/multiChoose,folder)}"/>
             <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(@string/goTo,folder)}"/>
             <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(@string/terminal,folder)}"/>
-            <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(@string/setAsHome,folder)}" />
+            <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.setAsHome,folder)}" />
             <include layout="@layout/item_context_menu" android:visibility="@{null!=folder?View.VISIBLE:View.GONE}"
-                binding:menu="@{ContextMenu.create(@string/createFolder,folder)}"/>
+                binding:menu="@{ContextMenu.create(R.string.createFolder,folder)}"/>
             <include layout="@layout/item_context_menu" android:visibility="@{null!=folder?View.VISIBLE:View.GONE}"
-                binding:menu="@{ContextMenu.create(@string/createFile,folder)}"/>
+                binding:menu="@{ContextMenu.create(R.string.createFile,folder)}"/>
             <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.exit,folder)}"/>
             <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.reboot,folder)}"/>
         </LinearLayout>

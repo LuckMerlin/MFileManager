@@ -64,6 +64,11 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
     }
 
     @Override
+    public boolean setAsHome(Folder folder, OnApiFinish<Reply<? extends Path>> callback) {
+        return false;
+    }
+
+    @Override
     protected Canceler query(Query path, long from, long to, OnApiFinish<Reply<LocalFolder<Query>>> callback) {
         if (null==callback){
             Debug.W("Can't query local client while callback or path invalid.");
