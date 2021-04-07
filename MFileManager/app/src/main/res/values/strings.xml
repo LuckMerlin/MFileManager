@@ -29,6 +29,7 @@
     <string name="execute">执行</string>
     <string name="reset">重置</string>
     <string name="start">开始</string>
+    <string name="sure">确认</string>
     <string name="finished">完成</string>
     <string name="reboot">重启</string>
     <string name="local">本地</string>

@@ -68,9 +68,9 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
             case R.string.transportManager:
                 return startActivity(TaskListActivity.class,null,"After transport view click.");
             case R.string.createFolder:
-                return createPath(true,"While view click.");
+                return createFile(true,"While view click.");
             case R.string.createFile:
-                return createPath(false,"While view click.");
+                return createFile(false,"While view click.");
             case R.string.setAsHome:
                 Client client=getCurrentClient();
                 return null!=client&&client.setAsHome(getCurrentFolder(), (OnApiFinish<Reply<Path>>) (int what, String note, Reply<Path> data, Object arg)-> {
@@ -119,6 +119,9 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                         (selectMode(null,"While download view click.")||true);
             case R.string.cancel:
                 return selectMode(null,"While cancel view click.");
+            case R.string.attr:
+                Client attrClient=getCurrentClient();
+                return showPathAttr(attrClient,null!=tag&&tag instanceof Path?(Path)tag:null,null)||true;
             default:
                 if (null!=tag&&tag instanceof Path){
                     return openPath(((Path)tag),"While path view click.");
@@ -162,14 +165,16 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
     private boolean showBrowserMenu(View view, String debug) {
         Context context=null!=view?view.getContext():null;
         context=null!=context?context:getContext();
-        ViewDataBinding binding=null!=context?DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.file_browser_menu,null,false):null;
+        ViewDataBinding binding=null!=context?DataBindingUtil.inflate(LayoutInflater.from(context),
+                R.layout.file_browser_menu,null,false):null;
         if (null!=binding&&binding instanceof FileBrowserMenuBinding){
             FileBrowserMenuBinding browserBinding=(FileBrowserMenuBinding)binding;
             browserBinding.setClient(getCurrentClient());
             browserBinding.setFolder(getCurrentFolder());
             final Dialog dialog=new Dialog(getContext());
             return dialog.setCanceledOnTouchOutside(true).setContentView(browserBinding.getRoot(),null,
-                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)).show();
+                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)).show
+                    ((OnViewClick)(View v, int i, int i1, Object o)-> null!=dialog.dismiss()&&false );
         }
         return false;
     }

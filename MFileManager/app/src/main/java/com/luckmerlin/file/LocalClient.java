@@ -69,6 +69,21 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
     }
 
     @Override
+    public boolean createPath(String path, boolean createFolder, OnApiFinish<Reply<LocalPath>> callback) {
+        return false;
+    }
+
+    @Override
+    public boolean deletePath(String path, OnApiFinish<Reply<LocalPath>> callback) {
+        return false;
+    }
+
+    @Override
+    public boolean rename(String path, String newName, OnApiFinish<Reply<LocalPath>> callback) {
+        return false;
+    }
+
+    @Override
     protected Canceler query(Query path, long from, long to, OnApiFinish<Reply<LocalFolder<Query>>> callback) {
         if (null==callback){
             Debug.W("Can't query local client while callback or path invalid.");

@@ -10,25 +10,27 @@
         <import type="com.luckmerlin.file.LocalPath"/>
         <import type="android.view.View"/>
     </data>
-    <ScrollView android:background="@drawable/dialog_round_corner_gray" android:layout_width="wrap_content" android:scrollbars="none"
-        android:paddingLeft="20dp" android:paddingRight="20dp" android:layout_marginTop="50dp" android:layout_marginBottom="50dp"
-        android:layout_height="wrap_content">
-        <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
-            <TextView android:textSize="@dimen/textTitle" android:textStyle="bold" android:layout_gravity="center"
-                android:text="@string/app_name" android:textColor="@color/textTitle" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:layout_marginBottom="10dp"/>
-            <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.transportManager,null)}"/>
-            <include layout="@layout/item_context_menu" android:visibility="@{folder.path.length>0?View.VISIBLE:View.GONE}"
-                binding:menu="@{ContextMenu.create(@string/multiChoose,folder)}"/>
-            <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(@string/goTo,folder)}"/>
-            <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(@string/terminal,folder)}"/>
-            <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.setAsHome,folder)}" />
-            <include layout="@layout/item_context_menu" android:visibility="@{null!=folder?View.VISIBLE:View.GONE}"
-                binding:menu="@{ContextMenu.create(R.string.createFolder,folder)}"/>
-            <include layout="@layout/item_context_menu" android:visibility="@{null!=folder?View.VISIBLE:View.GONE}"
-                binding:menu="@{ContextMenu.create(R.string.createFile,folder)}"/>
-            <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.exit,folder)}"/>
-            <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.reboot,folder)}"/>
-        </LinearLayout>
-    </ScrollView>
+    <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <ScrollView android:background="@drawable/dialog_round_corner_gray" android:layout_width="wrap_content"
+            android:layout_marginBottom="150dp" android:layout_marginTop="150dp"
+            android:scrollbars="none" android:paddingLeft="20dp" android:paddingRight="20dp" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <TextView android:textSize="@dimen/textTitle" android:textStyle="bold" android:layout_gravity="center"
+                    android:text="@string/app_name" android:textColor="@color/textTitle" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:layout_marginBottom="10dp"/>
+                <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.transportManager,null)}"/>
+                <include layout="@layout/item_context_menu" android:visibility="@{folder.path.length>0?View.VISIBLE:View.GONE}"
+                    binding:menu="@{ContextMenu.create(@string/multiChoose,folder)}"/>
+                <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(@string/goTo,folder)}"/>
+                <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(@string/terminal,folder)}"/>
+                <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.setAsHome,folder)}" />
+                <include layout="@layout/item_context_menu" android:visibility="@{null!=folder?View.VISIBLE:View.GONE}"
+                    binding:menu="@{ContextMenu.create(R.string.createFolder,folder)}"/>
+                <include layout="@layout/item_context_menu" android:visibility="@{null!=folder?View.VISIBLE:View.GONE}"
+                    binding:menu="@{ContextMenu.create(R.string.createFile,folder)}"/>
+                <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.exit,folder)}"/>
+                <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.reboot,folder)}"/>
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
 </layout>

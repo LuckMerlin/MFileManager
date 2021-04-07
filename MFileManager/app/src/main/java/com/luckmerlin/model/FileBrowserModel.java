@@ -11,6 +11,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -114,12 +115,19 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         return null;
     }
 
-    protected final boolean createPath(boolean directory,String debug){
+    protected final boolean createFile(boolean directory,String debug){
         Client client=getCurrentClient();
+        final String title=getString(directory?R.string.createFolder:R.string.createFile,null);
         if (null==client){
-            return toast(getString(R.string.whichFailed, "",getString(directory?R.string.createFolder:R.string.createFile,null)))&&false;
+            return toast(getString(R.string.whichFailed, "",title))&&false;
         }
-        return false;
+        Context context=getContext();
+        InputModel inputModel=new InputModel();
+        Dialog dialog=null!=context?new Dialog(context).setContentView(new AlertDialogModel(title,
+                null,R.string.sure,R.string.cancel).setContentLayout(inputModel),new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)).
+                setCancelable(true).setCanceledOnTouchOutside(true):null;
+        return null!=dialog&&dialog.show(this);
 //        return null!=createFolder&&createFolder.createPath(getCurrentFolder(), true, (OnApiFinish<Reply<Path>>) (int what, String note, Reply<Path> data, Object arg)-> {
 //            toast(getString(what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess()? R.string.whichSucceed:R.string.whichFailed,"",getString(R.string.createFolder,"")));
 //        });
@@ -170,6 +178,10 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         }else if ((files instanceof String)||(files instanceof Uri)||(files instanceof File)){
             return startUploadFiles(new ArraysList<>().addData(files),debug);
         }else if (files instanceof Collection){
+            final Context context=getContext();
+            if (null==context){
+                return false;
+            }
             Client currentClient=getCurrentClient();
             Client cloudClient=nextClient(false);
             if (null!=cloudClient&&(null==currentClient||currentClient!=cloudClient)){
@@ -179,7 +191,6 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
             Mode mode=new Mode(Mode.MODE_UPLOAD);
             Collection collection=(Collection)files;
             UriPath uriPath=new UriPath();
-            Context context=getContext();
             for (Object child:collection){
                 child=null!=child&&child instanceof Uri?uriPath.getUriPath(context,(Uri)child):child;
                 child=null!=child&&child instanceof String?new File((String)child):child;
@@ -189,41 +200,8 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
                 }
             }
             //
-            Dialog dialog=new Dialog(getContext());
-            LinearLayout linearLayout=new LinearLayout(getContext());
-            linearLayout.setPadding(20,20,20,20);
-            linearLayout.setBackgroundColor(Color.parseColor("#88000000"));
-            linearLayout.setOrientation(LinearLayout.VERTICAL);
-            linearLayout.setGravity(Gravity.CENTER);
-            TextView textView=new TextView(getContext());
-            textView.setTextColor(Color.WHITE);
-            textView.setTextSize(20);
-            textView.setPadding(40,20,40,20);
-            textView.setText(R.string.upload);
-            textView.setOnClickListener((v)->{dialog.dismiss();
-                selectMode(mode.setExtra(Label.LABEL_DELETE,null),debug);});
-            linearLayout.addView(textView);
-            //
-            textView=new TextView(getContext());
-            textView.setText(R.string.uploadWithDel);
-            textView.setTextColor(Color.WHITE);
-            textView.setTextSize(20);
-            textView.setPadding(40,20,40,20);
-            textView.setOnClickListener((v)->{dialog.dismiss();
-                selectMode(mode.setExtra(Label.LABEL_DELETE,Label.LABEL_DELETE),debug);});
-            linearLayout.addView(textView);
-            //
-            textView=new TextView(getContext());
-            textView.setText(R.string.cancel);
-            textView.setTextColor(Color.WHITE);
-            textView.setTextSize(20);
-            textView.setPadding(40,20,40,20);
-            textView.setOnClickListener((v)->{dialog.dismiss();});
-            linearLayout.addView(textView);
-            //
-            dialog.setContentView(linearLayout);
-//            return selectMode(mode.setExtra(Label.LABEL_DELETE,null),debug);
-            return dialog.show();
+            Dialog dialog=new Dialog(context);
+            return dialog.setContentView(new UploadDialogModel()).show();
 //            Dialog dialog=new Dialog(getContext());
 //            AlertDialogModel model=new AlertDialogModel(R.string.upload).setLeftText(R.string.upload).
 //                    setCenterText(R.string.uploadWithDel).setRightText(R.string.cancel);
@@ -260,6 +238,11 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
             return browserPath(pathValue,debug);
         }
         Debug.D("打开 "+debug);
+        return false;
+    }
+
+    protected final boolean showPathAttr(Client client,Path path,String debug){
+
         return false;
     }
 

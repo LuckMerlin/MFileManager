@@ -26,6 +26,19 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
         @POST("/file/home")
         @FormUrlEncoded
         Observable<Reply<NasPath>> setUserHome(@Field(Label.LABEL_PATH) String path);
+
+        @POST("/file/delete")
+        @FormUrlEncoded
+        Observable<Reply<NasPath>> deletePath(@Field(Label.LABEL_PATH) String path);
+
+        @POST("/file/rename")
+        @FormUrlEncoded
+        Observable<Reply<NasPath>> rename(@Field(Label.LABEL_PATH) String path,@Field(Label.LABEL_NAME)String name);
+
+
+        @POST("/file/create")
+        @FormUrlEncoded
+        Observable<Reply<NasPath>> createPath(@Field(Label.LABEL_PATH) String path,@Field(Label.LABEL_FOLDER) boolean createFolder);
     }
 
     public NasClient(String hostUrl,int hostPort,String name){
@@ -65,6 +78,21 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean deletePath(String path, OnApiFinish<Reply<NasPath>> callback) {
+        return null!=mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).deletePath(path),callback);
+    }
+
+    @Override
+    public boolean rename(String path, String newName, OnApiFinish<Reply<NasPath>> callback) {
+        return null!=mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).rename(path,newName),callback);
+    }
+
+    @Override
+    public boolean createPath(String path, boolean createFolder, OnApiFinish<Reply<NasPath>> callback) {
+        return null!=mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).createPath(path,createFolder),callback);
     }
 
     @Override

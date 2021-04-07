@@ -13,15 +13,28 @@ import com.luckmerlin.file.R;
 import com.luckmerlin.file.databinding.AlertDialogBinding;
 
 public class AlertDialogModel extends Model implements OnModelResolve,DialogModel {
-    private final ObservableField<Object> mTitle=new ObservableField<>();
-    private final ObservableField<Object> mMessage=new ObservableField<>();
-    private final ObservableField<Object> mLeftText=new ObservableField<>();
-    private final ObservableField<Object> mRightText=new ObservableField<>();
+    private final Object mTitle;
+    private final Object mMessage;
+    private final Object mLeftText;
+    private final Object mRightText;
     private final ObservableField<Object> mContentLayout=new ObservableField<>();
-    private final ObservableField<Object> mCenterText=new ObservableField<>();
+    private final Object mCenterText;
 
-    public AlertDialogModel(Object title){
-        mTitle.set(title);
+    public AlertDialogModel(Object title,Object message,Object left,Object right){
+        this(title,message,left,right,null);
+    }
+
+    public AlertDialogModel(Object title,Object message,Object left,Object right,Object center){
+        mTitle=title;
+        mMessage=message;
+        mLeftText=left;
+        mCenterText=center;
+        mRightText=right;
+    }
+
+    public final AlertDialogModel setContentLayout(Object contentLayout) {
+        mContentLayout.set(contentLayout);
+        return this;
     }
 
     @Override
@@ -32,21 +45,6 @@ public class AlertDialogModel extends Model implements OnModelResolve,DialogMode
             AlertDialogBinding alertDialogBinding=(AlertDialogBinding)dataBinding;
             alertDialogBinding.setVm(this);
         }
-    }
-
-    public final AlertDialogModel setLeftText(Object leftText) {
-        mLeftText.set(leftText);
-        return this;
-    }
-
-    public final AlertDialogModel setRightText(Object rightText) {
-        mRightText.set(rightText);
-        return this;
-    }
-
-    public final AlertDialogModel setCenterText(Object centerText) {
-        mCenterText.set(centerText);
-        return this;
     }
 
     @Override
