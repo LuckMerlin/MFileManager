@@ -4,12 +4,11 @@
         <variable name="vm" type="com.luckmerlin.model.InputModel" />
     </data>
 
-    <LinearLayout android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-            <TextView android:layout_width="wrap_content" android:singleLine="true" android:minEms="6"
-                android:maxEms="6" android:layout_height="wrap_content"/>
-            <EditText android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                android:hint="请输入" android:background="@drawable/round_corner_gray"/>
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="3dp"
+                android:textColor="@color/textTitle" android:textSize="15sp"
+                android:text="@={vm.input}" android:hint="@{vm.hint}" android:background="@drawable/round_corner_gray"/>
         </LinearLayout>
     </LinearLayout>
 

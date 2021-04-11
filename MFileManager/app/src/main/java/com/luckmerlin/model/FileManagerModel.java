@@ -51,7 +51,7 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
         super.onRootAttached(view);
         NasClient client=new NasClient("http://192.168.0.6",2018,"NAS");
 //        NasClient client=new NasClient("http://192.168.0.4",2019,"NAS");
-        add(new LocalClient("/sdcard/1Log",getString(R.string.local,null)).setSyncHost(client.getHostUri()),"");
+        add(new LocalClient("/sdcard",getString(R.string.local,null)).setSyncHost(client.getHostUri()),"");
         add(client,"");
     }
 
@@ -71,6 +71,8 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                 return createFile(true,"While view click.");
             case R.string.createFile:
                 return createFile(false,"While view click.");
+            case R.string.rename:
+                return renameFile(null!=tag&&tag instanceof Path?((Path)tag):null,true,"While view click.");
             case R.string.setAsHome:
                 Client client=getCurrentClient();
                 return null!=client&&client.setAsHome(getCurrentFolder(), (OnApiFinish<Reply<Path>>) (int what, String note, Reply<Path> data, Object arg)-> {

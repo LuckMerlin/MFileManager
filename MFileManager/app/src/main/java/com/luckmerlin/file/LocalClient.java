@@ -79,8 +79,40 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
     }
 
     @Override
-    public boolean rename(String path, String newName, OnApiFinish<Reply<LocalPath>> callback) {
-        return false;
+    public boolean rename(Path path, String newName,boolean justName, OnApiFinish<Reply<LocalPath>> callback) {
+        final String pathValue=null!=path?path.getPath():null;
+        if (null==pathValue||pathValue.length()<=0||null==newName){
+            return notifyApiFinish(What.WHAT_ARGS_INVALID,"Args invalid",null,null,callback)&&false;
+        }else if (!(path instanceof LocalPath)){
+            return notifyApiFinish(What.WHAT_NOT_SUPPORT,"Not support",null,null,callback)&&false;
+        }
+        File file=new File(pathValue);
+        if (!file.exists()){
+            return notifyApiFinish(What.WHAT_NOT_EXIST,"File not exist",null,null,callback)&&false;
+        }
+        String fileName=file.getName();
+        File parent=file.getParentFile();
+        File targetFile=null;
+        if (justName){
+            int index=fileName.indexOf(".");
+            String currentExtension=index>0&&index<fileName.length()?"."+fileName.substring(index):null;
+            targetFile=new File(parent,null!=currentExtension?newName+currentExtension:newName);
+        }else if (newName.length()<=0){
+            return notifyApiFinish(What.WHAT_ARGS_INVALID,"Name invalid",null,null,callback)&&false;
+        }else{
+            targetFile=new File(parent,newName);
+        }
+        if (null==targetFile){
+            return notifyApiFinish(What.WHAT_ERROR,"Rename error",null,null,callback)&&false;
+        }else if (targetFile.exists()){
+            return notifyApiFinish(What.WHAT_EXIST,"File already exist",null,null,callback)&&false;
+        }
+        file.renameTo(targetFile);
+        LocalPath localPath=LocalPath.create(targetFile);
+        if (!file.exists()&&targetFile.exists()){
+            return notifyApiFinish(What.WHAT_SUCCEED,null,localPath,null,callback)&&false;
+        }
+        return notifyApiFinish(What.WHAT_ERROR,"Error",localPath,null,callback)&&false;
     }
 
     @Override

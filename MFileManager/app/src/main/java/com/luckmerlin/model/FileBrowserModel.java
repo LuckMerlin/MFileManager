@@ -11,6 +11,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -115,22 +116,69 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         return null;
     }
 
-    protected final boolean createFile(boolean directory,String debug){
+    @Override
+    protected void onRootAttached(View view) {
+        super.onRootAttached(view);
+        post(()-> createFile(true,""),3000);
+    }
+
+    protected final boolean createFile(boolean directory, String debug){
         Client client=getCurrentClient();
         final String title=getString(directory?R.string.createFolder:R.string.createFile,null);
         if (null==client){
             return toast(getString(R.string.whichFailed, "",title))&&false;
         }
-        Context context=getContext();
-        InputModel inputModel=new InputModel();
-        Dialog dialog=null!=context?new Dialog(context).setContentView(new AlertDialogModel(title,
-                null,R.string.sure,R.string.cancel).setContentLayout(inputModel),new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)).
-                setCancelable(true).setCanceledOnTouchOutside(true):null;
+        InputModel inputModel=new InputModel(getString(R.string.inputWhich,null,getString(R.string.name,null)));
+        final Dialog dialog=new Dialog(getContext());
+        dialog.setContentView(new AlertDialogModel(title, null,R.string.sure,R.string.cancel,null,inputModel){
+            @Override
+            public boolean onViewClick(View view, int i, int i1, Object o) {
+                if (i==R.string.sure){
+                    String inputText=inputModel.getInputText();
+                    if (null==inputText||inputText.length()<=0){
+                        return toast(R.string.inputEmpty)||true;
+                    }
+                    client.createPath(inputText,directory, (OnApiFinish<Reply<Path>>) (int what, String note, Reply<Path> data, Object arg)-> {
+                        toast(getString(what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess()?
+                                R.string.whichSucceed:R.string.whichFailed,"",getString(R.string.createFolder,"")));
+                    });
+                }
+                dialog.dismiss();
+                return super.onViewClick(view, i, i1, o);
+            }
+        },new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)).setCancelable(true).setCanceledOnTouchOutside(true);
         return null!=dialog&&dialog.show(this);
-//        return null!=createFolder&&createFolder.createPath(getCurrentFolder(), true, (OnApiFinish<Reply<Path>>) (int what, String note, Reply<Path> data, Object arg)-> {
-//            toast(getString(what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess()? R.string.whichSucceed:R.string.whichFailed,"",getString(R.string.createFolder,"")));
-//        });
+    }
+
+    protected final boolean renameFile(Path path,boolean justName, String debug){
+        Client client=getCurrentClient();
+        final String title=getString(R.string.rename,null);
+        if (null==client){
+            return toast(getString(R.string.whichFailed, "",title))&&false;
+        }
+        InputModel inputModel=new InputModel(path.getName());
+        final Dialog dialog=new Dialog(getContext());
+        dialog.setContentView(new AlertDialogModel(title, null,R.string.sure,R.string.cancel,null,inputModel){
+            @Override
+            public boolean onViewClick(View view, int i, int i1, Object o) {
+                if (i==R.string.sure){
+                    String inputText=inputModel.getInputText();
+                    if (null==inputText){
+                        return toast(R.string.inputEmpty)||true;
+                    }
+                    client.rename(path,inputText,justName, (OnApiFinish<Reply<Path>>) (int what, String note, Reply<Path> data, Object arg)-> {
+                        Path newPath=what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess()?data.getData():null;
+                        toast(getString(null!=newPath? R.string.whichSucceed:R.string.whichFailed,"",getString(R.string.createFolder,"")));
+                        if (null!=newPath){
+                            mBrowserAdapter.replace(path,newPath,"After rename succeed.");
+                        }
+                    });
+                }
+                dialog.dismiss();
+                return super.onViewClick(view, i, i1, o);
+            }
+        },new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)).setCancelable(true).setCanceledOnTouchOutside(true);
+        return null!=dialog&&dialog.show(this);
     }
 
     public final List<Client> getClients() {

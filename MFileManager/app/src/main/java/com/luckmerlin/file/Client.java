@@ -16,9 +16,9 @@ public interface Client<A extends Folder<T,V>,T,V extends Path> {
 
     boolean setAsHome(Folder folder,OnApiFinish<Reply<? extends Path>> callback);
 
-    boolean rename(String path,String newName,OnApiFinish<Reply<V>> callback);
+    boolean rename(Path path,String newName,boolean justName,OnApiFinish<Reply<V>> callback);
 
-    boolean createPath(String path,boolean createFolder,OnApiFinish<Reply<V>> callback);
+    boolean createPath(String name,boolean createFolder,OnApiFinish<Reply<V>> callback);
 
     boolean deletePath(String path,OnApiFinish<Reply<V>> callback);
 }

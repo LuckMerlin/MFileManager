@@ -9,32 +9,34 @@ import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.DataBindingUtil;
 import com.luckmerlin.databinding.Model;
 import com.luckmerlin.databinding.OnModelResolve;
+import com.luckmerlin.databinding.touch.OnViewClick;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.databinding.AlertDialogBinding;
 
-public class AlertDialogModel extends Model implements OnModelResolve,DialogModel {
+public class AlertDialogModel extends Model implements OnModelResolve,DialogModel, OnViewClick {
     private final Object mTitle;
     private final Object mMessage;
     private final Object mLeftText;
     private final Object mRightText;
-    private final ObservableField<Object> mContentLayout=new ObservableField<>();
+    private final Object mContentLayout;
     private final Object mCenterText;
 
     public AlertDialogModel(Object title,Object message,Object left,Object right){
-        this(title,message,left,right,null);
+        this(title,message,left,right,null,null);
     }
 
-    public AlertDialogModel(Object title,Object message,Object left,Object right,Object center){
+    public AlertDialogModel(Object title,Object message,Object left,Object right,Object center,Object contentLayout){
         mTitle=title;
         mMessage=message;
         mLeftText=left;
         mCenterText=center;
         mRightText=right;
+        mContentLayout=contentLayout;
     }
 
-    public final AlertDialogModel setContentLayout(Object contentLayout) {
-        mContentLayout.set(contentLayout);
-        return this;
+    @Override
+    public boolean onViewClick(View view, int i, int i1, Object o) {
+        return false;
     }
 
     @Override

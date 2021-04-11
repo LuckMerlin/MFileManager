@@ -48,6 +48,14 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         }
     }
 
+    public final boolean replace(Path from,Path to,String debug){
+        if (null!=from&&null!=to){
+            int index=super.index(from);
+            return index>=0&&super.replace(index,to,debug);
+        }
+        return false;
+    }
+
     @Override
     protected void onAttachRecyclerView(RecyclerView recyclerView) {
         super.onAttachRecyclerView(recyclerView);

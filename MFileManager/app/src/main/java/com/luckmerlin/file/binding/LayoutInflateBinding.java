@@ -5,8 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.databinding.ViewDataBinding;
+
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.CustomBinding;
 import com.luckmerlin.databinding.DataBindingUtil;
+import com.luckmerlin.databinding.Model;
+import com.luckmerlin.databinding.OnModelResolve;
+import com.luckmerlin.databinding.ViewBindingBinder;
+
 import java.util.Collection;
 
 public final class LayoutInflateBinding implements CustomBinding {
@@ -44,6 +50,14 @@ public final class LayoutInflateBinding implements CustomBinding {
             }else if (layout instanceof Collection &&((Collection)layout).size()>0){
                 for (Object child:(Collection)layout) {
                     inflateLayout(view,child);
+                }
+            }else if (layout instanceof Model){
+                Model model=(Model)layout;
+                View root=model.getRoot();
+                if (null!=root){
+                    return inflateLayout(view,root);
+                }else if (model instanceof OnModelResolve){
+                    return inflateLayout(view,((OnModelResolve)model).onResolveModel());
                 }
             }
         }

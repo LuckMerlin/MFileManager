@@ -18,6 +18,7 @@
                 android:layout_height="wrap_content" android:layout_marginBottom="10dp"/>
             <include binding:menu="@{ContextMenu.create(R.string.download,vm.path)}" android:visibility="@{vm.path instanceof NasPath?View.VISIBLE:View.GONE}" layout="@layout/item_context_menu" />
             <include binding:menu="@{ContextMenu.create(R.string.upload,vm.path)}" android:visibility="@{vm.path instanceof LocalPath?View.VISIBLE:View.GONE}" layout="@layout/item_context_menu" />
+            <include binding:menu="@{ContextMenu.create(R.string.rename,vm.path)}" layout="@layout/item_context_menu" />
             <include binding:menu="@{ContextMenu.create(R.string.attr,vm.path)}" layout="@layout/item_context_menu" />
         </LinearLayout>
     </ScrollView>

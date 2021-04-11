@@ -33,7 +33,7 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
 
         @POST("/file/rename")
         @FormUrlEncoded
-        Observable<Reply<NasPath>> rename(@Field(Label.LABEL_PATH) String path,@Field(Label.LABEL_NAME)String name);
+        Observable<Reply<NasPath>> rename(@Field(Label.LABEL_PATH) String path,@Field(Label.LABEL_NAME)String name,@Field(Label.LABEL_NAME) boolean justName);
 
 
         @POST("/file/create")
@@ -86,8 +86,9 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
     }
 
     @Override
-    public boolean rename(String path, String newName, OnApiFinish<Reply<NasPath>> callback) {
-        return null!=mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).rename(path,newName),callback);
+    public boolean rename(Path path, String newName, boolean justName,OnApiFinish<Reply<NasPath>> callback) {
+        return null!=mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).rename
+                (null!=path?path.getPath():null,newName,justName),callback);
     }
 
     @Override
