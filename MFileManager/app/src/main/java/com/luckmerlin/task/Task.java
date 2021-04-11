@@ -15,13 +15,15 @@ public abstract class Task implements Status{
     private final String mName;
     private long mStartTime;
     private long mEndTime;
+    private String mAction;
 
     public Task(){
-        this(null);
+        this(null,null);
     }
 
-    public Task(String name){
+    public Task(String name,String action){
         mName=name;
+        mAction=action;
     }
 
     public final synchronized boolean execute(OnTaskUpdate callback) {
@@ -52,6 +54,10 @@ public abstract class Task implements Status{
 
     public final long getEndTime() {
         return mEndTime;
+    }
+
+    public final String getAction() {
+        return mAction;
     }
 
     public final long getUsedTime(){

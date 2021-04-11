@@ -25,7 +25,7 @@ public abstract class GroupTask<T> extends Task {
     }
 
     public GroupTask(String name, List<T> paths){
-        super(name);
+        super(name,null);
         LinkedHashMap<T, Response> maps=mValues;
         if (null!=paths&&null!=maps){
             synchronized (paths){

@@ -95,12 +95,15 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                 }else if (null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD){
                     ArrayList<Path> paths=modeUpload.getArgs();
                     if (null==paths||paths.size()<=0){
-                        return toast(R.string.emptyContent);
-                    }
-                    boolean deleteSucceed=modeUpload.isExistExtra(Label.LABEL_DELETE,Label.LABEL_DELETE);
-                    for (Path child:paths){
-                        startTask(new UploadTask(null,child,uploadFolder).
-                                enableDeleteAfterSucceed(deleteSucceed),"While upload view click.");
+                        toast(R.string.emptyContent);
+                    }else{
+                        boolean deleteSucceed=modeUpload.isExistExtra(Label.LABEL_DELETE,Label.LABEL_DELETE);
+                        for (Path child:paths){
+                            if (null!=child){
+                                startTask(new UploadTask(child.getName(),child,uploadFolder).
+                                        deleteSucceed(deleteSucceed),"While upload view click.");
+                            }
+                        }
                     }
                     return selectMode(null,"While upload view click.");
                 }
@@ -175,7 +178,7 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                 return FileManagerModel.this.onViewClick(view, i, i1, o);
             }
         };
-        return dialog.setContentView(model).setCanceledOnTouchOutside(true).show();
+        return dialog.setContentView(model).setCancelable(true).setCanceledOnTouchOutside(true).show();
     }
 
     private boolean showPathContextMenu(Path path,String debug){

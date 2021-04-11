@@ -119,7 +119,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-        post(()-> createFile(true,""),3000);
+//        post(()-> startUploadFiles(true,""),3000);
     }
 
     protected final boolean createFile(boolean directory, String debug){
@@ -225,44 +225,28 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
             return false;
         }else if ((files instanceof String)||(files instanceof Uri)||(files instanceof File)){
             return startUploadFiles(new ArraysList<>().addData(files),debug);
-        }else if (files instanceof Collection){
-            final Context context=getContext();
-            if (null==context){
-                return false;
-            }
-            Client currentClient=getCurrentClient();
-            Client cloudClient=nextClient(false);
-            if (null!=cloudClient&&(null==currentClient||currentClient!=cloudClient)){
-                setClientSelect(cloudClient,"Before start upload files.");
-            }
-            //
-            Mode mode=new Mode(Mode.MODE_UPLOAD);
-            Collection collection=(Collection)files;
-            UriPath uriPath=new UriPath();
-            for (Object child:collection){
-                child=null!=child&&child instanceof Uri?uriPath.getUriPath(context,(Uri)child):child;
-                child=null!=child&&child instanceof String?new File((String)child):child;
-                child=null!=child&&child instanceof File?LocalPath.create((File)child):child;
-                if (null!=child&&child instanceof Path){
-                    mode.add((Path)child);
-                }
-            }
-            //
-            Dialog dialog=new Dialog(context);
-            return dialog.setContentView(new UploadDialogModel()).show();
-//            Dialog dialog=new Dialog(getContext());
-//            AlertDialogModel model=new AlertDialogModel(R.string.upload).setLeftText(R.string.upload).
-//                    setCenterText(R.string.uploadWithDel).setRightText(R.string.cancel);
-//            return dialog.setContentView(model).show((OnViewClick)(View view, int i, int i1, Object o)-> {
-//                   switch (i){
-//                       case R.string.upload:selectMode(mode.setExtra(Label.LABEL_DELETE,null),debug);break;
-//                       case R.string.uploadWithDel:selectMode(mode.setExtra(Label.LABEL_DELETE,Label.LABEL_DELETE),debug);break;
-//                   }
-//                   dialog.dismiss();
-//                  return true;
-//            });
         }
-        return false;
+        final Context context=getContext();
+        if (null==context){
+            return false;
+        }
+        Client currentClient=getCurrentClient();
+        Client cloudClient=nextClient(false);
+        if (null!=cloudClient&&(null==currentClient||currentClient!=cloudClient)){
+            setClientSelect(cloudClient,"Before start upload files.");
+        }
+        Dialog dialog=new Dialog(context);
+        return dialog.setContentView(new UploadDialogModel(files){
+            @Override
+            public boolean onViewClick(View view, int i, int i1, Object o) {
+                dialog.dismiss();
+                if (i==R.string.sure){
+                    boolean deleteSucceed=false;
+                    Mode mode=new Mode(Mode.MODE_UPLOAD,getFiles());
+                    selectMode(mode.setExtra(Label.LABEL_DELETE, deleteSucceed?Label.LABEL_DELETE:null),debug);
+                }
+                return super.onViewClick(view, i, i1, o)||true;
+            }}).show();
     }
 
     protected final boolean onBackKeyPressed(String debug){

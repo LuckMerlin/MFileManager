@@ -40,7 +40,7 @@ public final class Nas {
     private final Retrofit mRetrofit=new Retrofit();
 
     public interface OnUploadProgressChange{
-        Boolean onProgressChanged(Progress progress);
+        Boolean onProgressChanged(long upload, long length,float speed);
     }
 
     public interface ApiSaveFile {
@@ -86,7 +86,7 @@ public final class Nas {
         final UploadRequestBody uploadBody=new UploadRequestBody(file,seek){
             @Override
             protected Boolean onProgress(long upload, long length,float speed) {
-                return null!=callback?callback.onProgressChanged(mProgress):null;
+                return null!=callback?callback.onProgressChanged(upload,length,speed):null;
             }
         };
         try {
@@ -138,27 +138,6 @@ public final class Nas {
         private long mUploaded ;
         private final long mTotal;
         private long mSpeed;
-
-        final Progress mProgress=new Progress() {
-            @Override
-            public Object getProgress(int type) {
-                switch (type){
-                    case Progress.TYPE_DONE:
-                        return mUploaded;
-                    case Progress.TYPE_SPEED:
-                        return FileSize.formatSizeText(mSpeed)+"/s";
-                    case Progress.TYPE_TOTAL:
-                        return mTotal;
-                    case Progress.TYPE_TITLE:
-                        return mTitle;
-                    case Progress.TYPE_PERCENT:
-                        long total=mTotal;
-                        long upload=mUploaded;
-                        return String.format("%.2f",total>0?(upload<=0?0:upload)*100.f/total:0);
-                }
-                return null;
-            }
-        };
 
         protected abstract Boolean onProgress(long upload,long length,float speed);
 

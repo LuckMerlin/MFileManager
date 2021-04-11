@@ -38,7 +38,7 @@ public class UploadTask extends FileTask<Path,Folder>{
         super(name,path,folder);
     }
 
-    public final UploadTask enableDeleteAfterSucceed(boolean enable) {
+    public final UploadTask deleteSucceed(boolean enable) {
         this.mDeleteAfterSucceed = enable;
         return this;
     }
@@ -114,8 +114,11 @@ public class UploadTask extends FileTask<Path,Folder>{
         final String localMd5 = new MD5().getFileMD5(file);
         maps.put(Label.LABEL_PATH, null != targetPath ? targetPath : "");
         maps.put(Label.LABEL_MD5, null != localMd5 ? localMd5 : "");
-        maps.put(Label.LABEL_MODE, mCheckMd5Existed? Label.LABEL_MD5:null);
+        maps.put(Label.LABEL_MODE, mCheckMd5Existed? Label.LABEL_MD5:"");
         maps.put(Label.LABEL_LENGTH, Long.toString(fileLength));
+        final FileProgress progress=new FileProgress();
+        progress.mUploaded=0;progress.mTotal=fileLength;progress.mSpeed=0;progress.mTitle=file.getName();
+        notifyTaskUpdate(Status.PREPARING, progress,callback);
         Reply<NasPath> existReply = nas.getNasFileData(folderHostUrl, maps);
         final int cover=getCover();
         long from = 0;
@@ -124,7 +127,9 @@ public class UploadTask extends FileTask<Path,Folder>{
             return response(What.WHAT_EXCEPTION);
         } else if (existReply.getWhat() == What.WHAT_SUCCEED) {//Already exist
             NasPath exist = existReply.getData();
-            if ((from = (null != exist ? exist.getLength() : 0)) < 0) {
+            final long uploadLength=progress.mUploaded=(null!=exist?exist.getLength():0);
+            notifyTaskUpdate(Status.PREPARING, progress,callback);
+            if ((from = uploadLength) < 0) {
                 Debug.W("Can't upload file while fetch exist length invalid.");
                 return response(What.WHAT_ERROR);
             } else if (from >= fileLength&&cover!=What.WHAT_REPLACE) {
@@ -137,10 +142,37 @@ public class UploadTask extends FileTask<Path,Folder>{
                 return response(What.WHAT_FAIL);
             }
         }
-        return nas.upload(file, folderHostUrl, targetPath, from, cover,localMd5,(Progress progress) -> {
+        return nas.upload(file, folderHostUrl, targetPath, from, cover,localMd5,(long upload, long length,float speed) -> {
+            progress.mSpeed=speed;progress.mUploaded=upload;progress.mTotal=length;
             notifyTaskUpdate(Status.EXECUTING, progress,callback);
             return super.isCanceled() ? true : null;
         }, null);
+    }
+
+    private static class FileProgress implements Progress{
+        private long mUploaded;
+        private long mTotal;
+        private Object mTitle;
+        private float mSpeed;
+
+        @Override
+        public Object getProgress(int type) {
+            switch (type){
+                case Progress.TYPE_DONE:
+                    return mUploaded;
+                case Progress.TYPE_SPEED:
+                    return FileSize.formatSizeText(mSpeed)+"/s";
+                case Progress.TYPE_TOTAL:
+                    return mTotal;
+                case Progress.TYPE_TITLE:
+                    return mTitle;
+                case Progress.TYPE_PERCENT:
+                    long total=mTotal;
+                    long upload=mUploaded;
+                    return String.format("%.2f",total>0?(upload<=0?0:upload)*100.f/total:0);
+            }
+            return null;
+        }
     }
 
 }

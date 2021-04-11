@@ -18,7 +18,7 @@ public abstract class FileTask<F extends Path,T extends Path> extends Task {
     }
 
     public FileTask(String name,F from,T to){
-        super(name);
+        super(name,null);
         mFrom=from;
         mTo=to;
     }

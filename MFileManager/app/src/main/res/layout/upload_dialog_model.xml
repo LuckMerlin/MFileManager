@@ -1,18 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="vm" type="com.luckmerlin.model.InputModel" />
+        <variable name="vm" type="com.luckmerlin.model.UploadDialogModel" />
+        <import type="com.luckmerlin.databinding.view.Touch"/>
+        <import type="com.luckmerlin.file.R"/>
     </data>
 
-    <LinearLayout android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-            <TextView android:layout_width="wrap_content" android:singleLine="true" android:minEms="6"
-                android:text="上传文件" android:maxEms="6" android:layout_height="wrap_content"/>
-            <EditText android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                android:hint="请输入" android:background="@drawable/round_corner_gray"/>
-            <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="删除成功"/>
-        </LinearLayout>
-    </LinearLayout>
+ <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+     <LinearLayout android:orientation="vertical" android:background="@drawable/round_corner_gray" android:gravity="center"
+         android:paddingTop="10dp" android:paddingBottom="10dp" android:paddingLeft="5dp" android:paddingRight="5dp"
+         android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center">
+         <TextView android:layout_width="wrap_content" android:singleLine="true" android:textColor="@color/textTitle"
+             android:text="上传文件" android:textSize="14sp" android:layout_height="wrap_content" android:gravity="center"/>
+
+         <TextView android:layout_width="wrap_content" android:singleLine="true"
+             android:textColor="@color/textTitle" android:textSize="11sp"
+             android:layout_height="wrap_content" android:gravity="center"/>
+
+         <LinearLayout android:layout_marginTop="15dp" android:layout_marginBottom="5dp"
+             android:layout_width="wrap_content" android:orientation="horizontal" android:layout_height="wrap_content">
+             <TextView android:layout_weight="1" android:padding="8dp" binding:lmBinding="@{Touch.textRes(R.string.sure,null,Touch.CLICK)}"
+                 android:paddingLeft="20dp" android:paddingRight="20dp" android:paddingBottom="5dp" android:paddingTop="5dp"
+                 android:layout_marginLeft="2dp" android:layout_marginRight="2dp"
+                 android:background="@drawable/selector_round_dark_corner_small" style="@style/titleNormalTextView"/>
+             <TextView android:layout_weight="1" android:padding="8dp" binding:lmBinding="@{Touch.textRes(R.string.cancel,null,Touch.CLICK)}"
+                 android:paddingLeft="20dp" android:paddingRight="20dp" android:paddingBottom="5dp" android:paddingTop="5dp"
+                 android:layout_marginLeft="2dp" android:layout_marginRight="2dp"
+                 android:background="@drawable/selector_round_dark_corner_small" style="@style/titleNormalTextView"/>
+         </LinearLayout>
+     </LinearLayout>
+ </FrameLayout>
 
 </layout>
