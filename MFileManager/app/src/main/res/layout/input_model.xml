@@ -7,8 +7,8 @@
     <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
             <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="3dp"
-                android:textColor="@color/textTitle" android:textSize="15sp"
-                android:text="@={vm.input}" android:hint="@{vm.hint}" android:background="@drawable/round_corner_gray"/>
+                android:textColor="@color/textTitle" android:textSize="15sp" android:text="@={vm.input}"
+                android:hint="@{vm.hint}" android:background="@drawable/round_corner_gray"/>
         </LinearLayout>
     </LinearLayout>
 
