@@ -1,5 +1,10 @@
 package com.luckmerlin.file;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+
 import com.luckmerlin.core.Canceler;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.api.Label;
@@ -71,6 +76,31 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
     @Override
     public boolean createPath(String path, boolean createFolder, OnApiFinish<Reply<LocalPath>> callback) {
         return false;
+    }
+
+    @Override
+    public Canceler loadPathThumb(Context context, Path path, int width,int height,OnApiFinish<Object> callback) {
+        String mime=null!=path&&path instanceof LocalPath?path.getMime():null;
+        if (null!=mime&&mime.length()>0){
+            String pathValue=path.getPath();
+            if (path.isAnyType(Path.TYPE_APK)){
+                PackageManager manager = null!=context&&null!=pathValue?context.getPackageManager():null;
+                PackageInfo packageInfo = null!=manager?manager.getPackageArchiveInfo(pathValue, PackageManager.GET_ACTIVITIES):null;
+                if (packageInfo != null){
+                    try {
+                        ApplicationInfo info = packageInfo.applicationInfo;
+                        info.sourceDir = pathValue;
+                        info.publicSourceDir = pathValue;
+                        return notifyApiFinish(What.WHAT_SUCCEED,null,info.loadIcon(manager),callback)?null:null;
+                    } catch (Exception e) {
+                        //Do nothing
+                    }
+                }
+            }else if (path.isAnyType(Path.TYPE_IMAGE,Path.TYPE_VIDEO)){
+                return notifyApiFinish(What.WHAT_SUCCEED,null, pathValue,callback)?null:null;
+            }
+        }
+        return super.loadPathThumb(context, path,width,height, callback);
     }
 
     @Override

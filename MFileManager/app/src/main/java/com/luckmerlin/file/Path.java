@@ -3,6 +3,9 @@ package com.luckmerlin.file;
 import androidx.annotation.Nullable;
 
 public abstract class  Path implements Permission {
+    public final static int TYPE_IMAGE=1212;
+    public final static int TYPE_VIDEO=1213;
+    public final static int TYPE_APK=1214;
     public abstract String getParent();
     public abstract String getName();
     public abstract String getExtension();
@@ -14,6 +17,24 @@ public abstract class  Path implements Permission {
     public abstract int getPermission();
     public abstract String getMime();
     public abstract String getMd5();
+
+    public final boolean isAnyType(int ...types){
+        if (null!=types&&types.length>0){
+            String mime=this.getMime();
+            if (null!=mime&&mime.length()>0){
+                for (int type:types) {
+                    if (type==TYPE_IMAGE&&mime.startsWith("image/")){
+                        return true;
+                    }else if (type==TYPE_VIDEO&&mime.startsWith("video/")){
+                        return true;
+                    }else if (type==TYPE_APK&&mime.equals("application/vnd.android.package-archive")){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     public final String getNameWithExtension(){
         String sep=getSep();

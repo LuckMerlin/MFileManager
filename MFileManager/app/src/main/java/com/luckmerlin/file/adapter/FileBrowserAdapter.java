@@ -2,10 +2,13 @@ package com.luckmerlin.file.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.appcompat.view.menu.MenuView;
+import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,9 +20,11 @@ import com.luckmerlin.adapter.recycleview.ItemTouchInterrupt;
 import com.luckmerlin.adapter.recycleview.OnItemTouchResolver;
 import com.luckmerlin.adapter.recycleview.SectionListAdapter;
 import com.luckmerlin.adapter.recycleview.SectionRequest;
+import com.luckmerlin.adapter.recycleview.ViewHolder;
 import com.luckmerlin.core.Canceler;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.touch.OnViewClick;
+import com.luckmerlin.file.Cancel;
 import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalPath;
@@ -33,10 +38,15 @@ import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.databinding.ItemBrowserEmptyBinding;
 import com.luckmerlin.file.databinding.ItemContentEmptyBinding;
 import com.luckmerlin.file.databinding.ItemListFileBinding;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implements OnItemTouchResolver, OnViewClick {
     private final ObservableField<Client> mCurrentClient=new ObservableField<Client>();
+    private final Map<RecyclerView.ViewHolder,Canceler> mThumbLoading=new HashMap<>();
     private int mLoadWhat;
     private OnSyncApiFinish mLoading=null;
 
@@ -193,13 +203,50 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
     }
 
     @Override
+    protected void onViewDetachedFromWindow(RecyclerView.ViewHolder viewHolder, View view, ViewDataBinding viewDataBinding) {
+        super.onViewDetachedFromWindow(viewHolder, view, viewDataBinding);
+        Map<RecyclerView.ViewHolder,Canceler> thumbLoadings=null!=viewHolder?mThumbLoading:null;
+        Canceler canceler=null!=thumbLoadings?thumbLoadings.remove(viewHolder):null;
+        if (null!=canceler){
+            canceler.cancel(true,"While view detached.");
+        }
+    }
+
+    private boolean resetThumbLoad(RecyclerView.ViewHolder viewHolder,Path path,String debug){
+        if (null!=viewHolder&&null!=path){
+            View view=null!=viewHolder?viewHolder.itemView:null;
+            ViewDataBinding binding=null!=view? DataBindingUtil.getBinding(view):null;
+            if (null!=binding&&binding instanceof ItemListFileBinding){
+                ItemListFileBinding fileBinding= (ItemListFileBinding)binding;
+                final Client client=mCurrentClient.get();
+                Map<RecyclerView.ViewHolder,Canceler> thumbLoadings=mThumbLoading;
+                if (null!=thumbLoadings&&null!=client){
+                    final Canceler canceler=client.loadPathThumb(view.getContext(),path,120,120,(OnApiFinish)
+                            (int what, String note, Object data, Object arg)-> {
+                                thumbLoadings.remove(viewHolder);
+                                Object thumbImage=what==What.WHAT_SUCCEED?data:null;
+                                fileBinding.setThumbImage(thumbImage);
+                            });
+                    if (null!=canceler&&null!=thumbLoadings.put(viewHolder,canceler)){
+                        return thumbLoadings.containsValue(canceler)?true:(null!=thumbLoadings.remove(viewHolder)&&false);
+                    }
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    @Override
     protected final void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i, ViewDataBinding binding, int i1, Path data, List<Object> list) {
         super.onBindViewHolder(viewHolder, i, binding, i1, data, list);
         if (null!=binding&&binding instanceof ItemListFileBinding){
+            resetThumbLoad(viewHolder,data,"While bind view holder.");
             ItemListFileBinding fileBinding=(ItemListFileBinding)binding;
             fileBinding.setPath(data);
             fileBinding.setPosition(i+1);
-            fileBinding.setSyncColor(null!=data&&data instanceof LocalPath?((LocalPath)data).getSyncColor():Color.TRANSPARENT);
+            fileBinding.setSyncColor(null!=data&&data instanceof LocalPath?
+                    ((LocalPath)data).getSyncColor():Color.TRANSPARENT);
         }else if (null!=binding&&binding instanceof ItemBrowserEmptyBinding){
             ItemBrowserEmptyBinding emptyBinding=(ItemBrowserEmptyBinding)binding;
             boolean resetEnable=true;

@@ -7,6 +7,7 @@
         <variable name="path" type="com.luckmerlin.file.Path" />
         <variable name="position" type="int" />
         <variable name="syncColor" type="int" />
+        <variable name="thumbImage" type="Object" />
         <import type="android.view.View"/>
         <import type="com.luckmerlin.file.util.FileSize"/>
         <import type="com.luckmerlin.file.binding.ImageBinding"/>
@@ -17,7 +18,7 @@
         android:orientation="horizontal" android:layout_marginBottom="4dp"
         android:layout_width="match_parent" android:layout_height="@dimen/listItemNormal">
 
-            <ImageView android:id="@+id/itemListFile_icon" binding:lmBinding="@{ImageBinding.image(path)}"
+            <ImageView android:id="@+id/itemListFile_icon" binding:lmBinding="@{ImageBinding.image(thumbImage)}"
                 android:layout_alignParentLeft="true" android:padding="2dp" android:layout_margin="1dp"
                 android:layout_width="@dimen/listItemNormal" android:layout_height="@dimen/listItemNormal"/>
 

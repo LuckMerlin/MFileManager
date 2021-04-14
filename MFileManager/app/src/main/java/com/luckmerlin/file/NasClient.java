@@ -1,15 +1,23 @@
 package com.luckmerlin.file;
 
+import android.content.Context;
+
 import com.luckmerlin.core.Canceler;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.retrofit.Retrofit;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import io.reactivex.Observable;
 import retrofit2.http.Field;
+import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
+import retrofit2.http.QueryMap;
 
 public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
     private final Retrofit mRetrofit=new Retrofit();
@@ -18,10 +26,10 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
     private String name;
 
     private interface Api{
+
         @POST("/file/browser")
         @FormUrlEncoded
-        Observable<Reply<NasFolder<Query>>> queryFiles(@Field(Label.LABEL_PATH) String path, @Field(Label.LABEL_NAME) String name,@Field(Label.LABEL_FROM) long from,
-                                                   @Field(Label.LABEL_TO) long to);
+        Observable<Reply<NasFolder<Query>>> queryFiles(@FieldMap Map<String,Object> map);
 
         @POST("/file/home")
         @FormUrlEncoded
@@ -35,16 +43,31 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
         @FormUrlEncoded
         Observable<Reply<NasPath>> rename(@Field(Label.LABEL_PATH) String path,@Field(Label.LABEL_NAME)String name,@Field(Label.LABEL_NAME) boolean justName);
 
-
         @POST("/file/create")
         @FormUrlEncoded
         Observable<Reply<NasPath>> createPath(@Field(Label.LABEL_PATH) String path,@Field(Label.LABEL_FOLDER) boolean createFolder);
+
+        @POST("/file/thumb")
+        @FormUrlEncoded
+        Observable<Reply<NasPath>> loadThumb(@Field(Label.LABEL_PATH) String path,@Field(Label.LABEL_WIDTH) int width,@Field(Label.LABEL_WIDTH) int height);
+
     }
 
     public NasClient(String hostUrl,int hostPort,String name){
         mHostUrl=hostUrl;
         mHostPort=hostPort;
         this.name=name;
+    }
+
+    @Override
+    public Canceler loadPathThumb(Context context, Path path,int width,int height,OnApiFinish<Object> callback) {
+        if (null!=path&&path instanceof NasPath){
+            if (path.isAnyType(Path.TYPE_VIDEO,Path.TYPE_IMAGE)){
+                Retrofit retrofit=mRetrofit;
+                return null!=retrofit?retrofit.call(retrofit.prepare(Api.class,getHostUri()).loadThumb(path.getPath(),width,height),callback):null;
+            }
+        }
+        return super.loadPathThumb(context, path,width,height, callback);
     }
 
     @Override
@@ -57,8 +80,15 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
         Retrofit retrofit=mRetrofit;
         String path=null!=query?query.getPath():null;
         String name=null!=query?query.getName():null;
-        return null!=retrofit&&null!=callback?retrofit.call(retrofit.prepare(Api.class, getHostUri())
-                .queryFiles(path,name, from, to), (OnApiFinish<Reply<NasFolder<Query>>>)
+//        int thumbWidth=null!=query?query.getThumbWidth():0;
+//        int thumbHeight=null!=query?query.getThumbHeight():0;
+        final Map<String,Object> map=new HashMap<>();
+        map.put(Label.LABEL_PATH,null!=path?path:"");
+        map.put(Label.LABEL_NAME,null!=name?name:"");
+        map.put(Label.LABEL_FROM,from);
+        map.put(Label.LABEL_TO,to);
+        return null!=retrofit&&null!=callback?retrofit.call(retrofit.prepare(Api.class,
+                getHostUri()).queryFiles(map), (OnApiFinish<Reply<NasFolder<Query>>>)
                 (int what, String note, Reply<NasFolder<Query>> data, Object arg)-> {
                     NasFolder<Query> nasFolder=null!=data?data.getData():null;
                     if (null!=nasFolder){

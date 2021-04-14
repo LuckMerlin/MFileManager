@@ -3,6 +3,8 @@ package com.luckmerlin.file;
 public final class Query {
     private String mPath;
     private String mName;
+    private int mThumbWidth=120;
+    private int mThumbHeight=120;
 
     public Query(String path,String name){
         mPath=path;
@@ -15,6 +17,14 @@ public final class Query {
 
     public String getPath() {
         return mPath;
+    }
+
+    public int getThumbHeight() {
+        return mThumbHeight;
+    }
+
+    public int getThumbWidth() {
+        return mThumbWidth;
     }
 
     public boolean isEqualsName(String name){
