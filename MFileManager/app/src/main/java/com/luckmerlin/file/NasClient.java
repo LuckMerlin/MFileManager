@@ -7,12 +7,16 @@ import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
+import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.retrofit.Retrofit;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import io.reactivex.Observable;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
@@ -49,7 +53,7 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
 
         @POST("/file/thumb")
         @FormUrlEncoded
-        Observable<Reply<NasPath>> loadThumb(@Field(Label.LABEL_PATH) String path,@Field(Label.LABEL_WIDTH) int width,@Field(Label.LABEL_WIDTH) int height);
+        Call<Reply<NasPath>> loadThumb(@Field(Label.LABEL_PATH) String path, @Field(Label.LABEL_WIDTH) int width, @Field(Label.LABEL_WIDTH) int height);
 
     }
 
@@ -64,7 +68,28 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
         if (null!=path&&path instanceof NasPath){
             if (path.isAnyType(Path.TYPE_VIDEO,Path.TYPE_IMAGE)){
                 Retrofit retrofit=mRetrofit;
-                return null!=retrofit?retrofit.call(retrofit.prepare(Api.class,getHostUri()).loadThumb(path.getPath(),width,height),callback):null;
+                Call<Reply<NasPath>> call=retrofit.prepare(Api.class,getHostUri()).loadThumb(path.getPath(),width,height);
+               if (null!=call){
+                   final Canceler canceler=(boolean b, String s)-> {
+                       call.cancel();
+
+                       return true;
+                   };
+                   call.enqueue(new Callback<Reply<NasPath>>() {
+                       @Override
+                       public void onResponse(Call<Reply<NasPath>> call, Response<Reply<NasPath>> response) {
+//                           ResponseBody responseBody = response.body();
+//
+//                           bitmap = BitmapFactory.decodeStream(responseBody.byteStream());
+                       }
+
+                       @Override
+                       public void onFailure(Call<Reply<NasPath>> call, Throwable t) {
+                            notifyApiFinish(What.WHAT_ERROR,"Error",null,callback);
+                       }
+                   });
+                   return canceler;
+               }
             }
         }
         return super.loadPathThumb(context, path,width,height, callback);
