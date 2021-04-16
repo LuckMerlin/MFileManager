@@ -19,29 +19,26 @@ public class LogInterceptor implements Interceptor {
 
     @Override
     public okhttp3.Response intercept(Chain chain) throws IOException {
-        Request request = chain.request()
-//                .newBuilder()
-//                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-//                .addHeader("Accept-Encoding", "gzip, deflate")
-//                .addHeader("Connection", "keep-alive")
-//                .addHeader("Accept", "*/*")
-//                .addHeader("Cookie", "add cookies here")
-//                .build()
-                ;
-
-        Log.e(TAG,"request:" + request.toString());
-        okhttp3.Response response = chain.proceed(chain.request());
+        Request request = chain.request();
+        okhttp3.Response response = chain.proceed(request);
         ResponseBody responseBody = response.body();
         MediaType mediaType=responseBody.contentType();
+        String contentType=null!=mediaType?mediaType.toString():null;
+        if (null!=contentType){
+            if (contentType.equals("application/octet-stream")){
+                return response;
+            }else if (contentType.equals("binary/octet-stream")){
+                return response;
+            }else if (contentType.startsWith("image/")||contentType.startsWith("video/")){
+                return response;
+            }
+        }
         String content=null;
         final String charset="UTF-8";
         try (BufferedSource source =(null!=responseBody?responseBody.source():null)) {
             content=source.readString(Charset.forName(charset));
         }
-        String contentType=null!=mediaType?mediaType.toString():null;
-        if (null!=contentType&&contentType.equals("application/octet-stream")){
-            return response;
-        }
+        Log.e(TAG,"request:" + request.toString());
         long t1 = System.nanoTime();
         long t2 = System.nanoTime();
         Log.e(TAG,String.format(Locale.getDefault(), "Received response for %s in %.1fms%n%s",
@@ -49,10 +46,7 @@ public class LogInterceptor implements Interceptor {
 //        String content = response.body().string();
         Log.e(TAG, "response body:"+contentType+" " + content);
         byte[] bytes=null!=content?content.getBytes(charset):null;
-        return response.newBuilder()
-                .body(okhttp3.ResponseBody.create(mediaType, bytes))
-//                .header("Authorization", Your.sToken)
-                .build();
+        return response.newBuilder().body(okhttp3.ResponseBody.create(mediaType, bytes)).build();
     }
 
 }

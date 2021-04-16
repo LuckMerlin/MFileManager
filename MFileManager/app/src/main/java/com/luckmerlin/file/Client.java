@@ -15,7 +15,7 @@ public interface Client<A extends Folder<T,V>,T,V extends Path> {
 
     Canceler onNextSectionLoad(SectionRequest<T> request, OnApiFinish<Reply<A>> callback, String s) ;
 
-    Canceler loadPathThumb(Context context,Path path, int width,int height,OnApiFinish<Object> callback);
+    Canceler loadPathThumb(Context context,Path path, int width,int height,OnApiFinish<Thumb> callback);
 
     boolean setAsHome(Folder folder,OnApiFinish<Reply<? extends Path>> callback);
 

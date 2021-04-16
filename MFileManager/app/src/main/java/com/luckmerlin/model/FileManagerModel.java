@@ -127,6 +127,8 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
             case R.string.attr:
                 Client attrClient=getCurrentClient();
                 return showPathAttr(attrClient,null!=tag&&tag instanceof Path?(Path)tag:null,null)||true;
+            case R.id.itemListFile_icon:
+                return toast("打开预览图")||true;
             default:
                 if (null!=tag&&tag instanceof Path){
                     return openPath(((Path)tag),"While path view click.");

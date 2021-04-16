@@ -79,7 +79,7 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
     }
 
     @Override
-    public Canceler loadPathThumb(Context context, Path path, int width,int height,OnApiFinish<Object> callback) {
+    public Canceler loadPathThumb(Context context, Path path, int width,int height,OnApiFinish<Thumb> callback) {
         String mime=null!=path&&path instanceof LocalPath?path.getMime():null;
         if (null!=mime&&mime.length()>0){
             String pathValue=path.getPath();

@@ -14,7 +14,7 @@ public abstract class AbsClient<A extends Folder<T,V>,T,V extends Path> implemen
     protected abstract Canceler query(T query, long from, long to, OnApiFinish<Reply<A>> callback);
 
     @Override
-    public Canceler loadPathThumb(Context context,Path path, int width,int height,OnApiFinish<Object> callback) {
+    public Canceler loadPathThumb(Context context,Path path, int width,int height,OnApiFinish<Thumb> callback) {
         if (null == path) {
             return null;
         } else if (path.isDirectory()) {

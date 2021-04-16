@@ -11,6 +11,7 @@
         <import type="android.view.View"/>
         <import type="com.luckmerlin.file.util.FileSize"/>
         <import type="com.luckmerlin.file.binding.ImageBinding"/>
+        <import type="com.luckmerlin.file.binding.BindingList"/>
         <import type="com.luckmerlin.file.util.Time"/>
         <import type="com.luckmerlin.databinding.view.Touch"/>
     </data>
@@ -18,7 +19,7 @@
         android:orientation="horizontal" android:layout_marginBottom="4dp"
         android:layout_width="match_parent" android:layout_height="@dimen/listItemNormal">
 
-            <ImageView android:id="@+id/itemListFile_icon" binding:lmBinding="@{ImageBinding.image(thumbImage)}"
+            <ImageView android:id="@+id/itemListFile_icon" binding:lmBinding="@{BindingList.list(ImageBinding.image(thumbImage)).append(true,Touch.dispatch(Touch.CLICK|Touch.LONG_CLICK,path))}"
                 android:layout_alignParentLeft="true" android:padding="2dp" android:layout_margin="1dp"
                 android:layout_width="@dimen/listItemNormal" android:layout_height="@dimen/listItemNormal"/>
 

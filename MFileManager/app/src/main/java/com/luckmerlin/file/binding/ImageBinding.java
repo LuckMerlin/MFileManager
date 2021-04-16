@@ -5,7 +5,13 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
+import com.luckmerlin.core.debug.Debug;
+import com.luckmerlin.databinding.BindingList;
 import com.luckmerlin.databinding.CustomBinding;
+import com.luckmerlin.file.Thumb;
+
 import java.io.File;
 
 public class ImageBinding implements CustomBinding {
@@ -24,30 +30,30 @@ public class ImageBinding implements CustomBinding {
         if (null==view||!(view instanceof ImageView)){
             return false;
         }
+        Debug.D("DDDDDDDDDD "+mImage);
         final ImageView imageView=(ImageView)view;
         Object image=mImage;
         if (null!=image){
+            final RequestOptions options=RequestOptions.bitmapTransform(new RoundedCorners(20))
+                    .circleCrop();
             if (image instanceof String) {
                 String path = (String) image;
                 if (path.startsWith(File.separator)) {
-                    return null!=Glide.with(imageView).load(new File(path)).into(imageView);
+                    image=new File(path);
                 }else if (path.startsWith("http")){
-                    return null!=Glide.with(imageView).load(path).into(imageView);
+                    return null!=Glide.with(imageView).load(path).apply(options).into(imageView);
                 }
+            }else if (image instanceof Thumb){
+                image=((Thumb)image).getThumb();
+            }
+            if (image instanceof File){
+                return null!=Glide.with(imageView).load((File)image).apply(options).into(imageView);
             }else if (image instanceof Drawable){
-                imageView.setImageDrawable((Drawable)image);
-                return true;
+                return null!=Glide.with(imageView).load((Drawable)image).apply(options).into(imageView);
             }else if (image instanceof Integer){
-                try {
-                    Drawable drawable=imageView.getResources().getDrawable((Integer)image);
-                    imageView.setImageDrawable(drawable);
-                    return true;
-                }catch (Exception e){
-                    //Do nothing
-                }
+                return null!=Glide.with(imageView).load((Integer)image).apply(options).into(imageView);
             }else if (image instanceof Bitmap){
-                imageView.setImageBitmap((Bitmap)image);
-                return true;
+                return null!=Glide.with(imageView).load((Bitmap)image).apply(options).into(imageView);
             }
         }
         imageView.setImageDrawable(null);//Clean

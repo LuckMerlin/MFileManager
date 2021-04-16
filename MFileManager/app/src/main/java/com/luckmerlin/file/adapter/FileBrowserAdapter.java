@@ -32,6 +32,7 @@ import com.luckmerlin.file.OnPathUpdate;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
+import com.luckmerlin.file.Thumb;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
@@ -224,7 +225,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
                     final Canceler canceler=client.loadPathThumb(view.getContext(),path,120,120,(OnApiFinish)
                             (int what, String note, Object data, Object arg)-> {
                                 thumbLoadings.remove(viewHolder);
-                                Object thumbImage=what==What.WHAT_SUCCEED?data:null;
+                                Object thumbImage=(what==What.WHAT_SUCCEED||what==What.WHAT_ALREADY_DONE)?data:null;
                                 fileBinding.setThumbImage(thumbImage);
                             });
                     if (null!=canceler&&null!=thumbLoadings.put(viewHolder,canceler)){
