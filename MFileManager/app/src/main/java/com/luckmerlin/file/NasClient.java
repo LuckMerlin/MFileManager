@@ -97,52 +97,48 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
                         notifyApiFinish(What.WHAT_ALREADY_DONE,null,cacheFile,callback);
                         return null;
                     }else if (null!=retrofit){
-                        final Disposable[] disposables=new Disposable[1];
                         final Call[] calls=new Call[1];
                         final Canceler canceler=(boolean b, String s)-> {
                             Call call=calls[0];
                             if (null!=call&&(!call.isCanceled())){
-                                call.cancel();
-                            }
-                            Disposable disposable=disposables[0];
-                            if (null!=disposable&&!disposable.isDisposed()){
-                                disposable.dispose();
+//                                call.cancel();
                             }
                             return true;
                         };
-                        disposables[0]=Observable.create((ObservableEmitter<Reply<Thumb>> emitter) ->{
-                            Call<ResponseBody> call=calls[0]=retrofit.prepare(Api.class,getHostUri()).loadThumb(path.getPath(),width,height);
-                            Response<ResponseBody> response=null!=call?call.execute():null;
-                            ResponseBody responseBody=null!=response?response.body():null;
-                            MediaType mediaType=null!=responseBody?responseBody.contentType():null;
-                            String contentType=null!=mediaType?mediaType.toString():null;
+                        Observable.create((ObservableEmitter<Reply<Thumb>> emitter) ->{
                             int code=What.WHAT_FAIL;String note=null;
-                            if (null!=contentType&&contentType.startsWith("image/")){
-                                InputStream stream=responseBody.byteStream();
-                                FileOutputStream outputStream=null;
-                                try {
-                                    outputStream=new FileOutputStream(cacheFile,false);
-                                    byte[] buffer=new byte[1024*1024];
-                                    int read=-1;
-                                    code=What.WHAT_SUCCEED;
-                                    while ((read=stream.read(buffer))>=0){
-                                        if (emitter.isDisposed()){//Check if cancel
-                                            code=What.WHAT_CANCEL;note="Canceled";
-                                            break;
+                            try {
+                                Call<ResponseBody> call=calls[0]=retrofit.prepare(Api.class,getHostUri()).loadThumb(path.getPath(),width,height);
+                                Response<ResponseBody> response=null!=call?call.execute():null;
+                                ResponseBody responseBody=null!=response?response.body():null;
+                                MediaType mediaType=null!=responseBody?responseBody.contentType():null;
+                                String contentType=null!=mediaType?mediaType.toString():null;
+                                if (null!=contentType&&contentType.startsWith("image/")){
+                                    InputStream stream=responseBody.byteStream();
+                                    FileOutputStream outputStream=null;
+                                    try {
+                                        outputStream=new FileOutputStream(cacheFile,false);
+                                        byte[] buffer=new byte[1024*1024];
+                                        int read=-1;
+                                        code=What.WHAT_SUCCEED;
+                                        while (!call.isCanceled()&&(read=stream.read(buffer))>=0){
+                                            outputStream.write(buffer,0,read);
                                         }
-                                        outputStream.write(buffer,0,read);
-                                    }
-                                    outputStream.flush();
-                                } catch (Exception e) {
-                                    code=What.WHAT_EXCEPTION;
-                                    e.printStackTrace();
-                                }finally {
-                                    new Closer().close(outputStream,stream);
-                                    cacheFile.deleteOnExit();
-                                    if (code==What.WHAT_CANCEL){
-                                        cacheFile.delete();//Delete canceled
+                                        outputStream.flush();
+                                    } catch (Exception e) {
+                                        code=What.WHAT_EXCEPTION;
+                                        e.printStackTrace();
+                                    }finally {
+                                        new Closer().close(outputStream,stream);
+                                        cacheFile.deleteOnExit();
+                                        code=call.isCanceled()?What.WHAT_CANCEL:code;
+                                        if (code==What.WHAT_CANCEL){
+                                            cacheFile.delete();//Delete canceled
+                                        }
                                     }
                                 }
+                            }catch (Exception e){
+                                Debug.E("EEEEEEEE "+e);
                             }
                             emitter.onNext(new Reply(true,code,note,new Thumb(path,cacheFile)));
                         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe((Consumer<Reply<Thumb>>)(Reply<Thumb> reply)-> {
