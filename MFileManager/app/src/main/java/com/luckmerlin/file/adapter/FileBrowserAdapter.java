@@ -47,9 +47,13 @@ import java.util.Map;
 
 public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implements OnItemTouchResolver, OnViewClick {
     private final ObservableField<Client> mCurrentClient=new ObservableField<Client>();
-    private final Map<RecyclerView.ViewHolder,Canceler> mThumbLoading=new HashMap<>();
+    private final Map<ViewDataBinding,Canceler> mThumbLoading=new HashMap<>();
     private int mLoadWhat;
     private OnSyncApiFinish mLoading=null;
+
+    public FileBrowserAdapter(){
+        super(false,true);
+    }
 
     @Override
     protected void onResolveFixedViewItem(RecyclerView recyclerView) {
@@ -189,8 +193,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
 
     public final boolean reset(String debug){
         Client client=mCurrentClient.get();
-        clean("While client reset to NULL.");
-        return null!=client&&resetSection(debug);
+        return null!=client?resetSection(debug):clean("While client reset to NULL.");
     }
 
     @Override
@@ -206,8 +209,8 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
     @Override
     protected void onViewDetachedFromWindow(RecyclerView.ViewHolder viewHolder, View view, ViewDataBinding viewDataBinding) {
         super.onViewDetachedFromWindow(viewHolder, view, viewDataBinding);
-        Map<RecyclerView.ViewHolder,Canceler> thumbLoadings=null!=viewHolder?mThumbLoading:null;
-        Canceler canceler=null!=thumbLoadings?thumbLoadings.remove(viewHolder):null;
+        Map<ViewDataBinding,Canceler> thumbLoadings=null!=viewDataBinding?mThumbLoading:null;
+        Canceler canceler=null!=thumbLoadings?thumbLoadings.remove(viewDataBinding):null;
         if (null!=canceler){
             canceler.cancel(true,"While view detached.");
         }
@@ -220,7 +223,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
             if (null!=binding&&binding instanceof ItemListFileBinding){
                 ItemListFileBinding fileBinding= (ItemListFileBinding)binding;
                 final Client client=mCurrentClient.get();
-                Map<RecyclerView.ViewHolder,Canceler> thumbLoadings=mThumbLoading;
+                Map<ViewDataBinding,Canceler> thumbLoadings=mThumbLoading;
                 if (null!=thumbLoadings&&null!=client){
                     final Canceler canceler=client.loadPathThumb(view.getContext(),path,120,120,(OnApiFinish)
                             (int what, String note, Object data, Object arg)-> {
@@ -228,7 +231,7 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
                                 Object thumbImage=(what==What.WHAT_SUCCEED||what==What.WHAT_ALREADY_DONE)?data:null;
                                 fileBinding.setThumbImage(thumbImage);
                             });
-                    if (null!=canceler&&null!=thumbLoadings.put(viewHolder,canceler)){
+                    if (null!=canceler&&null!=thumbLoadings.put(binding,canceler)){
                         return thumbLoadings.containsValue(canceler)?true:(null!=thumbLoadings.remove(viewHolder)&&false);
                     }
                 }
@@ -242,8 +245,9 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
     protected final void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i, ViewDataBinding binding, int i1, Path data, List<Object> list) {
         super.onBindViewHolder(viewHolder, i, binding, i1, data, list);
         if (null!=binding&&binding instanceof ItemListFileBinding){
-            resetThumbLoad(viewHolder,data,"While bind view holder.");
             ItemListFileBinding fileBinding=(ItemListFileBinding)binding;
+            fileBinding.setThumbImage(null);
+            resetThumbLoad(viewHolder,data,"While bind view holder.");
             fileBinding.setPath(data);
             fileBinding.setPosition(i+1);
             fileBinding.setSyncColor(null!=data&&data instanceof LocalPath?

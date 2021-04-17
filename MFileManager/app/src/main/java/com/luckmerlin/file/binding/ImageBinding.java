@@ -30,7 +30,6 @@ public class ImageBinding implements CustomBinding {
         if (null==view||!(view instanceof ImageView)){
             return false;
         }
-        Debug.D("DDDDDDDDDD "+mImage);
         final ImageView imageView=(ImageView)view;
         Object image=mImage;
         if (null!=image){
@@ -51,7 +50,7 @@ public class ImageBinding implements CustomBinding {
             }else if (image instanceof Drawable){
                 return null!=Glide.with(imageView).load((Drawable)image).apply(options).into(imageView);
             }else if (image instanceof Integer){
-                return null!=Glide.with(imageView).load((Integer)image).apply(options).into(imageView);
+                return null!=Glide.with(imageView).load((Integer)image).into(imageView);
             }else if (image instanceof Bitmap){
                 return null!=Glide.with(imageView).load((Bitmap)image).apply(options).into(imageView);
             }

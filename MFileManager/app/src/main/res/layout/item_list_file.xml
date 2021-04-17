@@ -16,6 +16,7 @@
         <import type="com.luckmerlin.databinding.view.Touch"/>
     </data>
     <LinearLayout android:clickable="true" binding:lmBinding="@{Touch.dispatch(Touch.CLICK|Touch.LONG_CLICK,path)}"
+        android:alpha="@{path.accessible()?1f:0.3f}"
         android:orientation="horizontal" android:layout_marginBottom="4dp"
         android:layout_width="match_parent" android:layout_height="@dimen/listItemNormal">
 

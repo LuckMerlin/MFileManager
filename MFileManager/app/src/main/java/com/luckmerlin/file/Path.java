@@ -1,7 +1,5 @@
 package com.luckmerlin.file;
 
-import androidx.annotation.Nullable;
-
 public abstract class  Path implements Permission {
     public final static int TYPE_IMAGE=1212;
     public final static int TYPE_VIDEO=1213;
@@ -73,11 +71,11 @@ public abstract class  Path implements Permission {
     }
 
     public final boolean accessible(){
-        return isExistPermission(isDirectory()?(PERMISSION_READ|PERMISSION_EXECUTE):PERMISSION_READ);
+        return isExistPermission(isDirectory()?(PERMISSION_EXECUTE):PERMISSION_READ);
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equals( Object obj) {
         if (null!=obj){
             if (obj instanceof Path){
                 String path=((Path)obj).getPath();
