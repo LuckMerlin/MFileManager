@@ -27,6 +27,12 @@ public class NasFolder<A> extends Folder<A,NasPath> {
         return this;
     }
 
+    @Override
+    public boolean isLink() {
+        NasPath current=folder;
+        return null!=current&&current.isLink();
+    }
+
     public final String getHost() {
         return mHost;
     }

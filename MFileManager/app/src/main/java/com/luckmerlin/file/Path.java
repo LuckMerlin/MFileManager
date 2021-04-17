@@ -15,6 +15,7 @@ public abstract class  Path implements Permission {
     public abstract int getPermission();
     public abstract String getMime();
     public abstract String getMd5();
+    public abstract boolean isLink();
 
     public final boolean isAnyType(int ...types){
         if (null!=types&&types.length>0){

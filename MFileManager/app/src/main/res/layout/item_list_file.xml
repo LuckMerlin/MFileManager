@@ -16,19 +16,19 @@
         <import type="com.luckmerlin.databinding.view.Touch"/>
     </data>
     <LinearLayout android:clickable="true" binding:lmBinding="@{Touch.dispatch(Touch.CLICK|Touch.LONG_CLICK,path)}"
-        android:alpha="@{path.accessible()?1f:0.3f}"
         android:orientation="horizontal" android:layout_marginBottom="4dp"
         android:layout_width="match_parent" android:layout_height="@dimen/listItemNormal">
 
             <ImageView android:id="@+id/itemListFile_icon" binding:lmBinding="@{BindingList.list(ImageBinding.image(thumbImage)).append(true,Touch.dispatch(Touch.CLICK|Touch.LONG_CLICK,path))}"
                 android:layout_alignParentLeft="true" android:padding="2dp" android:layout_margin="1dp"
-                android:layout_width="@dimen/listItemNormal" android:layout_height="@dimen/listItemNormal"/>
+                android:alpha="@{path.accessible()?1f:0.3f}" android:layout_width="@dimen/listItemNormal" android:layout_height="@dimen/listItemNormal"/>
 
             <View android:backgroundColor="@{syncColor}" android:layout_width="3dp"
+                android:alpha="@{path.accessible()?1f:0.3f}"
                 android:layout_height="3dp" android:layout_gravity="bottom"/>
 
             <LinearLayout android:layout_toRightOf="@id/itemListFile_icon" android:layout_width="match_parent"
-                android:layout_weight="1" android:orientation="vertical"
+                android:layout_weight="1" android:orientation="vertical" android:alpha="@{path.accessible()?1f:0.3f}"
                 android:layout_margin="5dp" android:layout_height="wrap_content">
                 <TextView android:layout_width="match_parent" android:textSize="@dimen/textTitle" android:singleLine="true"
                     android:text="@{path.name.length()>0?path.name:path.extension}" android:textColor="@color/textTitle" android:layout_height="wrap_content"/>
@@ -43,6 +43,7 @@
 
             <CheckBox android:id="@+id/itemListFile_selectCB" android:layout_alignParentRight="true" style="@style/checkboxStyle"
                 android:clickable="false" android:duplicateParentState="true" android:visibility="@{isMultiChoose?View.VISIBLE:View.GONE}"
-                android:layout_centerVertical="true" android:checked="@{isChoose}" android:layout_width="@dimen/listIconNormal" android:layout_height="@dimen/listIconNormal"/>
-        </LinearLayout>
-    </layout>
+                android:layout_centerVertical="true" android:checked="@{isChoose}" android:alpha="@{path.accessible()?1f:0.3f}"
+                android:layout_width="@dimen/listIconNormal" android:layout_height="@dimen/listIconNormal"/>
+    </LinearLayout>
+</layout>

@@ -8,10 +8,12 @@ public final class NasPath extends Path{
     private long size;
     private long length;
     private long modifyTime;
+    private boolean thumb;
     private String extension;
     private String mime;
     private String pathSep;
     private int permissions;
+    private boolean link;
     private String md5;
 
     public NasPath setExtension(String extension) {
@@ -32,6 +34,11 @@ public final class NasPath extends Path{
     public NasPath setMime(String mime) {
         this.mime = mime;
         return this;
+    }
+
+    @Override
+    public final boolean isLink() {
+        return link;
     }
 
     public NasPath setModifyTime(long modifyTime) {

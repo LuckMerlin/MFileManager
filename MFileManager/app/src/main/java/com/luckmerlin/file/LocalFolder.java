@@ -18,6 +18,12 @@ public final class LocalFolder<A> extends Folder<A,LocalPath> {
     }
 
     @Override
+    public boolean isLink() {
+        LocalPath path=mPath;
+        return null!=path&&path.isLink();
+    }
+
+    @Override
     public List<LocalPath> getData() {
         return mData;
     }
