@@ -124,6 +124,9 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                         (selectMode(null,"While download view click.")||true);
             case R.string.cancel:
                 return selectMode(null,"While cancel view click.");
+            case R.string.scanCurrent:
+                Client scanClient=getCurrentClient();
+                return scanCurrentFolder(scanClient,getCurrentFolder(),"While scan view click.");
             case R.string.attr:
                 Client attrClient=getCurrentClient();
                 return showPathAttr(attrClient,null!=tag&&tag instanceof Path?(Path)tag:null,null)||true;

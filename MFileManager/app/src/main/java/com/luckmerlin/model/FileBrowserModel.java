@@ -273,6 +273,16 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         return false;
     }
 
+    protected final boolean scanCurrentFolder(Client client,Folder folder,String debug){
+        if (null==client||null==folder){
+            return toast(getString(R.string.whichFailed,getString(R.string.scanCurrent,null)));
+        }
+        return null!=client.scanPath(folder,(OnApiFinish<Reply>) (int what, String note, Reply data, Object arg)-> {
+            boolean success=what==What.WHAT_SUCCEED&&null!=data&&data.isSuccess();
+            toast(getString(success?R.string.whichSucceed:R.string.whichFailed,getString(R.string.scanCurrent,null)));
+        });
+    }
+
     protected final boolean showPathAttr(Client client,Path path,String debug){
         if (null!=client&&null!=path){
             return null!=client.loadPathDetail(path, new OnApiFinish<Reply>() {

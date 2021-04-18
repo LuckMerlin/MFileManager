@@ -18,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -81,12 +82,21 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
         @FormUrlEncoded
         Observable<Reply<NasPath>> loadDetail(@Field(Label.LABEL_PATH) String path);
 
+        @POST("/file/scan")
+        @FormUrlEncoded
+        Observable<Reply> scanPath(@Field(Label.LABEL_PATH) String... paths);
+
     }
 
     public NasClient(String hostUrl,int hostPort,String name){
         mHostUrl=hostUrl;
         mHostPort=hostPort;
         this.name=name;
+    }
+
+    @Override
+    public Canceler scanPath(Path path, OnApiFinish<Reply> callback) {
+        return mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).scanPath(path.getPath()),callback);
     }
 
     @Override

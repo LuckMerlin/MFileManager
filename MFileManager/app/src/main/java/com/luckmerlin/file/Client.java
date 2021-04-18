@@ -16,6 +16,8 @@ public interface Client<A extends Folder<T,V>,T,V extends Path> {
 
     boolean setAsHome(Folder folder,OnApiFinish<Reply<? extends Path>> callback);
 
+    Canceler scanPath(Path path,OnApiFinish<Reply> callback);
+
     Canceler loadPathDetail(Path path,OnApiFinish<Reply<V>> callback);
 
     boolean rename(Path path,String newName,boolean justName,OnApiFinish<Reply<V>> callback);

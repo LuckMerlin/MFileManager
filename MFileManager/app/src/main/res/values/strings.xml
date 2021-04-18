@@ -15,6 +15,7 @@
     <string name="copy">复制</string>
     <string name="noneChange">没有改变</string>
     <string name="move">移动</string>
+    <string name="scanCurrent">扫描</string>
     <string name="browser">访问</string>
     <string name="noneWhichPermission">无 %1s 权限</string>
     <string name="whichSucceed">%1s 成功</string>

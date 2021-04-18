@@ -27,6 +27,8 @@
                 <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.setAsHome,vm.folder)}" />
                 <include layout="@layout/item_context_menu" android:visibility="@{null!=vm.folder?View.VISIBLE:View.GONE}"
                     binding:menu="@{ContextMenu.create(R.string.createFolder,vm.folder)}"/>
+                <include layout="@layout/item_context_menu" android:visibility="@{!vm.folder.local?View.VISIBLE:View.GONE}"
+                    binding:menu="@{ContextMenu.create(R.string.scanCurrent,vm.folder)}"/>
                 <include layout="@layout/item_context_menu" android:visibility="@{null!=vm.folder?View.VISIBLE:View.GONE}"
                     binding:menu="@{ContextMenu.create(R.string.createFile,vm.folder)}"/>
                 <include layout="@layout/item_context_menu" binding:menu="@{ContextMenu.create(R.string.exit,vm.folder)}"/>

@@ -48,6 +48,10 @@ public abstract class  Path implements Permission {
         return name+(null!=extension?extension:"");
     }
 
+    public final boolean isLocal(){
+        return this instanceof LocalPath;
+    }
+
     public final String getPath() {
         String sep=getSep();
         if (null==sep||sep.length()<=0){
