@@ -34,6 +34,12 @@ public final class LocalFolder<A> extends Folder<A,LocalPath> {
     }
 
     @Override
+    public Object getThumb() {
+        LocalPath path=mPath;
+        return null!=path?path.getThumb():null;
+    }
+
+    @Override
     public long getFrom() {
         return mFrom;
     }

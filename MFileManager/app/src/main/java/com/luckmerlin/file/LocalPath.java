@@ -32,6 +32,11 @@ public final class LocalPath extends Path implements Comparable {
     }
 
     @Override
+    public Object getThumb() {
+        return null;
+    }
+
+    @Override
     public boolean isLink() {
         String path=getPath();
         File file=null!=path&&path.length()>0?new File(path):null;

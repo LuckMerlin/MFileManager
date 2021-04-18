@@ -1,5 +1,7 @@
 package com.luckmerlin.file;
 
+import android.util.Base64;
+
 public final class NasPath extends Path{
     private String name;
     private String parent;
@@ -8,7 +10,7 @@ public final class NasPath extends Path{
     private long size;
     private long length;
     private long modifyTime;
-    private boolean thumb;
+    private String thumb;
     private String extension;
     private String mime;
     private String pathSep;
@@ -39,6 +41,12 @@ public final class NasPath extends Path{
     @Override
     public final boolean isLink() {
         return link;
+    }
+
+    @Override
+    public Object getThumb() {
+        String thumb=this.thumb;
+        return null!=thumb&&thumb.length()>0?Base64.decode(thumb.getBytes(), Base64.DEFAULT):null;
     }
 
     public NasPath setModifyTime(long modifyTime) {

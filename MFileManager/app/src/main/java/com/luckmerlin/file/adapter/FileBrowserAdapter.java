@@ -1,6 +1,9 @@
 package com.luckmerlin.file.adapter;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -26,6 +29,7 @@ import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.touch.OnViewClick;
 import com.luckmerlin.file.Cancel;
 import com.luckmerlin.file.Client;
+import com.luckmerlin.file.FileDefaultThumb;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.OnPathUpdate;
@@ -47,7 +51,7 @@ import java.util.Map;
 
 public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implements OnItemTouchResolver, OnViewClick {
     private final ObservableField<Client> mCurrentClient=new ObservableField<Client>();
-    private final Map<ViewDataBinding,Canceler> mThumbLoading=new HashMap<>();
+    private final FileDefaultThumb mDefaultThumb=new FileDefaultThumb();
     private int mLoadWhat;
     private OnSyncApiFinish mLoading=null;
 
@@ -206,48 +210,48 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         return new LinearLayoutManager(rv.getContext());
     }
 
-    @Override
-    protected void onViewDetachedFromWindow(RecyclerView.ViewHolder viewHolder, View view, ViewDataBinding viewDataBinding) {
-        super.onViewDetachedFromWindow(viewHolder, view, viewDataBinding);
-        Map<ViewDataBinding,Canceler> thumbLoadings=null!=viewDataBinding?mThumbLoading:null;
-        Canceler canceler=null!=thumbLoadings?thumbLoadings.remove(viewDataBinding):null;
-        if (null!=canceler){
-            canceler.cancel(true,"While view detached.");
-        }
-    }
-
-    private boolean resetThumbLoad(RecyclerView.ViewHolder viewHolder,Path path,String debug){
-        if (null!=viewHolder&&null!=path){
-            View view=null!=viewHolder?viewHolder.itemView:null;
-            ViewDataBinding binding=null!=view? DataBindingUtil.getBinding(view):null;
-            if (null!=binding&&binding instanceof ItemListFileBinding){
-                ItemListFileBinding fileBinding= (ItemListFileBinding)binding;
-                final Client client=mCurrentClient.get();
-                Map<ViewDataBinding,Canceler> thumbLoadings=mThumbLoading;
-                if (null!=thumbLoadings&&null!=client){
-                    final Canceler canceler=client.loadPathThumb(view.getContext(),path,120,120,(OnApiFinish)
-                            (int what, String note, Object data, Object arg)-> {
-                                thumbLoadings.remove(viewHolder);
-                                Object thumbImage=(what==What.WHAT_SUCCEED||what==What.WHAT_ALREADY_DONE)?data:null;
-                                fileBinding.setThumbImage(thumbImage);
-                            });
-                    if (null!=canceler&&null!=thumbLoadings.put(binding,canceler)){
-                        return thumbLoadings.containsValue(canceler)?true:(null!=thumbLoadings.remove(viewHolder)&&false);
+    private Object getPathThumb(Context context,Path path){
+        if (null!=path){
+            Object thumb=path.getThumb();
+            if (null!=thumb){
+                return thumb;
+            }else if (path.isDirectory()){
+                return R.drawable.hidisk_icon_folder;
+            }
+            String mime = path.getMime();
+            if (null == mime || mime.length() <= 0) {
+                return R.drawable.hidisk_icon_unknown;
+            }else if (path instanceof LocalPath){
+                if (path.isAnyType(Path.TYPE_APK)){
+                    String pathValue=path.getPath();
+                    PackageManager manager = null!=context&&null!=pathValue?context.getPackageManager():null;
+                    PackageInfo packageInfo = null!=manager?manager.getPackageArchiveInfo(pathValue, PackageManager.GET_ACTIVITIES):null;
+                    if (packageInfo != null){
+                        try {
+                            ApplicationInfo info = packageInfo.applicationInfo;
+                            info.sourceDir = pathValue;
+                            info.publicSourceDir = pathValue;
+                            return info.loadIcon(manager);
+                        } catch (Exception e) {
+                            //Do nothing
+                        }
                     }
+                }else if (path.isAnyType(Path.TYPE_IMAGE,Path.TYPE_VIDEO)){
+
                 }
             }
-            return false;
+            return mDefaultThumb.thumb(mime);
         }
-        return false;
+        return null;
     }
 
     @Override
     protected final void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i, ViewDataBinding binding, int i1, Path data, List<Object> list) {
         super.onBindViewHolder(viewHolder, i, binding, i1, data, list);
         if (null!=binding&&binding instanceof ItemListFileBinding){
+            View root=binding.getRoot();
             ItemListFileBinding fileBinding=(ItemListFileBinding)binding;
-            fileBinding.setThumbImage(null);
-            resetThumbLoad(viewHolder,data,"While bind view holder.");
+            fileBinding.setThumbImage(getPathThumb(null!=root?root.getContext():null,data));
             fileBinding.setPath(data);
             fileBinding.setPosition(i+1);
             fileBinding.setSyncColor(null!=data&&data instanceof LocalPath?

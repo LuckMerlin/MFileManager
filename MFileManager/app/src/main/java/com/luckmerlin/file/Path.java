@@ -11,6 +11,7 @@ public abstract class  Path implements Permission {
     public abstract long getModifyTime();
     public abstract long getLength();
     public abstract boolean isDirectory();
+    public abstract Object getThumb();
     public abstract long getTotal();
     public abstract int getPermission();
     public abstract String getMime();

@@ -84,75 +84,6 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
     }
 
     @Override
-    public Canceler loadPathThumb(Context context, Path path,int width,int height,OnApiFinish<Thumb> callback) {
-        if (null!=path&&path instanceof NasPath){
-            if (path.isAnyType(Path.TYPE_VIDEO,Path.TYPE_IMAGE)){
-                final String filePath=path.getPath();
-                final File cacheDir=context.getCacheDir();
-                final String pathMd5=null!=filePath?new MD5().md5(filePath):null;
-                final File cacheFile=null!=cacheDir&&null!=pathMd5?new File(cacheDir,new MD5().md5(pathMd5)):null;
-                if (null!=cacheFile){
-                    Retrofit retrofit=mRetrofit;
-                    if (cacheFile.exists()&&cacheFile.length()>0){
-                        notifyApiFinish(What.WHAT_ALREADY_DONE,null,cacheFile,callback);
-                        return null;
-                    }else if (null!=retrofit){
-                        final Call[] calls=new Call[1];
-                        final Canceler canceler=(boolean b, String s)-> {
-                            Call call=calls[0];
-                            if (null!=call&&(!call.isCanceled())){
-//                                call.cancel();
-                            }
-                            return true;
-                        };
-                        Observable.create((ObservableEmitter<Reply<Thumb>> emitter) ->{
-                            int code=What.WHAT_FAIL;String note=null;
-                            try {
-                                Call<ResponseBody> call=calls[0]=retrofit.prepare(Api.class,getHostUri()).loadThumb(path.getPath(),width,height);
-                                Response<ResponseBody> response=null!=call?call.execute():null;
-                                ResponseBody responseBody=null!=response?response.body():null;
-                                MediaType mediaType=null!=responseBody?responseBody.contentType():null;
-                                String contentType=null!=mediaType?mediaType.toString():null;
-                                if (null!=contentType&&contentType.startsWith("image/")){
-                                    InputStream stream=responseBody.byteStream();
-                                    FileOutputStream outputStream=null;
-                                    try {
-                                        outputStream=new FileOutputStream(cacheFile,false);
-                                        byte[] buffer=new byte[1024*1024];
-                                        int read=-1;
-                                        code=What.WHAT_SUCCEED;
-                                        while (!call.isCanceled()&&(read=stream.read(buffer))>=0){
-                                            outputStream.write(buffer,0,read);
-                                        }
-                                        outputStream.flush();
-                                    } catch (Exception e) {
-                                        code=What.WHAT_EXCEPTION;
-                                        e.printStackTrace();
-                                    }finally {
-                                        new Closer().close(outputStream,stream);
-                                        cacheFile.deleteOnExit();
-                                        code=call.isCanceled()?What.WHAT_CANCEL:code;
-                                        if (code==What.WHAT_CANCEL){
-                                            cacheFile.delete();//Delete canceled
-                                        }
-                                    }
-                                }
-                            }catch (Exception e){
-                                Debug.E("EEEEEEEE "+e);
-                            }
-                            emitter.onNext(new Reply(true,code,note,new Thumb(path,cacheFile)));
-                        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe((Consumer<Reply<Thumb>>)(Reply<Thumb> reply)-> {
-                            notifyApiFinish(null!=reply?reply.getWhat():What.WHAT_FAIL, null!=reply?reply.getNote():null, null!=reply?reply.getData():null,callback);
-                        });
-                        return canceler;
-                    }
-                }
-            }
-        }
-        return super.loadPathThumb(context, path,width,height, callback);
-    }
-
-    @Override
     public boolean setAsHome(Folder folder, OnApiFinish<Reply<? extends Path>> callback) {
         return null!=folder&&null!=mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).setUserHome(folder.getPath()),callback);
     }
@@ -162,8 +93,6 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
         Retrofit retrofit=mRetrofit;
         String path=null!=query?query.getPath():null;
         String name=null!=query?query.getName():null;
-//        int thumbWidth=null!=query?query.getThumbWidth():0;
-//        int thumbHeight=null!=query?query.getThumbHeight():0;
         final Map<String,Object> map=new HashMap<>();
         map.put(Label.LABEL_PATH,null!=path?path:"");
         map.put(Label.LABEL_NAME,null!=name?name:"");

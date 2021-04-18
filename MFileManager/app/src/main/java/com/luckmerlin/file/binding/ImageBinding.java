@@ -53,6 +53,8 @@ public class ImageBinding implements CustomBinding {
                 return null!=Glide.with(imageView).load((Integer)image).into(imageView);
             }else if (image instanceof Bitmap){
                 return null!=Glide.with(imageView).load((Bitmap)image).apply(options).into(imageView);
+            }else if (image instanceof byte[]){
+                return null!=Glide.with(imageView).load((byte[]) image).apply(options).into(imageView);
             }
         }
         imageView.setImageDrawable(null);//Clean

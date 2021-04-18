@@ -22,6 +22,12 @@ public class NasFolder<A> extends Folder<A,NasPath> {
         return this;
     }
 
+    @Override
+    public Object getThumb() {
+        NasPath path=folder;
+        return null!=path?path.getThumb():null;
+    }
+
     public final NasFolder setPort(int port) {
         this.mPort = port;
         return this;
