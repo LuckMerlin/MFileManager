@@ -69,6 +69,11 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
     }
 
     @Override
+    public Canceler loadPathDetail(Path path, OnApiFinish<Reply<LocalPath>> callback) {
+        return null;
+    }
+
+    @Override
     public boolean setAsHome(Folder folder, OnApiFinish<Reply<? extends Path>> callback) {
         return false;
     }

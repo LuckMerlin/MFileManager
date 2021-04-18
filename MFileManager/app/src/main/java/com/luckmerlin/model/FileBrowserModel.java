@@ -274,7 +274,18 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     }
 
     protected final boolean showPathAttr(Client client,Path path,String debug){
-
+        if (null!=client&&null!=path){
+            return null!=client.loadPathDetail(path, new OnApiFinish<Reply>() {
+                @Override
+                public void onApiFinish(int what, String note, Reply reply, Object arg) {
+                    Object data=what==What.WHAT_SUCCEED&&null!=reply&&reply.isSuccess()?reply.getData():null;
+                    FileBrowserAdapter adapter=mBrowserAdapter;
+                    if (null!=data&&data instanceof Path&&null!=adapter){
+                        adapter.replace((Path)data,debug);
+                    }
+                }
+            });
+        }
         return false;
     }
 

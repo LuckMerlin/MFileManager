@@ -80,11 +80,13 @@ public abstract class  Path implements Permission {
     public boolean equals( Object obj) {
         if (null!=obj){
             if (obj instanceof Path){
-                String path=((Path)obj).getPath();
-                String current=getPath();
-                return (null==path&&null==current)||(null!=path&&null!=current&&path.equals(current));
+                return isStringEqual(getPath(),((Path)obj).getPath());
             }
         }
         return super.equals(obj);
+    }
+
+    protected final boolean isStringEqual(String value1,String value2){
+        return (null==value1&&null==value2)||(null!=value1&&null!=value2&&value1.equals(value2));
     }
 }

@@ -75,6 +75,12 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
         @Streaming
         @FormUrlEncoded
         Call<ResponseBody> loadThumb(@Field(Label.LABEL_PATH) String path, @Field(Label.LABEL_WIDTH) int width, @Field(Label.LABEL_HEIGHT) int height);
+
+        @POST("/file/detail")
+        @Streaming
+        @FormUrlEncoded
+        Observable<Reply<NasPath>> loadDetail(@Field(Label.LABEL_PATH) String path);
+
     }
 
     public NasClient(String hostUrl,int hostPort,String name){
@@ -109,6 +115,12 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
                     callback.onApiFinish(what,note,data,arg);
                 }
         }):null;
+    }
+
+
+    @Override
+    public Canceler loadPathDetail(Path path, OnApiFinish<Reply<NasPath>> callback) {
+        return mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).loadDetail(null!=path?path.getPath():null),callback);
     }
 
     public final String getHostUri() {

@@ -143,4 +143,12 @@ public final class NasPath extends Path{
     public long getTotal() {
         return size;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (super.equals(o)&&null!=o&&o instanceof NasPath&&((NasPath)o).port==port){
+            return isStringEqual(host,((NasPath)o).host);
+        }
+        return super.equals(o);
+    }
 }
