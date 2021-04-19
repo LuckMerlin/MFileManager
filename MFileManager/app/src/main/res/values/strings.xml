@@ -17,6 +17,8 @@
     <string name="move">移动</string>
     <string name="scanCurrent">扫描</string>
     <string name="browser">访问</string>
+    <string name="sureWhich">确定%1s</string>
+    <string name="skipWhich">跳过%1s</string>
     <string name="noneWhichPermission">无 %1s 权限</string>
     <string name="whichSucceed">%1s 成功</string>
     <string name="whichFailed">%1s 失败</string>

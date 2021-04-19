@@ -3,29 +3,39 @@
     xmlns:binding="http://schemas.android.com/apk/res-auto">
     <data>
         <variable name="vm" type="com.luckmerlin.model.UploadDialogModel" />
+        <variable name="message" type="String" />
         <import type="com.luckmerlin.databinding.view.Touch"/>
         <import type="com.luckmerlin.file.R"/>
     </data>
 
  <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
-     <LinearLayout android:orientation="vertical" android:background="@drawable/round_corner_gray" android:gravity="center"
-         android:paddingTop="10dp" android:paddingBottom="10dp" android:paddingLeft="5dp" android:paddingRight="5dp"
+     <LinearLayout android:orientation="vertical" android:background="@drawable/round_corner_black" android:gravity="center"
+         android:minWidth="250dp" android:paddingTop="10dp" android:paddingBottom="10dp"
+         android:paddingLeft="5dp" android:paddingRight="5dp"
          android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center">
-         <TextView android:layout_width="wrap_content" android:singleLine="true" android:textColor="@color/textTitle"
-             android:text="上传文件" android:textSize="14sp" android:layout_height="wrap_content" android:gravity="center"/>
 
-         <TextView android:layout_width="wrap_content" android:singleLine="true"
-             android:textColor="@color/textTitle" android:textSize="11sp"
-             android:layout_height="wrap_content" android:gravity="center"/>
+         <TextView android:layout_width="wrap_content" android:singleLine="true" android:textColor="@color/textTitle"
+             binding:lmBinding="@{Touch.textRes(vm.status,null,Touch.NONE)}" android:textSize="16sp"
+             android:layout_height="wrap_content" android:gravity="center"
+             android:layout_marginTop="3dp" android:layout_marginBottom="3dp"/>
+
+         <View android:layout_width="match_parent" android:background="#6fff" android:layout_height="1dp"/>
+
+         <TextView android:text="@{message??``}" android:textSize="12sp" android:textColor="#fff"
+             android:maxLines="3" android:minLines="3" android:layout_width="wrap_content"
+             android:layout_height="wrap_content"/>
+
+         <androidx.recyclerview.widget.RecyclerView android:adapter="@{vm.prepareListAdapter}"
+             android:layout_width="match_parent" android:layout_height="80dp"/>
 
          <LinearLayout android:layout_marginTop="15dp" android:layout_marginBottom="5dp"
              android:layout_width="wrap_content" android:orientation="horizontal" android:layout_height="wrap_content">
              <TextView android:layout_weight="1" android:padding="8dp" binding:lmBinding="@{Touch.textRes(R.string.sure,null,Touch.CLICK)}"
-                 android:paddingLeft="20dp" android:paddingRight="20dp" android:paddingBottom="5dp" android:paddingTop="5dp"
+                 android:paddingLeft="40dp" android:paddingRight="40dp" android:paddingBottom="5dp" android:paddingTop="5dp"
                  android:layout_marginLeft="2dp" android:layout_marginRight="2dp"
                  android:background="@drawable/selector_round_dark_corner_small" style="@style/titleNormalTextView"/>
              <TextView android:layout_weight="1" android:padding="8dp" binding:lmBinding="@{Touch.textRes(R.string.cancel,null,Touch.CLICK)}"
-                 android:paddingLeft="20dp" android:paddingRight="20dp" android:paddingBottom="5dp" android:paddingTop="5dp"
+                 android:paddingLeft="40dp" android:paddingRight="40dp" android:paddingBottom="5dp" android:paddingTop="5dp"
                  android:layout_marginLeft="2dp" android:layout_marginRight="2dp"
                  android:background="@drawable/selector_round_dark_corner_small" style="@style/titleNormalTextView"/>
          </LinearLayout>

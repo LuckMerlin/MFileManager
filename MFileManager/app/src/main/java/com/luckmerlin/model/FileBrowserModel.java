@@ -119,7 +119,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-//        post(()-> startUploadFiles(true,""),3000);
+        post(()-> startUploadFiles(new File("/sdcard"),getCurrentFolder(),""),5000);
     }
 
     protected final boolean createFile(boolean directory, String debug){
@@ -214,20 +214,15 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         Intent intent=null!=activity?activity.getIntent():null;
         String action=null!=intent?intent.getAction():null;
         if (null!=action&&action.equals(Intent.ACTION_SEND)){
-            startUploadFiles(intent.getParcelableExtra(Intent.EXTRA_STREAM),"While activity send action start.");
+            startUploadFiles(intent.getParcelableExtra(Intent.EXTRA_STREAM),getCurrentFolder(),"While activity send action start.");
         }else if (null!=action&&action.equals(Intent.ACTION_SEND_MULTIPLE)){
-            startUploadFiles(intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM),"While activity send action start.");
+            startUploadFiles(intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM),getCurrentFolder(),"While activity send action start.");
         }
     }
 
-    final boolean startUploadFiles(Object files,String debug){
-        if (null==files){
-            return false;
-        }else if ((files instanceof String)||(files instanceof Uri)||(files instanceof File)){
-            return startUploadFiles(new ArraysList<>().addData(files),debug);
-        }
+    final boolean startUploadFiles(Object files,Folder folder,String debug){
         final Context context=getContext();
-        if (null==context){
+        if (null==files||null==context){
             return false;
         }
         Client currentClient=getCurrentClient();
@@ -236,7 +231,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
             setClientSelect(cloudClient,"Before start upload files.");
         }
         Dialog dialog=new Dialog(context);
-        return dialog.setContentView(new UploadDialogModel(files){
+        return dialog.setContentView(new UploadDialogModel(files,folder){
             @Override
             public boolean onViewClick(View view, int i, int i1, Object o) {
                 dialog.dismiss();
