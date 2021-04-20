@@ -21,6 +21,7 @@ import com.luckmerlin.file.ui.UriPath;
 import com.luckmerlin.lib.ArraysList;
 import com.luckmerlin.lib.StringBuffer;
 import com.luckmerlin.task.Status;
+import com.luckmerlin.task.Task;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,11 +37,14 @@ import io.reactivex.schedulers.Schedulers;
 public class UploadDialogModel extends Model implements OnModelResolve, OnViewClick {
     private final ObservableField<Object> mStatus=new ObservableField<>(R.string.upload);
     private final ObservableField<String> mMessage=new ObservableField<>();
+    private final boolean mDeleteSucceed;
     private final UploadPrepareListAdapter mPrepareListAdapter=new UploadPrepareListAdapter();
     private final Folder mFolder;
     private final Object mFiles;
+    private boolean mCanceled=false;
 
-    public UploadDialogModel(Object files,Folder folder){
+    public UploadDialogModel(Object files,Folder folder,boolean deleteSucceed){
+        mDeleteSucceed=deleteSucceed;
         mFolder=folder;
         mFiles=files;
     }
@@ -48,6 +52,7 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
+        mCanceled=false;
         prepare(mFiles);
     }
 
@@ -73,16 +78,20 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
             list.add((Path)files);
             return prepare(list);
         }else if (files instanceof Collection){
-            mStatus.set(R.string.prepare);
+            mStatus.set(R.string.preparing);
             final Context context=getContext();
             Observable.create((ObservableEmitter<Collection> emitter)->{
                 Collection collection=(Collection)files;
                 UriPath uriPath=new UriPath();
                 Path path=null;
                 final int[] skipCount=new int[]{0};
+                final String folderName=folder.getNameWithExtension();
                 for (Object child:collection) {
+                    if (mCanceled){
+                        break;
+                    }
                     Object currentStatus=mStatus.get();
-                    if (null!=currentStatus&&currentStatus instanceof Integer&&((Integer)currentStatus)==R.string.prepare){
+                    if (null!=currentStatus&&currentStatus instanceof Integer&&((Integer)currentStatus)==R.string.preparing){
                         child = null != child && child instanceof Uri ? uriPath.getUriPath(context, (Uri) child) : child;
                         child = null != child && child instanceof String ? new File((String) child) : child;
                         child = null != child && child instanceof File ? LocalPath.create((File) child) : child;
@@ -94,19 +103,19 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
                         post(()->{
                             String name=null;
                             StringBuffer buffer=new StringBuffer();
+                            buffer.append(null!=folderName&&folderName.length()>15?folderName.substring(0,14):folderName);
+                            buffer.append("\n🔼\n");
                             if (null!=finalPath){
-                                name=finalPath.getNameWithExtension();
-                                buffer.append(null!=name?name+"\n":null);
-                                listAdapter.add(new UploadTask(finalPath,folder));
+                                buffer.append(null!=(name=finalPath.getNameWithExtension())?(name.length()>15?name.substring(0,15):name)+"\n":null);
+                                listAdapter.add(new UploadTask(finalPath,folder).deleteSucceed(mDeleteSucceed));
                             }
-                            name=getString(R.string.sureWhich,null,getString(R.string.upload,null));
-                            buffer.append(null!=name?name+"\n":null);
-                            name=skipCount[0]>0?getString(R.string.skipWhich,null,""+skipCount[0]):null;
-                            buffer.append(null!=name?name+"\n":null);
+                            int length=listAdapter.getDataCount();
+                            buffer.append(length+"/"+(length+skipCount[0]));
                             mMessage.set(buffer.toString());
                         });
                     }
                 }
+                post(()->mStatus.set(getString(R.string.sureWhich,null,getString(R.string.upload,null))));
                 emitter.onComplete();
             }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe();
            return true;
@@ -116,22 +125,30 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
 
     @Override
     public boolean onViewClick(View view, int i, int i1, Object o) {
+        if (i==R.string.cancel){
+            mCanceled=true;
+            return true;
+        }
         return false;
     }
 
-    public final ArrayList<Path> getFiles() {
-        return null;
+    public final boolean isCanceled(){
+        return mCanceled;
+    }
+
+    public final List<Task> getTasks(){
+        return mPrepareListAdapter.getData();
     }
 
     public final ObservableField<Object> getStatus() {
         return mStatus;
     }
 
-    public UploadPrepareListAdapter getPrepareListAdapter() {
+    public final UploadPrepareListAdapter getPrepareListAdapter() {
         return mPrepareListAdapter;
     }
 
-    public ObservableField<String> getMessage() {
+    public final ObservableField<String> getMessage() {
         return mMessage;
     }
 

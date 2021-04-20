@@ -15,6 +15,7 @@ import com.luckmerlin.task.Task;
 import com.luckmerlin.task.TaskExecutor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +26,10 @@ public final class TaskService extends Service implements Tasker{
     private final Map<OnTaskUpdate,Matchable> mUpdateMaps=new WeakHashMap<>();
     private final DefaultTaskExecutor mExecutor=new DefaultTaskExecutor();
     private final Handler mHandler=new Handler(Looper.getMainLooper());
-    private final OnTaskUpdate mInnerUpdate=(Task task, int status)-> {
+    private final OnTaskUpdate mInnerUpdate=(Task task, int status)->
+
+
+    {
         Map<OnTaskUpdate,Matchable> updateMaps=mUpdateMaps;
         if (null!=updateMaps&&null!=task){
             final Handler handler=mHandler;
@@ -58,6 +62,13 @@ public final class TaskService extends Service implements Tasker{
         Task child=null;
         List<Task> list=mTasks;
         if (null!=task&&null!=list){
+            if (list instanceof Collection){
+                for (Object object:list){
+                    Debug.D("DDDDDDDDDD "+object);
+                    startTask(object);
+                }
+                return true;
+            }
             synchronized (list){
                 if (task instanceof Task){
                     if (!list.contains(child=(Task)task)){

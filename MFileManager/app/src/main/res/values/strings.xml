@@ -37,10 +37,12 @@
     <string name="execute">执行</string>
     <string name="reset">重置</string>
     <string name="start">开始</string>
+    <string name="preparing">准备中</string>
     <string name="sure">确认</string>
     <string name="alreadyWhich">已经%1s</string>
     <string name="finished">完成</string>
     <string name="reboot">重启</string>
+    <string name="toWhich">到 %1s</string>
     <string name="local">本地</string>
     <string name="emptyContent">内容为空</string>
     <string name="transporterNotBind">传输器没有准备好</string>

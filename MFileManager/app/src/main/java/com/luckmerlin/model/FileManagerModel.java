@@ -51,7 +51,7 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
         super.onRootAttached(view);
 //        NasClient client=new NasClient("http://192.168.0.6",2018,"NAS");
         NasClient client=new NasClient("http://192.168.0.4",2019,"NAS");
-//        add(new LocalClient("/sdcard",getString(R.string.local,null)).setSyncHost(client.getHostUri()),"");
+        add(new LocalClient("/sdcard",getString(R.string.local,null)).setSyncHost(client.getHostUri()),"");
         add(client,"");
     }
 
@@ -93,18 +93,8 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                 if (null==uploadFolder||!(uploadFolder instanceof NasFolder)){
                     return toast(R.string.notActionHere)||true;
                 }else if (null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD){
-                    ArrayList<Path> paths=modeUpload.getArgs();
-                    if (null==paths||paths.size()<=0){
-                        toast(R.string.emptyContent);
-                    }else{
-                        boolean deleteSucceed=modeUpload.isExistExtra(Label.LABEL_DELETE,Label.LABEL_DELETE);
-                        for (Path child:paths){
-                            if (null!=child){
-                                startTask(new UploadTask(child.getName(),child,uploadFolder).
-                                        deleteSucceed(deleteSucceed),"While upload view click.");
-                            }
-                        }
-                    }
+                    startUploadFiles(modeUpload.getArgs(),uploadFolder, modeUpload.isExistExtra
+                            (Label.LABEL_DELETE,Label.LABEL_DELETE),"While upload view click.");
                     return selectMode(null,"While upload view click.");
                 }
                 return true;

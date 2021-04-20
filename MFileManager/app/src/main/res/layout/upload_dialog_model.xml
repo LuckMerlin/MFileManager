@@ -21,16 +21,17 @@
          <View android:layout_width="match_parent" android:background="#6fff" android:layout_height="1dp"/>
 
          <TextView android:text="@{vm.message??``}" android:textSize="13sp" android:textColor="#fff"
-             android:maxLines="3" android:minLines="3" android:layout_width="wrap_content"
-             android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
-             android:layout_height="wrap_content" android:gravity="center"/>
+             android:layout_width="wrap_content" android:layout_marginLeft="5dp"
+             android:layout_marginBottom="5dp" android:layout_marginTop="5dp"
+             android:layout_marginRight="5dp" android:layout_height="wrap_content" android:gravity="center"/>
 
-         <androidx.recyclerview.widget.RecyclerView android:adapter="@{vm.prepareListAdapter}"
-             android:layout_width="match_parent" android:layout_height="wrap_content"/>
+<!--         <androidx.recyclerview.widget.RecyclerView android:adapter="@{vm.prepareListAdapter}"-->
+<!--             android:layout_width="match_parent" android:layout_height="wrap_content"/>-->
 
          <LinearLayout android:layout_marginBottom="5dp"
              android:layout_width="wrap_content" android:orientation="horizontal" android:layout_height="wrap_content">
              <TextView android:layout_weight="1" binding:lmBinding="@{Touch.textRes(R.string.sure,null,Touch.CLICK)}"
+                 android:enabled="@{!vm.status.equals(R.string.preparing)}" android:alpha="@{vm.status.equals(R.string.preparing)?0.5f:1f}"
                  android:paddingLeft="30dp" android:paddingRight="30dp" android:paddingBottom="5dp" android:paddingTop="5dp"
                  android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
                  android:background="@drawable/selector_round_dark_corner_small" style="@style/titleNormalTextView"/>

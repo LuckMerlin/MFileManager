@@ -120,7 +120,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-        post(()-> startUploadFiles(new File("/sdcard"),new NasFolder(),""),5000);
+        post(()-> startUploadFiles(new File("/sdcard"),new NasFolder(),false,""),5000);
     }
 
     protected final boolean createFile(boolean directory, String debug){
@@ -215,13 +215,15 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         Intent intent=null!=activity?activity.getIntent():null;
         String action=null!=intent?intent.getAction():null;
         if (null!=action&&action.equals(Intent.ACTION_SEND)){
-            startUploadFiles(intent.getParcelableExtra(Intent.EXTRA_STREAM),getCurrentFolder(),"While activity send action start.");
+            startUploadFiles(intent.getParcelableExtra(Intent.EXTRA_STREAM),getCurrentFolder(),intent.
+                    getBooleanExtra(Label.LABEL_DELETE,false),"While activity send action start.");
         }else if (null!=action&&action.equals(Intent.ACTION_SEND_MULTIPLE)){
-            startUploadFiles(intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM),getCurrentFolder(),"While activity send action start.");
+            startUploadFiles(intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM),getCurrentFolder(),
+                    intent.getBooleanExtra(Label.LABEL_DELETE,false),"While activity send action start.");
         }
     }
 
-    final boolean startUploadFiles(Object files,Folder folder,String debug){
+    protected final boolean startUploadFiles(Object files,Folder folder,boolean deleteSucceed,String debug){
         final Context context=getContext();
         if (null==files||null==context){
             return false;
@@ -231,17 +233,21 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         if (null!=cloudClient&&(null==currentClient||currentClient!=cloudClient)){
             setClientSelect(cloudClient,"Before start upload files.");
         }
-        Dialog dialog=new Dialog(context);
-        return dialog.setContentView(new UploadDialogModel(files,folder){
+        final Dialog dialog=new Dialog(context);
+        return dialog.setContentView(new UploadDialogModel(files,folder,deleteSucceed){
             @Override
             public boolean onViewClick(View view, int i, int i1, Object o) {
+                super.onViewClick(view, i, i1, o);
                 dialog.dismiss();
                 if (i==R.string.sure){
-                    boolean deleteSucceed=false;
-                    Mode mode=new Mode(Mode.MODE_UPLOAD,getFiles());
-                    selectMode(mode.setExtra(Label.LABEL_DELETE, deleteSucceed?Label.LABEL_DELETE:null),debug);
+                    List<Task> tasks=getTasks();
+                    if (null==tasks||tasks.size()<=0){
+                        toast(R.string.emptyContent);
+                    }else{
+                        startTask(tasks,debug);
+                    }
                 }
-                return super.onViewClick(view, i, i1, o)||true;
+                return null!=dialog.dismiss()||true;
             }}).show();
     }
 
@@ -351,7 +357,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         return true;
     }
 
-    protected final boolean startTask(Task task,String debug){
+    protected final boolean startTask(Object task,String debug){
         if (null==task){
             return false;
         }
