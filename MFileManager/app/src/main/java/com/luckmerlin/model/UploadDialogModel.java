@@ -82,7 +82,7 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
                 final int[] skipCount=new int[]{0};
                 for (Object child:collection) {
                     Object currentStatus=mStatus.get();
-                    if (null!=currentStatus&&currentStatus instanceof Integer&&((Integer)currentStatus)==Status.PREPARING){
+                    if (null!=currentStatus&&currentStatus instanceof Integer&&((Integer)currentStatus)==R.string.prepare){
                         child = null != child && child instanceof Uri ? uriPath.getUriPath(context, (Uri) child) : child;
                         child = null != child && child instanceof String ? new File((String) child) : child;
                         child = null != child && child instanceof File ? LocalPath.create((File) child) : child;
@@ -92,20 +92,18 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
                         }
                         final Path finalPath=path;
                         post(()->{
+                            String name=null;
                             StringBuffer buffer=new StringBuffer();
                             if (null!=finalPath){
-                                String name=finalPath.getNameWithExtension();
-                                if (null!=name){
-                                    buffer.append(name).append("\n");
-                                }
+                                name=finalPath.getNameWithExtension();
+                                buffer.append(null!=name?name+"\n":null);
                                 listAdapter.add(new UploadTask(finalPath,folder));
                             }
-                            String message=getString(R.string.sureWhich,null,getString(R.string.upload,null));
-                            if (null!=message){
-                                buffer.append(message);
-                            }
-                            String skip=skipCount[0]>0?getString(R.string.skipWhich,null,""+skipCount[0]):null;
-                            mMessage.set(skip!=null?(null!=message?message:"")+"\n"+skip:message);
+                            name=getString(R.string.sureWhich,null,getString(R.string.upload,null));
+                            buffer.append(null!=name?name+"\n":null);
+                            name=skipCount[0]>0?getString(R.string.skipWhich,null,""+skipCount[0]):null;
+                            buffer.append(null!=name?name+"\n":null);
+                            mMessage.set(buffer.toString());
                         });
                     }
                 }
@@ -131,6 +129,10 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
 
     public UploadPrepareListAdapter getPrepareListAdapter() {
         return mPrepareListAdapter;
+    }
+
+    public ObservableField<String> getMessage() {
+        return mMessage;
     }
 
     @Override

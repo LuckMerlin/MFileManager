@@ -3,7 +3,6 @@
     xmlns:binding="http://schemas.android.com/apk/res-auto">
     <data>
         <variable name="vm" type="com.luckmerlin.model.UploadDialogModel" />
-        <variable name="message" type="String" />
         <import type="com.luckmerlin.databinding.view.Touch"/>
         <import type="com.luckmerlin.file.R"/>
     </data>
@@ -21,22 +20,23 @@
 
          <View android:layout_width="match_parent" android:background="#6fff" android:layout_height="1dp"/>
 
-         <TextView android:text="@{message??``}" android:textSize="12sp" android:textColor="#fff"
+         <TextView android:text="@{vm.message??``}" android:textSize="13sp" android:textColor="#fff"
              android:maxLines="3" android:minLines="3" android:layout_width="wrap_content"
-             android:layout_height="wrap_content"/>
+             android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
+             android:layout_height="wrap_content" android:gravity="center"/>
 
          <androidx.recyclerview.widget.RecyclerView android:adapter="@{vm.prepareListAdapter}"
-             android:layout_width="match_parent" android:layout_height="80dp"/>
+             android:layout_width="match_parent" android:layout_height="wrap_content"/>
 
-         <LinearLayout android:layout_marginTop="15dp" android:layout_marginBottom="5dp"
+         <LinearLayout android:layout_marginBottom="5dp"
              android:layout_width="wrap_content" android:orientation="horizontal" android:layout_height="wrap_content">
-             <TextView android:layout_weight="1" android:padding="8dp" binding:lmBinding="@{Touch.textRes(R.string.sure,null,Touch.CLICK)}"
-                 android:paddingLeft="40dp" android:paddingRight="40dp" android:paddingBottom="5dp" android:paddingTop="5dp"
-                 android:layout_marginLeft="2dp" android:layout_marginRight="2dp"
+             <TextView android:layout_weight="1" binding:lmBinding="@{Touch.textRes(R.string.sure,null,Touch.CLICK)}"
+                 android:paddingLeft="30dp" android:paddingRight="30dp" android:paddingBottom="5dp" android:paddingTop="5dp"
+                 android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
                  android:background="@drawable/selector_round_dark_corner_small" style="@style/titleNormalTextView"/>
-             <TextView android:layout_weight="1" android:padding="8dp" binding:lmBinding="@{Touch.textRes(R.string.cancel,null,Touch.CLICK)}"
-                 android:paddingLeft="40dp" android:paddingRight="40dp" android:paddingBottom="5dp" android:paddingTop="5dp"
-                 android:layout_marginLeft="2dp" android:layout_marginRight="2dp"
+             <TextView android:layout_weight="1" binding:lmBinding="@{Touch.textRes(R.string.cancel,null,Touch.CLICK)}"
+                 android:paddingLeft="30dp" android:paddingRight="30dp" android:paddingBottom="5dp" android:paddingTop="5dp"
+                 android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
                  android:background="@drawable/selector_round_dark_corner_small" style="@style/titleNormalTextView"/>
          </LinearLayout>
      </LinearLayout>

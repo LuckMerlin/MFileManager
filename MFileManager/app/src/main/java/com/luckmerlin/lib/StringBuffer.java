@@ -67,4 +67,10 @@ public final class StringBuffer implements Appendable, CharSequence, Serializabl
         java.lang.StringBuffer buffer=mBuffer;
         return null!=buffer?buffer.subSequence(i,i1):null;
     }
+
+    @Override
+    public String toString() {
+        java.lang.StringBuffer buffer=mBuffer;
+        return null!=buffer?buffer.toString():super.toString();
+    }
 }

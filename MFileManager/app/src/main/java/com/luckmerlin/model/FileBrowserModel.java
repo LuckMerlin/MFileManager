@@ -27,6 +27,7 @@ import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalClient;
 import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Mode;
+import com.luckmerlin.file.NasFolder;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.Query;
 import com.luckmerlin.file.R;
@@ -119,7 +120,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-        post(()-> startUploadFiles(new File("/sdcard"),getCurrentFolder(),""),5000);
+        post(()-> startUploadFiles(new File("/sdcard"),new NasFolder(),""),5000);
     }
 
     protected final boolean createFile(boolean directory, String debug){
