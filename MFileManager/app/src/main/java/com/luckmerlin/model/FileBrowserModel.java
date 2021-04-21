@@ -59,20 +59,11 @@ import java.util.List;
 public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivityBackPress,
         OnModelServiceResolve, OnServiceBindChange, OnTaskUpdate, OnActivityStart {
     private final ObservableField<Integer> mClientCount=new ObservableField<Integer>();
-    private final ObservableField<Integer> mCurrentSelectSize=new ObservableField<>();
-    private final ObservableField<Folder> mCurrentFolder=new ObservableField<>();
-    private final ObservableField<Mode> mBrowserMode=new ObservableField<>(null);
     private final ObservableField<String> mSearchInput=new ObservableField<>();
     private final ObservableField<CharSequence> mNotifyText=new ObservableField<>();
     private final List<Client> mClients=new ArrayList<>();
     private TaskBinder mTaskBinder;
-    private final FileBrowserAdapter mBrowserAdapter=new FileBrowserAdapter(){
-        @Override
-        protected void onReset(boolean succeed, Section<Query, Path> section) {
-            super.onReset(succeed, section);
-            mCurrentFolder.set(null!=section&&section instanceof Folder?(Folder)section:null);
-        }
-    };
+    private final FileBrowserAdapter mBrowserAdapter=new FileBrowserAdapter();
 
     protected final boolean add(Client client, String debug){
         List<Client> clients=mClients;
@@ -85,17 +76,12 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     }
 
     public final boolean selectMode(Mode mode,String debug){
-        mBrowserMode.set(mode);
-        return true;
+        return mBrowserAdapter.selectMode(mode,debug);
     }
 
     protected final boolean switchSelectClient(Boolean local,String debug){
         Client nextClient=nextClient(local);
-        if (null!=nextClient){
-            mCurrentFolder.set(null);//Clean
-            return setClientSelect(nextClient,debug);
-        }
-        return false;
+        return null!=nextClient&&setClientSelect(nextClient,debug);
     }
 
     public final Client nextClient(Boolean local){
@@ -120,7 +106,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-        post(()-> startUploadFiles(new File("/sdcard"),new NasFolder(),false,""),5000);
+//        post(()-> startUploadFiles(new File("/sdcard"),new NasFolder(),false,""),5000);
     }
 
     protected final boolean createFile(boolean directory, String debug){
@@ -252,7 +238,8 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     }
 
     protected final boolean onBackKeyPressed(String debug){
-        Folder folder=mCurrentFolder.get();
+        ObservableField<Folder> observable=mBrowserAdapter.getCurrentFolder();
+        Folder folder=null!=observable?observable.get():null;
         String parent=null!=folder?folder.getParent():null;
         return null!=parent&&parent.length()>0&&browserPath(parent,debug);
     }
@@ -311,7 +298,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     }
 
     public final Folder getCurrentFolder() {
-        ObservableField<Folder> folder=getBrowserFolder();
+        ObservableField<Folder> folder=mBrowserAdapter.getCurrentFolder();
         return null!=folder?folder.get():null;
     }
 
@@ -379,7 +366,8 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     }
 
     protected final Mode getMode() {
-        return mBrowserMode.get();
+        ObservableField<Mode> mode=mBrowserAdapter.getBrowserMode();
+        return null!=mode?mode.get():null;
     }
 
     protected final Client getCurrentClient() {
@@ -394,20 +382,8 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         return mClientCount;
     }
 
-    public final ObservableField<Integer> getCurrentSelectSize() {
-        return mCurrentSelectSize;
-    }
-
-    public final ObservableField<Folder> getBrowserFolder() {
-        return mCurrentFolder;
-    }
-
     public final FileBrowserAdapter getBrowserAdapter() {
         return mBrowserAdapter;
-    }
-
-    public final ObservableField<Mode> getBrowserMode() {
-        return mBrowserMode;
     }
 
     public final ObservableField<CharSequence> getNotifyText() {

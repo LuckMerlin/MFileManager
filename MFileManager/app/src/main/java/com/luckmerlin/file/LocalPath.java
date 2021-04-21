@@ -1,6 +1,8 @@
 package com.luckmerlin.file;
 
 import android.graphics.Color;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.api.Reply;
@@ -8,7 +10,7 @@ import com.luckmerlin.file.api.What;
 
 import java.io.File;
 
-public final class LocalPath extends Path implements Comparable {
+public final class LocalPath extends Path implements Comparable, Parcelable {
     private final String mParent;
     private final String mName;
     private final String mExtension;
@@ -20,6 +22,38 @@ public final class LocalPath extends Path implements Comparable {
         mName=name;
         mExtension=extension;
     }
+
+    private LocalPath(Parcel in) {
+        mParent = in.readString();
+        mName = in.readString();
+        mExtension = in.readString();
+        mMD5 = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mParent);
+        dest.writeString(mName);
+        dest.writeString(mExtension);
+        dest.writeString(mMD5);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<LocalPath> CREATOR = new Creator<LocalPath>() {
+        @Override
+        public LocalPath createFromParcel(Parcel in) {
+            return new LocalPath(in);
+        }
+
+        @Override
+        public LocalPath[] newArray(int size) {
+            return new LocalPath[size];
+        }
+    };
 
     @Override
     public int compareTo(Object object) {

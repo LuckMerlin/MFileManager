@@ -79,7 +79,8 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                     toast(getString(what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess()? R.string.whichSucceed:R.string.whichFailed,"",getString(R.string.setAsHome,"")));
                 });
             case R.string.multiChoose:
-                return selectMode(new Mode(Mode.MODE_MULTI_CHOOSE),"While multi choose view click.");
+                return selectMode(new Mode(Mode.MODE_MULTI_CHOOSE).add(null!=tag&&tag
+                        instanceof Path?(Path)tag:null),"While multi choose view click.");
             case R.drawable.selector_back:
                 return onBackKeyPressed("While back view click.");
             case R.string.upload:
@@ -112,7 +113,8 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                 return null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD&& startTask(new DownloadTask(getString(R.string.download,null),modeDownload.getArgs(),
                         downloadFolder),"While download view click.")&&
                         (selectMode(null,"While download view click.")||true);
-            case R.string.cancel:
+            case R.string.cancel://Get through
+            case R.drawable.selector_cancel:
                 return selectMode(null,"While cancel view click.");
             case R.string.scanCurrent:
                 Client scanClient=getCurrentClient();

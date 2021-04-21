@@ -73,6 +73,10 @@ public final class Mode {
         return this;
     }
 
+    public final boolean isMode(int mode){
+        return mode==mMode;
+    }
+
     public Map<String, String> getExtra() {
         return mExtra;
     }

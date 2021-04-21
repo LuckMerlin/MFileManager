@@ -21,6 +21,7 @@ import com.luckmerlin.adapter.OnSectionLoadFinish;
 import com.luckmerlin.adapter.recycleview.ItemSlideRemover;
 import com.luckmerlin.adapter.recycleview.ItemTouchInterrupt;
 import com.luckmerlin.adapter.recycleview.OnItemTouchResolver;
+import com.luckmerlin.adapter.recycleview.Section;
 import com.luckmerlin.adapter.recycleview.SectionListAdapter;
 import com.luckmerlin.adapter.recycleview.SectionRequest;
 import com.luckmerlin.adapter.recycleview.ViewHolder;
@@ -32,6 +33,7 @@ import com.luckmerlin.file.Client;
 import com.luckmerlin.file.FileDefaultThumb;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalPath;
+import com.luckmerlin.file.Mode;
 import com.luckmerlin.file.OnPathUpdate;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.Query;
@@ -51,6 +53,11 @@ import java.util.Map;
 
 public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implements OnItemTouchResolver, OnViewClick {
     private final ObservableField<Client> mCurrentClient=new ObservableField<Client>();
+    private final ObservableField<Boolean> mIsAllChoose=new ObservableField<>(false);
+    private final ObservableField<Long> mCurrentSelectSize=new ObservableField<>();
+    private final ObservableField<Mode> mBrowserMode=new ObservableField<>(null);
+    private final ObservableField<Folder> mCurrentFolder=new ObservableField<>();
+    private List<Path> mChoosePaths;
     private final FileDefaultThumb mDefaultThumb=new FileDefaultThumb();
     private int mLoadWhat;
     private OnSyncApiFinish mLoading=null;
@@ -65,6 +72,20 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         if (null!=context){
             setFixHolder(TYPE_EMPTY,generateViewHolder(context,R.layout.item_browser_empty));
         }
+    }
+
+    private final boolean enableChooseAll(boolean enable){
+        Boolean current=mIsAllChoose.get();
+        if (null==current||current!=enable){
+            mIsAllChoose.set(enable);
+            mChoosePaths=null;
+            int count=getDataCount();
+            if (count>0){
+                notifyItemRangeChanged(0,count);
+            }
+            return true;
+        }
+        return false;
     }
 
     public final boolean replace(Path from,Path to,String debug){
@@ -111,6 +132,10 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         switch (i){
             case R.string.reset:
                 return reset("While reset view click.");
+            case R.drawable.selector_choose_all:
+                return enableChooseAll(true)||true;
+            case R.drawable.selector_choose_none:
+                return enableChooseAll(false)||true;
         }
         return false;
     }
@@ -171,6 +196,23 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         //Do nothing
     }
 
+    public final ObservableField<Folder> getCurrentFolder() {
+        return mCurrentFolder;
+    }
+
+    public final boolean selectMode(Mode mode, String debug){
+        Mode current=mBrowserMode.get();
+        mBrowserMode.set(mode);
+        if ((null==current&&null==mode)||(null!=mode&&null!=current&&mode.getMode()==current.getMode())){
+            return false;
+        }
+        int count=getDataCount();
+        if (count>0){
+            notifyItemRangeChanged(0,count);
+        }
+        return true;
+    }
+
     public final boolean setClient(Client client, String debug) {
         Client current=mCurrentClient.get();
         if (null==client&&null!=current){
@@ -195,9 +237,27 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
         return mCurrentClient;
     }
 
+    public final ObservableField<Long> getCurrentSelectSize() {
+        return mCurrentSelectSize;
+    }
+
+    public final ObservableField<Mode> getBrowserMode() {
+        return mBrowserMode;
+    }
+
+    public final ObservableField<Boolean> getIsAllChoose() {
+        return mIsAllChoose;
+    }
+
     public final boolean reset(String debug){
         Client client=mCurrentClient.get();
         return null!=client?resetSection(debug):clean("While client reset to NULL.");
+    }
+
+    @Override
+    protected void onReset(boolean succeed, Section<Query, Path> section) {
+        super.onReset(succeed, section);
+        mCurrentFolder.set(null!=section&&section instanceof Folder?(Folder)section:null);
     }
 
     @Override
@@ -253,6 +313,16 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
             ItemListFileBinding fileBinding=(ItemListFileBinding)binding;
             fileBinding.setThumbImage(getPathThumb(null!=root?root.getContext():null,data));
             fileBinding.setPath(data);
+            //Check if multi mode
+            Mode mode=mBrowserMode.get();
+            boolean multiMode=null!=mode&&mode.isMode(Mode.MODE_MULTI_CHOOSE);
+            Debug.D("QQQQQQQQQ MUlti choose");
+            fileBinding.setIsMultiChoose(multiMode);
+            if (multiMode){
+                Boolean allChoose=mIsAllChoose.get();
+                List<Path> choosePaths=mChoosePaths;
+                fileBinding.setIsChoose(null!=data&&(null!=allChoose&&allChoose)||(null!=choosePaths&&choosePaths.contains(data)));
+            }
             fileBinding.setPosition(i+1);
             fileBinding.setSyncColor(null!=data&&data instanceof LocalPath?
                     ((LocalPath)data).getSyncColor():Color.TRANSPARENT);

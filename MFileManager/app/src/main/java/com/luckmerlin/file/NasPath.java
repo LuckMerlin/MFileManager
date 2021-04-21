@@ -1,8 +1,10 @@
 package com.luckmerlin.file;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Base64;
 
-public final class NasPath extends Path{
+public final class NasPath extends Path implements Parcelable {
     private String name;
     private String parent;
     private String host;
@@ -17,6 +19,58 @@ public final class NasPath extends Path{
     private int permissions;
     private boolean link;
     private String md5;
+
+    private NasPath(Parcel in) {
+        name = in.readString();
+        parent = in.readString();
+        host = in.readString();
+        port = in.readInt();
+        size = in.readLong();
+        length = in.readLong();
+        modifyTime = in.readLong();
+        thumb = in.readString();
+        extension = in.readString();
+        mime = in.readString();
+        pathSep = in.readString();
+        permissions = in.readInt();
+        link = in.readByte() != 0;
+        md5 = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(parent);
+        dest.writeString(host);
+        dest.writeInt(port);
+        dest.writeLong(size);
+        dest.writeLong(length);
+        dest.writeLong(modifyTime);
+        dest.writeString(thumb);
+        dest.writeString(extension);
+        dest.writeString(mime);
+        dest.writeString(pathSep);
+        dest.writeInt(permissions);
+        dest.writeByte((byte) (link ? 1 : 0));
+        dest.writeString(md5);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<NasPath> CREATOR = new Creator<NasPath>() {
+        @Override
+        public NasPath createFromParcel(Parcel in) {
+            return new NasPath(in);
+        }
+
+        @Override
+        public NasPath[] newArray(int size) {
+            return new NasPath[size];
+        }
+    };
 
     public NasPath setExtension(String extension) {
         this.extension = extension;

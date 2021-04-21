@@ -1,6 +1,6 @@
 package com.luckmerlin.file;
 
-public abstract class  Path implements Permission {
+public abstract class  Path implements Permission  {
     public final static int TYPE_IMAGE=1212;
     public final static int TYPE_VIDEO=1213;
     public final static int TYPE_APK=1214;
