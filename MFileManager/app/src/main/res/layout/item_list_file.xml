@@ -10,6 +10,7 @@
         <variable name="thumbImage" type="Object" />
         <import type="android.view.View"/>
         <import type="com.luckmerlin.file.util.FileSize"/>
+        <import type="com.luckmerlin.file.R"/>
         <import type="com.luckmerlin.file.binding.ImageBinding"/>
         <import type="com.luckmerlin.file.binding.BindingList"/>
         <import type="com.luckmerlin.file.util.Time"/>
@@ -41,9 +42,10 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <CheckBox android:id="@+id/itemListFile_selectCB" android:layout_alignParentRight="true" style="@style/checkboxStyle"
-                android:clickable="false" android:duplicateParentState="true" android:visibility="@{isMultiChoose?View.VISIBLE:View.GONE}"
-                android:layout_centerVertical="true" android:checked="@{isChoose}" android:alpha="@{path.accessible()?1f:0.3f}"
-                android:layout_width="@dimen/listIconNormal" android:layout_height="@dimen/listIconNormal"/>
+            <ImageView android:layout_alignParentRight="true" android:padding="5dp"
+                binding:lmBinding="@{Touch.imageRes(R.drawable.selector_checkbox,path,Touch.CLICK)}"
+                android:clickable="false" android:visibility="@{isMultiChoose?View.VISIBLE:View.GONE}"
+                android:layout_centerVertical="true" android:selected="@{isChoose}"
+                android:alpha="@{path.accessible()?1f:0.3f}" android:layout_width="40dp" android:layout_height="40dp"/>
     </LinearLayout>
 </layout>

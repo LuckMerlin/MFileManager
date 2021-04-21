@@ -133,9 +133,26 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
             case R.string.reset:
                 return reset("While reset view click.");
             case R.drawable.selector_choose_all:
-                return enableChooseAll(true)||true;
-            case R.drawable.selector_choose_none:
                 return enableChooseAll(false)||true;
+            case R.drawable.selector_choose_none:
+                return enableChooseAll(true)||true;
+            case R.drawable.selector_checkbox:
+                return selectPath(null!=o&&o instanceof Path?(Path)o:null,!(null!=view&&view.isSelected()))||true;
+        }
+        return false;
+    }
+
+    private boolean selectPath(Path path,boolean select){
+        if (null!=path){
+            Mode mode=mBrowserMode.get();
+            if (null==mode||mode.getMode()!=Mode.MODE_MULTI_CHOOSE){
+                return false;
+            }
+            List<Path> paths=mChoosePaths;
+            paths=null!=paths?paths:(mChoosePaths=new ArrayList<>());
+            if (select?(!paths.contains(path)&&paths.add(path)):paths.remove(path)){
+                return notifyItemChangedSafe(index(path))||true;
+            }
         }
         return false;
     }
@@ -316,7 +333,6 @@ public class FileBrowserAdapter extends SectionListAdapter<Query, Path> implemen
             //Check if multi mode
             Mode mode=mBrowserMode.get();
             boolean multiMode=null!=mode&&mode.isMode(Mode.MODE_MULTI_CHOOSE);
-            Debug.D("QQQQQQQQQ MUlti choose");
             fileBinding.setIsMultiChoose(multiMode);
             if (multiMode){
                 Boolean allChoose=mIsAllChoose.get();
