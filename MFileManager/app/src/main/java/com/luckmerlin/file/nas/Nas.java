@@ -164,7 +164,7 @@ public final class Nas {
                     try {
                         int bufferSize = 1024*1024;
                         byte[] buffer = new byte[bufferSize];
-                        long startTime=0;
+                        long startTime=System.nanoTime();
                         in = new FileInputStream(file);
                         if (!mCancel) {
                             long seek=mUploaded;
@@ -181,11 +181,11 @@ public final class Nas {
                                 }else if (read>0){
                                     if ((startTime=startTime>0?System.nanoTime()-startTime:-1)>0){
                                         startTime=TimeUnit.NANOSECONDS.toMillis(startTime);
-                                        mSpeed=startTime>0?read*1000/startTime:0;
+                                        mSpeed=startTime>0?read/startTime:0;
                                     }
-                                    startTime=System.nanoTime();
                                     mUploaded += read;
                                     sink.write(buffer, 0, read);
+                                    startTime=System.nanoTime();
                                     Boolean interruptUpload=onProgress(mUploaded, length ,mSpeed);
                                     if (null!=interruptUpload&&interruptUpload){
                                         Debug.D("File upload interrupted.");
