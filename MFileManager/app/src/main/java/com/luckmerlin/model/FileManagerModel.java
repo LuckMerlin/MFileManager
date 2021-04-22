@@ -39,6 +39,8 @@ import com.luckmerlin.file.nas.Nas;
 import com.luckmerlin.file.task.DownloadTask;
 import com.luckmerlin.file.task.UploadTask;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

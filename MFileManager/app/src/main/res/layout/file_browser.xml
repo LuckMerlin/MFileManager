@@ -56,7 +56,7 @@
                     binding:adapter="@{vm.browserAdapter}" android:layout_height="match_parent"/>
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
             <LinearLayout android:visibility="@{vm.browserAdapter.browserMode!=null?View.VISIBLE:View.GONE}" android:paddingLeft="50dp"
-                android:paddingRight="50dp" android:paddingBottom="2dp" android:paddingTop="2dp"
+                android:paddingRight="50dp" android:paddingBottom="2dp" android:paddingTop="2dp" android:layout_marginBottom="10dp"
                 android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
                 <TextView binding:lmBinding="@{Touch.textRes(vm.browserAdapter.browserMode.mode,null,Touch.CLICK)}" style="@style/browserBottomTextView"/>
                 <TextView binding:lmBinding="@{Touch.textRes(R.string.cancel,null,Touch.CLICK)}" style="@style/browserBottomTextView"/>
