@@ -326,10 +326,8 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
             if (length>0){
                 Object perObject=progress.getProgress(Progress.TYPE_PERCENT);
                 int start=builder.length();
-                String preText=null!=perObject?perObject.toString():null;
-                if (null!=preText){
-                    builder.append(preText+"% ");
-                }
+                float preText=null!=perObject&&perObject instanceof Number?((Number)perObject).floatValue():0;
+                builder.append(preText+"% ");
                 builder.append(title);
                 int end=builder.length();
                 builder.setSpan(new ForegroundColorSpan(Color.parseColor("#88ffffff")),start,end, Spanned.SPAN_INCLUSIVE_INCLUSIVE);

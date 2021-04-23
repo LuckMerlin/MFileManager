@@ -8,6 +8,7 @@ import androidx.databinding.ObservableField;
 import androidx.recyclerview.widget.RecyclerView;
 import com.luckmerlin.adapter.recycleview.OnItemSlideRemove;
 import com.luckmerlin.adapter.recycleview.Remover;
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.match.Matchable;
 import com.luckmerlin.databinding.Model;
 import com.luckmerlin.databinding.touch.OnViewClick;
@@ -49,6 +50,7 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
 
     @Override
     public boolean onViewClick(View view, int resId, int i1, Object o) {
+        Debug.D("QQQQQQQQQQQQQQ  "+resId+" "+view);
        switch (resId){
            case R.drawable.selector_back:
                return onBackPressed(null);

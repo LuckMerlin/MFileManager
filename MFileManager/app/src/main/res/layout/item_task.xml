@@ -5,75 +5,65 @@
         <variable name="task" type="com.luckmerlin.task.Task" />
         <variable name="buttonBackground" type="android.graphics.drawable.Drawable" />
         <variable name="buttonText" type="Object" />
+        <variable name="progress" type="int" />
         <variable name="taskExecuteTime" type="String" />
         <variable name="statusText" type="Object" />
         <import type="com.luckmerlin.file.util.FileSize"/>
         <import type="com.luckmerlin.task.Task"/>
         <import type="com.luckmerlin.file.util.Time"/>
         <import type="android.view.View"/>
+        <import type="com.luckmerlin.file.binding.ImageBinding"/>
         <import type="com.luckmerlin.databinding.view.Touch"/>
         <import type="com.luckmerlin.file.task.Progress"/>
+        <import type="com.luckmerlin.task.Status"/>
+        <import type="com.luckmerlin.file.R"/>
     </data>
     <LinearLayout android:orientation="horizontal" android:background="@drawable/selector_round_dark_corner_small"
         android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_width="match_parent"
-        android:minHeight="60dp" android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
+        android:minHeight="60dp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
         android:layout_marginTop="5dp" android:layout_marginBottom="5dp"
         android:layout_height="wrap_content" android:gravity="center_vertical">
-        <FrameLayout android:layout_width="60dp" android:layout_height="60dp" android:padding="5dp"
-            binding:lmBinding="@{Touch.dispatch(Touch.LONG_CLICK|Touch.CLICK,task)}">
-            <ImageView android:layout_width="match_parent" android:layout_height="match_parent"
-                android:src="@drawable/round_corner_task_item"/>
-            <LinearLayout android:orientation="vertical" android:layout_gravity="center"
-                android:layout_width="wrap_content" android:layout_height="wrap_content">
-                <TextView android:text="@{FileSize.formatSizeText(task.progress.getProgress(Progress.TYPE_TOTAL))}"
-                    android:singleLine="true" android:layout_width="wrap_content" android:textColor="@color/textTitle"
-                    android:textSize="9sp" android:alpha="0.8" android:layout_height="wrap_content"
-                    android:layout_gravity="center"/>
-                <TextView android:text="@{taskExecuteTime}"
-                    android:singleLine="true" android:layout_width="wrap_content" android:textColor="@color/textTitle"
-                    android:textSize="9sp" android:layout_gravity="center" android:alpha="0.8"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
+
+        <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <ImageView android:padding="5dp" android:layout_width="50dp" android:layout_height="50dp"
+                android:background="@drawable/round_corner_task_item" android:layout_margin="5dp"
+                binding:lmBinding="@{ImageBinding.image(task.progress.getProgress(Progress.TYPE_THUMB))}"/>
+            <TextView android:textSize="8sp" android:textColor="#fff" android:layout_gravity="center"
+                binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_SPEED),null,Touch.NONE)}"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
         </FrameLayout>
 
-        <LinearLayout android:orientation="vertical" android:layout_weight="1"
-            android:layout_width="wrap_content" android:layout_height="wrap_content">
-            <TextView android:layout_width="wrap_content"
-                binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_TITLE),null,Touch.NONE)}"
-                android:layout_gravity="bottom|center_horizontal" android:textColor="#fff"
-                android:singleLine="true" android:textSize="8sp" android:layout_height="wrap_content"/>
-            <View android:backgroundColor="@{task.statusColor}" android:layout_width="match_parent"
-                android:layout_height="1dp" android:layout_gravity="bottom"/>
-            <LinearLayout android:orientation="horizontal" android:layout_gravity="center"
-                android:layout_width="match_parent" android:layout_height="wrap_content">
-                <TextView android:layout_width="wrap_content" android:gravity="left|center_vertical"
-                    android:text="@{task.progress.getProgress(Progress.TYPE_PERCENT)+`%`??``}"
-                    android:layout_marginLeft="5dp" android:textColor="#fff" android:textSize="8sp"
-                    android:layout_height="wrap_content" android:minEms="7"/>
-                <TextView android:layout_width="0dp" binding:lmBinding="@{Touch.textRes(statusText,null,Touch.NONE)}"
-                    android:textColor="#fff" android:layout_weight="1" android:gravity="center"
-                    android:textSize="8sp" android:layout_height="wrap_content"/>
-                <TextView android:text="@{task.progress.getProgress(Progress.TYPE_SPEED).toString()??``}"
-                    android:textSize="8sp" android:textColor="#fff" android:gravity="right|center_vertical"
-                    android:visibility="@{task.isAnyStatus(Task.EXECUTING)?View.VISIBLE:View.GONE}"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            </LinearLayout>
-           </LinearLayout>
-
-        <FrameLayout android:layout_width="60dp" android:layout_height="60dp" android:padding="5dp"
-            binding:lmBinding="@{Touch.dispatch(Touch.LONG_CLICK|Touch.CLICK,task)}">
-            <ImageView android:layout_width="match_parent" android:layout_height="match_parent"
-                android:src="@drawable/round_corner_task_item"/>
-            <LinearLayout android:orientation="vertical" android:layout_gravity="center"
-                android:layout_width="wrap_content" android:layout_height="wrap_content">
-                <TextView android:text="@{FileSize.formatSizeText(task.progress.getProgress(Progress.TYPE_DONE))}"
+        <LinearLayout android:orientation="vertical" android:gravity="center_vertical"
+            android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <TextView android:layout_width="match_parent" android:layout_weight="1"
+                    binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_TITLE),null,Touch.NONE)}"
+                    android:layout_gravity="bottom|center_horizontal" android:textColor="#fff"
+                    android:singleLine="true" android:textSize="13sp" android:layout_height="wrap_content"/>
+                <TextView binding:lmBinding="@{Touch.textRes(task.progress.getProgress((Progress.TYPE_DONE|Progress.TYPE_TOTAL)),null,Touch.NONE)}"
                     android:singleLine="true" android:layout_width="wrap_content" android:textColor="@color/textTitle"
-                    android:textSize="9sp" android:layout_gravity="center" android:alpha="0.8"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="11sp" android:alpha="0.8" android:layout_height="wrap_content" android:layout_gravity="center"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp" android:padding="5dp"
+                    binding:lmBinding="@{Touch.textRes(task.isAnyStatus(Status.PREPARING,Status.EXECUTING)?R.string.cancel:R.string.start,task,Touch.CLICK)}"/>
+            </LinearLayout>
+            <ProgressBar style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:progress="@{progress}" android:layout_marginTop="3dp" android:layout_marginBottom="3dp"
+                android:layout_width="match_parent" android:layout_height="3dp"/>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical"
+                android:layout_width="match_parent" android:layout_height="wrap_content">
                 <TextView android:layout_width="wrap_content" android:text="@{taskExecuteTime}"
                     android:layout_marginLeft="5dp" android:textColor="#fff" android:textSize="8sp"
-                    android:layout_height="wrap_content"/>
+                    android:gravity="left" android:layout_height="wrap_content"/>
+                <TextView android:layout_weight="1" android:layout_width="match_parent"
+                    android:layout_marginLeft="2dp" android:layout_marginRight="2dp"
+                    android:gravity="center" android:text="@{`15555/55555`}"
+                    android:layout_height="wrap_content" android:textColor="#fff" android:textSize="8sp"/>
+                <TextView android:layout_width="wrap_content" android:text="@{taskExecuteTime}"
+                    android:layout_marginLeft="5dp" android:textColor="#fff" android:textSize="8sp"
+                    android:gravity="right" android:layout_height="wrap_content"/>
             </LinearLayout>
-        </FrameLayout>
+        </LinearLayout>
+
     </LinearLayout>
 </layout>

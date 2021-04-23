@@ -102,6 +102,9 @@ public class UploadTask extends FileTask<Path,Folder>{
                 File childFile = files[i];
                 if (null == childFile) {
                     continue;
+                }else if (isCanceled()){
+                    Debug.D("Canceled upload file.");
+                    return response(What.WHAT_CANCEL);
                 }
                 Response childResult = uploadFileToCloud(childFile, folder, rootPath, callback);
                 result = (null == childResult || !isResponseSucceed(childResult)) ? childResult : result;
@@ -169,7 +172,9 @@ public class UploadTask extends FileTask<Path,Folder>{
                 case Progress.TYPE_PERCENT:
                     long total=mTotal;
                     long upload=mUploaded;
-                    return String.format("%.2f",total>0?(upload<=0?0:upload)*100.f/total:0);
+                    return total>0?(upload<=0?0:upload)*100.f/total:0;
+                case (Progress.TYPE_DONE|Progress.TYPE_TOTAL):
+                    return FileSize.formatSizeText(mUploaded)+"/"+FileSize.formatSizeText(mTotal);
             }
             return null;
         }

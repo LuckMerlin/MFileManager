@@ -78,6 +78,9 @@ public class TaskListAdapter extends ListAdapter<Task> implements OnItemTouchRes
                         break;
                 }
             }
+            Progress progress=task.getProgress();
+            Object progressObj=null!=progress?progress.getProgress(Progress.TYPE_PERCENT):null;
+            taskBinding.setProgress(null!=progressObj&&progressObj instanceof Number?((Number)progressObj).intValue():0);
             taskBinding.setTaskExecuteTime(taskExecuteTime);
             taskBinding.setStatusText(statusText);
             //Button color
