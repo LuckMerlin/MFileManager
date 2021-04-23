@@ -107,7 +107,6 @@ public final class TaskService extends Service implements Tasker{
             int index=list.indexOf(task);
             child=index>=0?list.get(index):null;
         }
-        Debug.D("QQQQQQQQQQQQQQ d "+child);
         return null!=child&&child.cancel(true);
     }
 

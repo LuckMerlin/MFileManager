@@ -13,7 +13,6 @@ public final class MD5 {
         return getFileMD5(file,null);
     }
 
-
     public String getFileMD5(File file, Cancel cancel) {
         if (null==file||!file.exists()||file.length()<=0||!file.isFile()) {
             return null;

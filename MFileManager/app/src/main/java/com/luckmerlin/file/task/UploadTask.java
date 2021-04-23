@@ -18,13 +18,16 @@ import com.luckmerlin.task.Response;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class UploadTask extends FileTask<Path,Folder>{
+    private final Nas mNas=new Nas();
     private boolean mDeleteAfterSucceed=false;
     private boolean mCheckMd5Existed=false;
+    private List<Prepared> mUploads;
 
     public UploadTask(){
         this(null,null);
@@ -51,21 +54,120 @@ public class UploadTask extends FileTask<Path,Folder>{
             return response(What.WHAT_ERROR);
         }else if (null==folder){
             return response(What.WHAT_ERROR);
-        }else if (path instanceof LocalPath){
+        }else if (path instanceof LocalPath&&folder instanceof NasFolder){
             String localFile=path.getPath();
             File file=null!=localFile&&localFile.length()>0?new File(localFile):null;
-            Response response=null;
-           if (folder instanceof NasFolder){//Upload file into cloud
-               response= uploadFileToCloud(file,(NasFolder)folder,null,callback);
-           }
-           if (null!=file&&file.isFile()&&mDeleteAfterSucceed&&null!=response&&response.getCode()==What.WHAT_SUCCEED){
-               boolean succeed=file.delete();
-               Debug.D("Delete upload succeed file."+succeed+" "+file);
-           }
-           return response;
+            List<Prepared> uploads=mUploads;
+            if (null==uploads){
+                uploads=new ArrayList<>();
+                notifyTaskUpdate(Status.PREPARING, callback);
+                Response prepareResponse=prepare(file,(NasFolder)folder,null,uploads,callback);
+                if (null==prepareResponse||prepareResponse.getCode()!=What.WHAT_SUCCEED){
+                    Debug.W("Fail prepare upload files.");
+                    return prepareResponse;
+                }
+                mUploads=uploads;
+            }
+            if (null==uploads||uploads.size()<=0){
+                Debug.W("Empty files to upload.");
+                return response(What.WHAT_EMPTY);
+            }
+            synchronized (uploads){
+                for (Prepared upload:uploads) {
+//                    upload.execute();
+                }
+            }
+//            response= uploadFileToCloud(file,(NasFolder)folder,null,callback);
+//           if (null!=file&&file.isFile()&&mDeleteAfterSucceed&&null!=response&&response.getCode()==What.WHAT_SUCCEED){
+//               boolean succeed=file.delete();
+//               Debug.D("Delete upload succeed file."+succeed+" "+file);
+//           }
+           return response(What.WHAT_SUCCEED);
         }
         return response(What.WHAT_NOT_SUPPORT);
     }
+
+    private Response prepare(File file,NasFolder folder,String rootPath,List<Prepared> uploads,OnTaskUpdate callback){
+        if (null!=file&&null!=folder){
+            final String folderSep = null != folder ? folder.getSep() : null;
+            final String folderHostUrl = null != folder ? folder.getHostUrl() : null;
+            if (null == file || null == folder || null == folderSep || null == folderHostUrl || folderHostUrl.length() <= 0) {
+                Debug.D("Can't upload file while args invalid.");
+                return response(What.WHAT_ERROR);
+            }else if (!file.exists()) {
+                Debug.D("Can't upload file while file not exist." + file);
+                return response(What.WHAT_NOT_EXIST);
+            } else if (!file.canRead()) {
+                Debug.D("Can't upload file while none permission.");
+                return response(What.WHAT_NONE_PERMISSION);
+            }
+            rootPath = null != rootPath && rootPath.length() > 0 ? rootPath : file.getParent();
+            final String filePath = file.getAbsolutePath();
+            String namePath = null != rootPath ? filePath.replaceFirst(rootPath, "") : filePath;
+            String targetPath = null != namePath ? namePath.replaceAll(File.separator, folderSep) : null;
+            targetPath = null != targetPath ? folder.getChildPath(targetPath) : null;
+            notifyTaskUpdate(Status.PREPARING, callback);
+            uploads=null!=uploads?uploads:new ArrayList<>();
+            final boolean directory=file.isDirectory();
+            final String md5=directory||file.length()<=0?"":new MD5().getFileMD5(file);
+            if (null==md5){
+                Debug.W("Can't upload file while md5 invalid.");
+                return response(What.WHAT_FAIL);
+            }
+            final Map<String,String> args=new HashMap<>();
+            args.put(Label.LABEL_MD5,md5);
+            args.put(Label.LABEL_PATH, targetPath);
+            Reply<NasPath> nasReply=mNas.getNasFileData(folderHostUrl, args);
+            final NasPath nasPath=null!=nasReply&&nasReply.getWhat()==What.WHAT_SUCCEED?nasReply.getData():null;
+            final String nasMd5=null!=nasPath?nasPath.isDirectory()||namePath.length()<=0?"":nasPath.getMd5():null;
+            if (null!=nasMd5&&nasMd5.equals(md5)){//Already upload
+                return response(What.WHAT_ALREADY_DONE);
+            }
+            if (directory) {
+                File[] files=file.listFiles();
+                if (null==files||files.length<=0){
+                    uploads.add(new Prepared(folderHostUrl,nasPath,md5,targetPath));
+                    return response(What.WHAT_SUCCEED);
+                }
+                int count = null != files ? files.length : -1;
+                Response result = null;
+                for (int i = 0; i < count; i++) {
+                    File childFile = files[i];
+                    if (null == childFile) {
+                        continue;
+                    }else if (isCanceled()){
+                        Debug.D("Canceled upload file.");
+                        return response(What.WHAT_CANCEL);
+                    }
+                    Response childResult = prepare(childFile, folder, rootPath,uploads, callback);
+                    result = (null == childResult || !isResponseSucceed(childResult)) ? childResult : result;
+                    if ((result=null==result?response(What.WHAT_FAIL):result).getCode()!=What.WHAT_SUCCEED){
+                        return result;
+                    }
+                }
+                return result;
+            }
+            uploads.add(new Prepared(folderHostUrl,nasPath,md5,targetPath));
+            return response(What.WHAT_SUCCEED);
+        }
+        return response(What.WHAT_FAIL);
+    }
+
+    private static class Prepared extends Task{
+
+        Prepared(String folderHostUrl,NasPath done,String md5,String targetPath){
+
+        }
+
+        @Override
+        protected Response onExecute(Task task, OnTaskUpdate callback) {
+            return null;
+        }
+//        private final File mFromFile;
+//        private final NasFolder mNasPath;
+//
+    }
+
 
     private Response uploadFileToCloud(File file, NasFolder folder, String rootPath, OnTaskUpdate callback) {
         final String folderSep = null != folder ? folder.getSep() : null;
