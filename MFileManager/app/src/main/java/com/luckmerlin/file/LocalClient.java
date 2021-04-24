@@ -215,7 +215,12 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
                     if (querying.isCanceled()){
                         break;
                     }else if (null!=localPath){
-                        if (null!=(md5=localPath.load(true,querying).getMd5())){
+                        if (null!=(md5=localPath.load(true, new MD5.OnProgressChange() {
+                            @Override
+                            public boolean OnProgressChanged(long done, long total, float speed) {
+                                return !querying.isCanceled();
+                            }
+                        }).getMd5())){
                             md5Maps.put(md5,localPath);
                         }else{
                             localPath.setSync(new Reply<>(true,What.WHAT_NORMAL,null,null));

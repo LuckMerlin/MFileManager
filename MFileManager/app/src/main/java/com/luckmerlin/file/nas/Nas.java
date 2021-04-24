@@ -81,7 +81,7 @@ public final class Nas {
         return null;
     }
 
-    public final Response upload(File file, String serverUrl, String toPath, long seek, int cover,String localMd5,
+    public final Reply<NasPath> upload(File file, String serverUrl, String toPath, long seek, int cover,String localMd5,
                                  OnUploadProgressChange callback, String debug){
         final UploadRequestBody uploadBody=new UploadRequestBody(file,seek){
             @Override
@@ -107,23 +107,7 @@ public final class Nas {
             retrofit2.Response<Reply<List<Reply<NasPath>>>> response=null!=call?call.execute():null;
             Reply<List<Reply<NasPath>>> reply= null!=response&&response.isSuccessful()?response.body():null;
             List<Reply<NasPath>> list=null!=reply?reply.getData():null;
-            Reply<NasPath> nasPathReply=null!=list&&list.size()>0?list.get(0):null;
-            boolean succeed=null!=nasPathReply&&nasPathReply.getWhat()==What.WHAT_SUCCEED;
-            NasPath nasPath=null!=nasPathReply?nasPathReply.getData():null;
-            String md5=succeed&&null!=nasPath?nasPath.getMd5():null;
-            int code=succeed&&((null==md5&&null==localMd5)||(null!=md5&&null!=localMd5&&
-                    md5.equals(localMd5)))?What.WHAT_SUCCEED:What.WHAT_FAIL;
-            return new Response() {
-                @Override
-                public int getCode() {
-                    return code;
-                }
-
-                @Override
-                public Object getResult() {
-                    return nasPath;
-                }
-            };
+            return null!=list&&list.size()>0?list.get(0):null;
         } catch (IOException e) {
             Debug.E("Exception upload file to nas.e="+e,e);
             e.printStackTrace();

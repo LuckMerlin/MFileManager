@@ -56,8 +56,8 @@
                     android:layout_marginLeft="5dp" android:textColor="#fff" android:textSize="8sp"
                     android:gravity="left" android:layout_height="wrap_content"/>
                 <TextView android:layout_weight="1" android:layout_width="match_parent"
-                    android:layout_marginLeft="2dp" android:layout_marginRight="2dp"
-                    android:gravity="center" android:text="@{`15555/55555`}"
+                    android:layout_marginLeft="2dp" android:layout_marginRight="2dp" android:gravity="center"
+                    binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_SUMMERY),null,Touch.NONE)}"
                     android:layout_height="wrap_content" android:textColor="#fff" android:textSize="8sp"/>
                 <TextView android:layout_width="wrap_content" android:text="@{taskExecuteTime}"
                     android:layout_marginLeft="5dp" android:textColor="#fff" android:textSize="8sp"

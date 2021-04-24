@@ -6,30 +6,51 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.TimeUnit;
 
 public final class MD5 {
+    public interface OnProgressChange{
+        boolean OnProgressChanged(long done,long total,float speed);
+    }
 
     public String getFileMD5(File file) {
         return getFileMD5(file,null);
     }
 
-    public String getFileMD5(File file, Cancel cancel) {
-        if (null==file||!file.exists()||file.length()<=0||!file.isFile()) {
+    public String getFileMD5(File file, OnProgressChange callback) {
+        if (null==file||!file.exists()) {
             return null;
+        }
+        final long total=file.isDirectory()?0:file.length();
+        if (total<=0){
+            return "";
         }
         MessageDigest digest = null;
         FileInputStream in = null;
-        int len;
         try {
             digest = MessageDigest.getInstance("MD5");
             if (null!=digest){
                 byte buffer[] = new byte[1024*1024];
                 in = new FileInputStream(file);
-                while ((len = in.read(buffer)) != -1) {
-                    if (null!=cancel&&cancel.isCanceled()){
-                        return null;
+                float speed=0;
+                int read;long done=0;
+                long startTime=System.nanoTime();
+                while ((read = in.read(buffer)) >=0) {
+                    if (read<=0){
+                        continue;
                     }
-                    digest.update(buffer, 0, len);
+                    digest.update(buffer, 0, read);
+                    done+=read;
+                    if ((startTime=startTime>0?System.nanoTime()-startTime:-1)>0){
+                        startTime= TimeUnit.NANOSECONDS.toMillis(startTime);
+                        speed=startTime>0?read/startTime:0;
+                    }
+                    if (null!=callback&&!callback.OnProgressChanged(done,total,speed)){
+                        digest.reset();
+                        digest=null;
+                        break;
+                    }
+                    startTime=System.nanoTime();
                 }
             }
         } catch (Exception e) {
@@ -39,22 +60,19 @@ public final class MD5 {
             new Closer().close(in);
         }
         byte[] bytes=null!=digest?digest.digest():null;
-        if (bytes == null || bytes.length <= 0) {
-            return null;
-        }
-        StringBuffer buffer  = new StringBuffer();
-        for (int i = 0; i < bytes.length; i++) {
-            if (null!=cancel&&cancel.isCanceled()){
-                return null;
+        if (bytes != null && bytes.length > 0) {
+            StringBuffer buffer  = new StringBuffer();
+            for (int i = 0; i < bytes.length; i++) {
+                int v = bytes[i] & 0xFF;
+                String hv = Integer.toHexString(v);
+                if (hv.length() < 2) {
+                    buffer.append(0);
+                }
+                buffer.append(hv);
             }
-            int v = bytes[i] & 0xFF;
-            String hv = Integer.toHexString(v);
-            if (hv.length() < 2) {
-                buffer.append(0);
-            }
-            buffer.append(hv);
+            return buffer.toString();
         }
-        return buffer.toString();
+        return null;
     }
 
     public String md5(String input) {

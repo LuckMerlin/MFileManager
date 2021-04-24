@@ -83,11 +83,11 @@ public final class LocalPath extends Path implements Comparable, Parcelable {
         return mMD5;
     }
 
-    public LocalPath load(boolean load, Cancel cancel){
+    public LocalPath load(boolean load, MD5.OnProgressChange callback){
         String path=getPath();
         File file=null!=path&&path.length()>0?new File(path):null;
         if (load&&file.isFile()&&file.length()>0){
-            String md5=new MD5().getFileMD5(file,cancel);
+            String md5=new MD5().getFileMD5(file,callback);
             mMD5=null!=md5&&md5.length()>0?md5:mMD5;
         }
         return this;
@@ -97,7 +97,7 @@ public final class LocalPath extends Path implements Comparable, Parcelable {
         return create(file,false,null);
     }
 
-    public static LocalPath create(File file,boolean load, Cancel cancel){
+    public static LocalPath create(File file,boolean load, MD5.OnProgressChange callback){
         if (null!=file){
             final String filePath=null!=file?file.getPath():null;
             String extension=null;String name=null;String parent=null;
@@ -121,7 +121,7 @@ public final class LocalPath extends Path implements Comparable, Parcelable {
                     }
                 }
             }
-            return new LocalPath(parent,name,extension).load(load,cancel);
+            return new LocalPath(parent,name,extension).load(load,callback);
         }
         return null;
     }
