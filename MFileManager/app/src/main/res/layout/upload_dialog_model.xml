@@ -22,18 +22,18 @@
 
          <TextView android:text="@{vm.message??``}" android:textSize="13sp" android:textColor="#fff"
              android:layout_width="wrap_content" android:layout_marginLeft="5dp"
-             android:layout_marginBottom="5dp" android:layout_marginTop="5dp"
+             android:layout_marginBottom="5dp" android:layout_marginTop="5dp" android:minLines="6"
              android:layout_marginRight="5dp" android:layout_height="wrap_content" android:gravity="center"/>
 
          <LinearLayout android:layout_marginBottom="5dp"
              android:layout_width="wrap_content" android:orientation="horizontal" android:layout_height="wrap_content">
              <TextView android:layout_weight="1" binding:lmBinding="@{Touch.textRes(R.string.sure,null,Touch.CLICK)}"
                  android:enabled="@{!vm.status.equals(R.string.preparing)}" android:alpha="@{vm.status.equals(R.string.preparing)?0.5f:1f}"
-                 android:paddingLeft="30dp" android:paddingRight="30dp" android:paddingBottom="5dp" android:paddingTop="5dp"
+                 android:paddingLeft="30dp" android:paddingRight="30dp" android:paddingBottom="10dp" android:paddingTop="10dp"
                  android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
                  android:background="@drawable/selector_round_dark_corner_small" style="@style/titleNormalTextView"/>
              <TextView android:layout_weight="1" binding:lmBinding="@{Touch.textRes(R.string.cancel,null,Touch.CLICK)}"
-                 android:paddingLeft="30dp" android:paddingRight="30dp" android:paddingBottom="5dp" android:paddingTop="5dp"
+                 android:paddingLeft="30dp" android:paddingRight="30dp" android:paddingBottom="10dp" android:paddingTop="10dp"
                  android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
                  android:background="@drawable/selector_round_dark_corner_small" style="@style/titleNormalTextView"/>
          </LinearLayout>

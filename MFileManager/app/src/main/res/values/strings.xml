@@ -40,6 +40,7 @@
     <string name="preparing">准备中</string>
     <string name="sure">确认</string>
     <string name="alreadyWhich">已经%1s</string>
+    <string name="summeryItemWhich">共 %1d 个</string>
     <string name="finished">完成</string>
     <string name="reboot">重启</string>
     <string name="toWhich">到 %1s</string>

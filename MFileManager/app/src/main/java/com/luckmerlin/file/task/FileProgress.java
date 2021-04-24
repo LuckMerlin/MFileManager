@@ -1,10 +1,6 @@
 package com.luckmerlin.file.task;
 
-import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.util.FileSize;
-import com.luckmerlin.task.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FileProgress<M> implements Progress{
      long mDone;

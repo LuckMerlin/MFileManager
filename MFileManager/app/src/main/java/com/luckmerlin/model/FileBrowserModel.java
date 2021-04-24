@@ -203,9 +203,11 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         if (null!=action&&action.equals(Intent.ACTION_SEND)){
             startUploadFiles(intent.getParcelableExtra(Intent.EXTRA_STREAM),intent.
                     getBooleanExtra(Label.LABEL_DELETE,false),"While activity send action start.");
+            intent.removeExtra(Intent.EXTRA_STREAM);
         }else if (null!=action&&action.equals(Intent.ACTION_SEND_MULTIPLE)){
             startUploadFiles(intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM),
                     intent.getBooleanExtra(Label.LABEL_DELETE,false),"While activity send action start.");
+            intent.removeExtra(Intent.EXTRA_STREAM);
         }
     }
 
@@ -345,7 +347,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
                 Object perObject=progress.getProgress(Progress.TYPE_PERCENT);
                 int start=builder.length();
                 float preText=null!=perObject&&perObject instanceof Number?((Number)perObject).floatValue():0;
-                builder.append(preText+"% ");
+                builder.append(String.format("%.2f",preText)+"% ");
                 builder.append(title);
                 int end=builder.length();
                 builder.setSpan(new ForegroundColorSpan(Color.parseColor("#88ffffff")),start,end, Spanned.SPAN_INCLUSIVE_INCLUSIVE);

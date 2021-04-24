@@ -50,7 +50,6 @@
             </LinearLayout>
             <ProgressBar style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:progressDrawable="@drawable/progress_bar"
-
                 android:progress="@{task.status==Status.PREPARING?0:progress}"
                 android:secondaryProgress="@{task.status==Status.PREPARING?progress:100}"
                 android:layout_marginTop="3dp" android:layout_marginBottom="3dp"
