@@ -16,9 +16,33 @@ import java.io.File;
 
 public class ImageBinding implements CustomBinding {
     private final Object mImage;
+    private boolean mCircleCrop=false;
+    private boolean mCenterCrop=false;
+    private int mRoundedCorners;
+    private boolean mCenterInside;
 
     private ImageBinding(Object image){
         mImage=image;
+    }
+
+    public ImageBinding circleCrop(boolean circleCrop){
+        mCircleCrop=circleCrop;
+        return this;
+    }
+
+    public ImageBinding centerCrop(boolean centerCrop){
+        mCenterCrop=centerCrop;
+        return this;
+    }
+
+    public ImageBinding centerInside(boolean centerInside){
+        mCenterInside=centerInside;
+        return this;
+    }
+
+    public ImageBinding roundedCorners(int roundedCorners){
+        mRoundedCorners=roundedCorners;
+        return this;
     }
 
     public static ImageBinding image(Object image){
@@ -33,8 +57,12 @@ public class ImageBinding implements CustomBinding {
         final ImageView imageView=(ImageView)view;
         Object image=mImage;
         if (null!=image){
-            final RequestOptions options=RequestOptions.bitmapTransform(new RoundedCorners(20))
-                    .circleCrop();
+            int roundedCorners=mRoundedCorners;
+            RequestOptions options=new RequestOptions();
+            options=mCircleCrop?options.circleCrop():options;
+            options=mCenterInside?options.centerInside():options;
+            options=mCenterCrop?options.centerCrop():options;
+            options=roundedCorners>0?options.transform(new RoundedCorners(roundedCorners)):options;
             if (image instanceof String) {
                 String path = (String) image;
                 if (path.startsWith(File.separator)) {

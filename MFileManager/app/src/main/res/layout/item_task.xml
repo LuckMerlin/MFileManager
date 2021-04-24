@@ -10,6 +10,7 @@
         <variable name="statusText" type="Object" />
         <import type="com.luckmerlin.file.util.FileSize"/>
         <import type="com.luckmerlin.task.Task"/>
+        <import type="com.luckmerlin.file.api.What"/>
         <import type="com.luckmerlin.file.util.Time"/>
         <import type="android.view.View"/>
         <import type="com.luckmerlin.file.binding.ImageBinding"/>
@@ -27,7 +28,7 @@
         <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
             <ImageView android:padding="5dp" android:layout_width="50dp" android:layout_height="50dp"
                 android:background="@drawable/round_corner_task_item" android:layout_margin="5dp"
-                binding:lmBinding="@{ImageBinding.image(task.progress.getProgress(Progress.TYPE_THUMB))}"/>
+                binding:lmBinding="@{ImageBinding.image(task.progress.getProgress(Progress.TYPE_THUMB)).centerCrop(true)}"/>
             <TextView android:textSize="8sp" android:textColor="#fff" android:layout_gravity="center"
                 binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_SPEED),null,Touch.NONE)}"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -46,7 +47,7 @@
                     android:textSize="11sp" android:alpha="0.8" android:layout_height="wrap_content" android:layout_gravity="center"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp" android:padding="5dp"
-                    binding:lmBinding="@{Touch.textRes(task.isAnyStatus(Status.PREPARING,Status.EXECUTING)?R.string.cancel:R.string.start,task,Touch.CLICK)}"/>
+                    binding:lmBinding="@{Touch.textRes(task.isAnyStatus(Status.IDLE)&amp;&amp;task.response.code==What.WHAT_ALREADY_DONE?R.string.finished:task.isAnyStatus(Status.PREPARING,Status.EXECUTING)?R.string.cancel:R.string.start,task,Touch.CLICK)}"/>
             </LinearLayout>
             <ProgressBar style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:progressDrawable="@drawable/progress_bar"

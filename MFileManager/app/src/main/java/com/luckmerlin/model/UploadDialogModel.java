@@ -4,10 +4,8 @@ import android.net.Uri;
 import android.view.View;
 
 import androidx.databinding.ObservableField;
-import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.Model;
 import com.luckmerlin.databinding.OnModelResolve;
-import com.luckmerlin.databinding.dialog.Dialog;
 import com.luckmerlin.databinding.touch.OnViewClick;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalPath;
