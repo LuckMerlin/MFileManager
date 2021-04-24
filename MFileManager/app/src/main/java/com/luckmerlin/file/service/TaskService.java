@@ -89,10 +89,6 @@ public final class TaskService extends Service implements Tasker{
             Debug.W("Can't start task while task already started.");
             return false;
         }
-        if (finalTask instanceof GroupTask){//Test
-//            ((FilesTask)finalTask).setCover(What.N);
-        }
-
         return null!=executor.submit(()-> { finalTask.execute(mInnerUpdate); });
     }
 

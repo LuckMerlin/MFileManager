@@ -10,7 +10,7 @@ public final class Mode {
     public final static int MODE_UPLOAD=R.string.upload;
     public final static int MODE_MOVE=R.string.move;
     public final static int MODE_COPY=R.string.copy;
-    private ArrayList<Path> mArgs;
+    private ArrayList mArgs;
     private final int mMode;
     private Map<String,String> mExtra;
 
@@ -23,9 +23,9 @@ public final class Mode {
         mArgs=args;
     }
 
-    public Mode add(Path arg){
+    public Mode add(Object arg){
         if (null!=arg){
-            ArrayList<Path> args=mArgs;
+            ArrayList<Object> args=mArgs;
             args=null!=args?args:(mArgs=new ArrayList<>());
             synchronized (args){
                 if (!args.contains(arg)){
@@ -86,7 +86,7 @@ public final class Mode {
         return null!=extra&&null!=key?extra.get(key):def;
     }
 
-    public ArrayList<Path> getArgs() {
+    public ArrayList getArgs() {
         return mArgs;
     }
 

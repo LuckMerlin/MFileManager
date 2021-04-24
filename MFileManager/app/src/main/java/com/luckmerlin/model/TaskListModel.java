@@ -50,7 +50,6 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
 
     @Override
     public boolean onViewClick(View view, int resId, int i1, Object o) {
-        Debug.D("QQQQQQQQQQQQQQ  "+resId+" "+view);
        switch (resId){
            case R.drawable.selector_back:
                return onBackPressed(null);

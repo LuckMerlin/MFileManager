@@ -89,6 +89,7 @@ public class UploadTask extends FileTask<Path,Folder>{
             return null==lastFailReply||lastFailReply.getWhat()==What.WHAT_SUCCEED?
                     response(What.WHAT_SUCCEED):response(What.WHAT_FAIL);
         }
+        Debug.W("Fail prepare upload files while arg not support.");
         return response(What.WHAT_NOT_SUPPORT);
     }
 

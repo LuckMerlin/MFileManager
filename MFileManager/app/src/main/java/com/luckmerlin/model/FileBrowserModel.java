@@ -201,15 +201,33 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         Intent intent=null!=activity?activity.getIntent():null;
         String action=null!=intent?intent.getAction():null;
         if (null!=action&&action.equals(Intent.ACTION_SEND)){
-            startUploadFiles(intent.getParcelableExtra(Intent.EXTRA_STREAM),getCurrentFolder(),intent.
+            startUploadFiles(intent.getParcelableExtra(Intent.EXTRA_STREAM),intent.
                     getBooleanExtra(Label.LABEL_DELETE,false),"While activity send action start.");
         }else if (null!=action&&action.equals(Intent.ACTION_SEND_MULTIPLE)){
-            startUploadFiles(intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM),getCurrentFolder(),
+            startUploadFiles(intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM),
                     intent.getBooleanExtra(Label.LABEL_DELETE,false),"While activity send action start.");
         }
     }
 
-    protected final boolean startUploadFiles(Object files,Folder folder,boolean deleteSucceed,String debug){
+    public final boolean startUploadFiles(Object files,boolean deleteSucceed,String debug){
+        Mode modeUpload=getMode();
+        if (null!=files){
+            modeUpload=null!=(modeUpload=(null!=modeUpload?modeUpload.cleanArgs():null))&&
+                    modeUpload.getMode()==Mode.MODE_UPLOAD?modeUpload:new Mode(Mode.MODE_UPLOAD);
+            return selectMode(modeUpload.add(files),"While upload view click.");
+        }
+        Folder uploadFolder=getCurrentFolder();
+        if (null==uploadFolder||!(uploadFolder instanceof NasFolder)){
+            return toast(R.string.notActionHere)||true;
+        }else if (null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD){
+            uploadFiles(modeUpload.getArgs(),uploadFolder, modeUpload.isExistExtra
+                    (Label.LABEL_DELETE,Label.LABEL_DELETE),"While upload view click.");
+            return selectMode(null,"While upload view click.");
+        }
+        return false;
+    }
+
+    final boolean uploadFiles(Object files,Folder folder,boolean deleteSucceed,String debug){
         final Context context=getContext();
         if (null==files||null==context){
             return false;

@@ -86,21 +86,7 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
             case R.drawable.selector_back:
                 return onBackKeyPressed("While back view click.");
             case R.string.upload:
-                Mode modeUpload=getMode();
-                if (null!=tag&&tag instanceof LocalPath){
-                    modeUpload=null!=(modeUpload=(null!=modeUpload?modeUpload.cleanArgs():null))&&
-                            modeUpload.getMode()==Mode.MODE_UPLOAD?modeUpload:new Mode(Mode.MODE_UPLOAD);
-                    return selectMode(modeUpload.add((LocalPath)tag),"While upload view click.");
-                }
-                Folder uploadFolder=getCurrentFolder();
-                if (null==uploadFolder||!(uploadFolder instanceof NasFolder)){
-                    return toast(R.string.notActionHere)||true;
-                }else if (null!=modeUpload&&modeUpload.getMode()==Mode.MODE_UPLOAD){
-                    startUploadFiles(modeUpload.getArgs(),uploadFolder, modeUpload.isExistExtra
-                            (Label.LABEL_DELETE,Label.LABEL_DELETE),"While upload view click.");
-                    return selectMode(null,"While upload view click.");
-                }
-                return true;
+                return startUploadFiles(tag,false,"While upload view click.")||true;
             case R.string.download:
                 Mode modeDownload=getMode();
                 if (null!=tag&&tag instanceof NasPath){
