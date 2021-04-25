@@ -9,6 +9,9 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @deprecated
+ */
 public abstract class TestFileTask<T extends Path,V extends Path> extends FromToTask<T,V> {
     protected final static String POST="POST";
     protected final static String GET="GET";

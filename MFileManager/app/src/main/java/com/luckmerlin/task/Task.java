@@ -8,14 +8,13 @@ import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.task.Progress;
 
 public abstract class Task implements Status{
-    private Response mResponse;
+    private Result mResult;
     private Progress mProgress;
     private int mStatus=Status.IDLE;
     private boolean mCanceled=false;
     private final String mName;
     private long mStartTime;
     private long mEndTime;
-    private String mAction;
 
     public Task(){
         this(null,null);
@@ -23,7 +22,6 @@ public abstract class Task implements Status{
 
     public Task(String name,String action){
         mName=name;
-        mAction=action;
     }
 
     public final synchronized boolean execute(OnTaskUpdate callback) {
@@ -31,19 +29,19 @@ public abstract class Task implements Status{
             return false;
         }
         mCanceled=false;
-        mResponse=null;
+        mResult=null;
         String name=mName;
         Debug.D("Start execute task "+(null!=name?name:"."));
         notifyTaskUpdate(Status.STARTED,null,callback);
         mStartTime=System.currentTimeMillis();
         mEndTime=-1;
-        Response response=mResponse=onExecute(this,(Task task1, int status)-> {
+        Result result=mResult=onExecute(this,(Task task1, int status)-> {
             if (Status.STARTED!=status&&status!=Status.STARTED){
                 notifyTaskUpdate(task1,status,null,callback);
             }
         });
         mEndTime=System.currentTimeMillis();
-        Debug.D("Finish execute task "+(null!=name?name:".")+" "+isResponseSucceed(response));
+        Debug.D("Finish execute task "+(null!=name?name:".")+" ");
         notifyTaskUpdate(Status.IDLE,null,callback);
         return true;
     }
@@ -54,11 +52,7 @@ public abstract class Task implements Status{
 
     public final long getEndTime() {
         return mEndTime;
-    }
-
-    public final String getAction() {
-        return mAction;
-    }
+    };
 
     public final long getUsedTime(){
         long time=mStartTime;
@@ -67,7 +61,7 @@ public abstract class Task implements Status{
     }
 
     public final boolean isSucceed(){
-        return isResponseSucceed(mResponse);
+        return isResultSucceed(mResult);
     }
 
     public final boolean isCanceled(){
@@ -91,14 +85,15 @@ public abstract class Task implements Status{
             case Status.STARTED:
                 return Color.parseColor("#7CFC00");
             case Status.IDLE:
-                Response response=mResponse;
-                if (null==response){
+                Result result=mResult;
+                if (null==result){
                     return Color.WHITE;
-                }else if (isResponseSucceed(response)){
+                }else if (isResultSucceed(result)){
                     return Color.GREEN;
-                }else if (response.getCode()==What.WHAT_ALREADY_DONE){
-                    return Color.parseColor("#5500ff00");
                 }
+//                else if (result.getCode()==What.WHAT_ALREADY_DONE){
+//                    return Color.parseColor("#5500ff00");
+//                }
                 return Color.RED;
         }
         return Color.TRANSPARENT;
@@ -113,26 +108,17 @@ public abstract class Task implements Status{
     }
 
     public final boolean isFinished(){
-        return null!=mResponse;
+        return null!=mResult;
     }
 
-    protected abstract Response onExecute(Task task, OnTaskUpdate callback);
+    protected abstract Result onExecute(Task task, OnTaskUpdate callback);
 
     public final boolean isStarted(){
         return mStatus!=Status.IDLE;
     }
 
-    protected final boolean isResponseSucceed(Response result){
-        int code=null!=result?result.getCode():What.WHAT_FAIL;
-        return (code==What.WHAT_SUCCEED)||(code==What.WHAT_ALREADY_DONE);
-    }
-
-    public final Response response(int code){
-        return response(code,null);
-    }
-
-    public final Response response(int code,Object result){
-        return new AbsResponse(code,result);
+    protected final boolean isResultSucceed(Result result){
+        return null!=result&&result.isSucceed();
     }
 
     public final boolean isAnyStatus(int ...status) {
@@ -159,8 +145,8 @@ public abstract class Task implements Status{
         return mStatus==Status.PREPARING;
     }
 
-    public final Response getResponse() {
-        return mResponse;
+    public final Result getResult() {
+        return mResult;
     }
 
     protected final void notifyTaskUpdate(int status,OnTaskUpdate callback){
@@ -174,8 +160,13 @@ public abstract class Task implements Status{
     private final void notifyTaskUpdate(Task task,int status,Object object,OnTaskUpdate callback){
         if (null!=task&&task==this){
             mStatus=status;
-            if (null!=object&&object instanceof Progress){
-                mProgress=(Progress)object;
+            if (null!=object){
+                if (object instanceof Progress){
+                    mProgress=(Progress)object;
+                }
+                if (object instanceof Result){
+                    mResult=(Result)object;
+                }
             }
         }
         if (null!=callback){
@@ -183,23 +174,4 @@ public abstract class Task implements Status{
         }
     }
 
-    protected static final class AbsResponse<T> implements Response<T> {
-        final int mCode;
-        final T mResult;
-
-        protected AbsResponse(int code,T result){
-            mCode=code;
-            mResult=result;
-        }
-
-        @Override
-        public int getCode() {
-            return mCode;
-        }
-
-        @Override
-        public T getResult() {
-            return mResult;
-        }
-    }
 }

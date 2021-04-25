@@ -25,6 +25,7 @@ import com.luckmerlin.file.databinding.ItemTaskBinding;
 import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.file.util.Time;
 import com.luckmerlin.task.Response;
+import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 
@@ -59,9 +60,8 @@ public class TaskListAdapter extends ListAdapter<Task> implements OnItemTouchRes
             taskBinding.setButtonText(buttonText);
             Object statusText=R.string.idle;
             String taskExecuteTime=null;
-            String taskAction=null;
             if (null!=task){
-                taskAction=task.getAction();
+//                taskAction=task.getAction();
                 long startTime=task.getStartTime();
                 long endTime=task.getEndTime();
                 taskExecuteTime=startTime>0?Time.formatMediaDuration((endTime>=startTime?
@@ -70,12 +70,7 @@ public class TaskListAdapter extends ListAdapter<Task> implements OnItemTouchRes
                     case Status.EXECUTING: statusText=R.string.executing;break;
                     case Status.PREPARING: statusText=R.string.prepare;break;
                     case Status.STARTED: statusText=R.string.start;break;
-                    case Status.IDLE: Response response=task.getResponse();
-                        int code=null!=response?response.getCode(): What.WHAT_INVALID;
-                        if (code==What.WHAT_ALREADY_DONE){
-                            statusText=getText(R.string.alreadyWhich,null!=taskAction?taskAction:"");
-                        }
-                        break;
+                    case Status.IDLE: statusText=getText(task.isSucceed()?R.string.succeed:R.string.fail);break;
                 }
             }
             Progress progress=task.getProgress();

@@ -14,21 +14,26 @@ public class TaskCollection<T extends Task,M extends Collection<T>>  extends Tas
     }
 
     @Override
-    protected Response onExecute(Task task, OnTaskUpdate update) {
-        Task unFinishTask=null;Task firstFetched=null;
-        Response result;
-        MapResult<Task, Response> mapResult=new MapResult<>();
-        while ((null!=(unFinishTask=getFirstUnFinish()))){
-            if (null!=firstFetched&&firstFetched==unFinishTask){
-                break;
-            }
-            if (null!=unFinishTask&&!unFinishTask.isExecuting()){
-                mapResult.put(unFinishTask,unFinishTask.onExecute(this,update));
-            }
-            firstFetched=null!=firstFetched?firstFetched:unFinishTask;
-        }
-        return null!=mapResult&&mapResult.size()>0?mapResult:null;
+    protected Result onExecute(Task task, OnTaskUpdate callback) {
+        return null;
     }
+
+    //    @Override
+//    protected Response onExecute(Task task, OnTaskUpdate update) {
+//        Task unFinishTask=null;Task firstFetched=null;
+//        Response result;
+//        MapResult<Task, Response> mapResult=new MapResult<>();
+//        while ((null!=(unFinishTask=getFirstUnFinish()))){
+//            if (null!=firstFetched&&firstFetched==unFinishTask){
+//                break;
+//            }
+//            if (null!=unFinishTask&&!unFinishTask.isExecuting()){
+//                mapResult.put(unFinishTask,unFinishTask.onExecute(this,update));
+//            }
+//            firstFetched=null!=firstFetched?firstFetched:unFinishTask;
+//        }
+//        return null!=mapResult&&mapResult.size()>0?mapResult:null;
+//    }
 
     public final boolean isAllFinish(){
         return null==getFirstUnFinish();

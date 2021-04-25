@@ -5,6 +5,9 @@ import com.luckmerlin.file.api.What;
 
 import java.util.List;
 
+/**
+ * @deprecated
+ */
 public abstract class FileGroupTask extends GroupTask<Path> {
     private int mCover= What.WHAT_INVALID;
 

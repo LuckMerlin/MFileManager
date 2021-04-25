@@ -174,7 +174,7 @@ public final class UriPath {
                 FileOutputStream fos=null;
                 try {
                     is = contentResolver.openInputStream(uri);
-                    File cache = new File(context.getExternalCacheDir().getAbsolutePath(), Math.round((Math.random() + 1) * 1000) + displayName);
+                    File cache = new File(context.getExternalCacheDir().getAbsolutePath(), "merlin_"+Math.round((Math.random() + 1) * 1000) + displayName);
                     fos = new FileOutputStream(cache);
                     FileUtils.copy(is, fos);
                     file = cache;

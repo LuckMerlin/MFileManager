@@ -6,6 +6,9 @@ import com.luckmerlin.file.Path;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * @deprecated
+ */
 public abstract class ActionFolderTask extends FileGroupTask {
     private final Folder mFolder;
 

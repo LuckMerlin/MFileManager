@@ -9,12 +9,16 @@ import com.luckmerlin.file.NasFolder;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Response;
+import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Task;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
+/**
+ * @deprecated
+ */
 public final class LocalFileCopyTask extends Task {
     private final LocalPath mFrom;
     private final Folder mToFolder;
@@ -27,48 +31,53 @@ public final class LocalFileCopyTask extends Task {
     }
 
     @Override
-    protected Response onExecute(Task task, OnTaskUpdate callback) {
-        Folder folder=mToFolder;
-        if (null==folder){
-            Debug.W("Can't copy local file while folder invalid.");
-            return response(What.WHAT_ARGS_INVALID);
-        }else if(folder instanceof LocalFolder||folder instanceof NasFolder){//Copy local file into local folder
-            final LocalPath from=mFrom;
-            if (null==folder||null==from){
-                Debug.W("Can't copy local file to nas while local path or folder invalid.");
-                return response(What.WHAT_ARGS_INVALID);
-            }
-            final String fromFilePath=from.getPath();
-            if (null==fromFilePath||fromFilePath.length()<=0){
-                Debug.W("Can't copy local file to nas while local path value invalid.");
-                return response(What.WHAT_ARGS_INVALID);
-            }
-            final File fromFile=new File(fromFilePath);
-            if (!fromFile.exists()){
-                Debug.W("Can't copy local file while local file not exist.");
-                return response(What.WHAT_NOT_EXIST);
-            }else if (!fromFile.canRead()){
-                Debug.W("Can't copy local file while local file NONE read permission.");
-                return response(What.WHAT_NONE_PERMISSION);
-            }
-            FileInputStream inputStream=null;
-            OutputStream outputStream=null;
-            try {
-                outputStream=createOutputStream(fromFile.getName(),folder);
-                if (null==outputStream){
-                    return null;
-                }
-                inputStream=new FileInputStream(fromFile);
-            }catch (Exception e){
-                //Do nothing
-            }finally {
-                mPerSecondSize = 0;
-                new Closer().close(outputStream,inputStream);
-            }
-        }
-        Debug.W("Can't copy local file while folder not support.");
-        return response(What.WHAT_NOT_SUPPORT);
+    protected Result onExecute(Task task, OnTaskUpdate callback) {
+        return null;
     }
+
+    //    @Override
+//    protected Response onExecute(Task task, OnTaskUpdate callback) {
+//        Folder folder=mToFolder;
+//        if (null==folder){
+//            Debug.W("Can't copy local file while folder invalid.");
+//            return response(What.WHAT_ARGS_INVALID);
+//        }else if(folder instanceof LocalFolder||folder instanceof NasFolder){//Copy local file into local folder
+//            final LocalPath from=mFrom;
+//            if (null==folder||null==from){
+//                Debug.W("Can't copy local file to nas while local path or folder invalid.");
+//                return response(What.WHAT_ARGS_INVALID);
+//            }
+//            final String fromFilePath=from.getPath();
+//            if (null==fromFilePath||fromFilePath.length()<=0){
+//                Debug.W("Can't copy local file to nas while local path value invalid.");
+//                return response(What.WHAT_ARGS_INVALID);
+//            }
+//            final File fromFile=new File(fromFilePath);
+//            if (!fromFile.exists()){
+//                Debug.W("Can't copy local file while local file not exist.");
+//                return response(What.WHAT_NOT_EXIST);
+//            }else if (!fromFile.canRead()){
+//                Debug.W("Can't copy local file while local file NONE read permission.");
+//                return response(What.WHAT_NONE_PERMISSION);
+//            }
+//            FileInputStream inputStream=null;
+//            OutputStream outputStream=null;
+//            try {
+//                outputStream=createOutputStream(fromFile.getName(),folder);
+//                if (null==outputStream){
+//                    return null;
+//                }
+//                inputStream=new FileInputStream(fromFile);
+//            }catch (Exception e){
+//                //Do nothing
+//            }finally {
+//                mPerSecondSize = 0;
+//                new Closer().close(outputStream,inputStream);
+//            }
+//        }
+//        Debug.W("Can't copy local file while folder not support.");
+//        return response(What.WHAT_NOT_SUPPORT);
+//    }
 
     private OutputStream createOutputStream(String fileName,Folder folder) throws Exception {
         if (null!=fileName&&fileName.length()>0&&null!=folder){

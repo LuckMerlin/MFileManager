@@ -23,6 +23,7 @@
     <string name="whichSucceed">%1s 成功</string>
     <string name="whichFailed">%1s 失败</string>
     <string name="succeed">成功</string>
+    <string name="fail">失败</string>
     <string name="rename">重命名</string>
     <string name="load">加载</string>
     <string name="doingWhich">正在%1s</string>

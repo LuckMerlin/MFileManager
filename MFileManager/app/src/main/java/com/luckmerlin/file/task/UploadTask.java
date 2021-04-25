@@ -14,6 +14,7 @@ import com.luckmerlin.file.nas.Nas;
 import com.luckmerlin.file.util.FileSize;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Response;
+import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 import java.io.File;
@@ -45,7 +46,20 @@ public class UploadTask extends FileTask<Path,Folder>{
     }
 
     @Override
-    protected Response onExecute(Task task, OnTaskUpdate callback) {
+    protected Result onExecute(Task task, OnTaskUpdate callback) {
+        return null;
+    }
+
+
+    protected Response response(int d,Object de){
+        return null;
+    }
+
+    protected Response response(int d){
+        return null;
+    }
+
+    protected Response onExecuted(Task task, OnTaskUpdate callback) {
         final Folder folder=getTo();
         final Path path=getFrom();
         if (null==folder){

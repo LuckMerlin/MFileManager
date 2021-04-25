@@ -4,8 +4,12 @@ import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.NasPath;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Response;
+import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Task;
 
+/**
+ * @deprecated
+ */
 public final class NasDownloadTask extends TestFileTask<NasPath,LocalPath> {
     private long mPerSecondSize;
 
@@ -18,8 +22,8 @@ public final class NasDownloadTask extends TestFileTask<NasPath,LocalPath> {
         return mPerSecondSize;
     }
 
-    @Override
-    protected Response onExecute(Task task, OnTaskUpdate callback) {
+//    @Override
+//    protected Response onExecute(Task task, OnTaskUpdate callback) {
 //        final LocalPath toPath=getTo();
 //        final NasPath fromPath=getFrom();
 //        if (null==toPath||null==fromPath){
@@ -155,7 +159,12 @@ public final class NasDownloadTask extends TestFileTask<NasPath,LocalPath> {
 //                toFile.delete();
 //            }
 //        }
+//        return null;
+//    }
+
+
+    @Override
+    protected Result onExecute(Task task, OnTaskUpdate callback) {
         return null;
     }
-
 }

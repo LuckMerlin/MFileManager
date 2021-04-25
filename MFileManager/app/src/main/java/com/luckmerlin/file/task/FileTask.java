@@ -4,6 +4,9 @@ import com.luckmerlin.file.Cover;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.task.Task;
 
+/**
+ * @deprecated
+ */
 public abstract class FileTask<F extends Path,T extends Path> extends Task {
     private F mFrom;
     private T mTo;

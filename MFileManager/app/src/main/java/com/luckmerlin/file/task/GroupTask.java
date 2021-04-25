@@ -3,6 +3,7 @@ package com.luckmerlin.file.task;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Response;
+import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Task;
 
 import java.util.ArrayList;
@@ -12,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @deprecated
+ */
 public abstract class GroupTask<T> extends Task {
     private final LinkedHashMap<T, Response> mValues=new LinkedHashMap<>();
     private int mDoneSize=0;
@@ -84,46 +88,51 @@ public abstract class GroupTask<T> extends Task {
     }
 
     @Override
-    protected final Response onExecute(Task task, OnTaskUpdate callback) {
-        LinkedHashMap<T, Response> paths=mValues;
-        Response executeResult=null;
-        mDoneSize=0;//Reset
-        while (true){
-            Response response=null;
-            T nextTask=null;
-            synchronized (paths){
-                if (null==paths||paths.size()<=0){
-                    return response(What.WHAT_SUCCEED);
-                }
-                Set<T> set=paths.keySet();
-                if (null==set){
-                    return response(What.WHAT_ERROR);
-                }
-                mDoneSize=0;//Reset
-                for (T child:set) {
-                    if (isCanceled()){
-                        executeResult=response(What.WHAT_CANCEL);
-                        break;
-                    }
-                    if (null==child) {
-                        continue;
-                    }
-                    mDoneSize+=1;
-                    response=paths.get(child);
-                    if (null!=response&&response.getCode()==What.WHAT_SUCCEED){
-                        continue;
-                    }
-                    nextTask=child;
-                }
-            }
-            if (null!=nextTask){
-                response=onExecute(nextTask,task,callback);
-                response=null!=response?response:response(What.WHAT_ERROR);
-                paths.put(nextTask,response);
-                executeResult=(null==executeResult||(response.getCode()!=What.WHAT_SUCCEED))?response:executeResult;
-                continue;
-            }
-            return executeResult;
-        }
+    protected Result onExecute(Task task, OnTaskUpdate callback) {
+        return null;
     }
+
+    //    @Override
+//    protected final Response onExecute(Task task, OnTaskUpdate callback) {
+//        LinkedHashMap<T, Response> paths=mValues;
+//        Response executeResult=null;
+//        mDoneSize=0;//Reset
+//        while (true){
+//            Response response=null;
+//            T nextTask=null;
+//            synchronized (paths){
+//                if (null==paths||paths.size()<=0){
+//                    return response(What.WHAT_SUCCEED);
+//                }
+//                Set<T> set=paths.keySet();
+//                if (null==set){
+//                    return response(What.WHAT_ERROR);
+//                }
+//                mDoneSize=0;//Reset
+//                for (T child:set) {
+//                    if (isCanceled()){
+//                        executeResult=response(What.WHAT_CANCEL);
+//                        break;
+//                    }
+//                    if (null==child) {
+//                        continue;
+//                    }
+//                    mDoneSize+=1;
+//                    response=paths.get(child);
+//                    if (null!=response&&response.getCode()==What.WHAT_SUCCEED){
+//                        continue;
+//                    }
+//                    nextTask=child;
+//                }
+//            }
+//            if (null!=nextTask){
+//                response=onExecute(nextTask,task,callback);
+//                response=null!=response?response:response(What.WHAT_ERROR);
+//                paths.put(nextTask,response);
+//                executeResult=(null==executeResult||(response.getCode()!=What.WHAT_SUCCEED))?response:executeResult;
+//                continue;
+//            }
+//            return executeResult;
+//        }
+//    }
 }

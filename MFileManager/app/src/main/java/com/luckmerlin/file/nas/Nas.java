@@ -10,11 +10,11 @@ import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.retrofit.Retrofit;
 import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.file.util.FileSize;
-import com.luckmerlin.task.Response;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -22,12 +22,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
+import retrofit2.Response;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -43,7 +47,7 @@ public final class Nas {
         Boolean onProgressChanged(long upload, long length,float speed);
     }
 
-    public interface ApiSaveFile {
+    public interface ApiFile {
         @POST("/file/upload")
         @Multipart
         Call<Reply<List<Reply<NasPath>>>> save(@PartMap Map<String, RequestBody> args, @Part MultipartBody.Part file);
@@ -53,6 +57,10 @@ public final class Nas {
 
         @POST("/file/create")
         Call<Reply<NasPath>> createFile(@Query(Label.LABEL_FOLDER) boolean isDirectory, @Query(Label.LABEL_PATH) String path);
+
+        @POST("/file/delete")
+        @FormUrlEncoded
+        Call<Reply<NasPath>> deletePath(@Field(Label.LABEL_PATH) String path);
     }
 
     private <T> T call(Call<T> call){
@@ -66,9 +74,22 @@ public final class Nas {
         return null;
     }
 
+    public final Reply<NasPath> deleteFile(String serverUrl, String path) {
+        Call<Reply<NasPath>> callReply= null!=serverUrl&&serverUrl.length()>0&&null!=path?
+                mRetrofit.prepare(ApiFile.class,serverUrl).deletePath(path):null;
+        Response<Reply<NasPath>> response= null;
+        try {
+            response = null!=callReply?callReply.execute():null;
+            return null!=response?response.body():null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public final Reply<NasPath> getNasFileData(String serverUrl, Map<String,String> maps){
         if (null!=serverUrl&&serverUrl.length()>0&&null!=maps&&maps.size()>0){
-            return call(mRetrofit.prepare(ApiSaveFile.class,serverUrl).getFileData(maps));
+            return call(mRetrofit.prepare(ApiFile.class,serverUrl).getFileData(maps));
         }
         return null;
     }
@@ -76,7 +97,7 @@ public final class Nas {
     public final Reply<NasPath> createFile(String serverUrl,boolean isDirectory, String path){
         if (null!=serverUrl&&serverUrl.length()>0){
             Retrofit retrofit=mRetrofit;
-            return call(retrofit.prepare(ApiSaveFile.class,serverUrl).createFile(isDirectory,path));
+            return call(retrofit.prepare(ApiFile.class,serverUrl).createFile(isDirectory,path));
         }
         return null;
     }
@@ -102,7 +123,7 @@ public final class Nas {
             headersBuilder.add(Label.LABEL_POSITION,encode(Long.toString(seek), "", encoding));
             headersBuilder.add(Label.LABEL_MD5,encode(localMd5, "", encoding));
             headersBuilder.add(Label.LABEL_MODE,encode(Long.toString(cover), "", encoding));
-            Call<Reply<List<Reply<NasPath>>>> call= mRetrofit.prepare(ApiSaveFile.class, serverUrl).save(map,
+            Call<Reply<List<Reply<NasPath>>>> call= mRetrofit.prepare(ApiFile.class, serverUrl).save(map,
                     MultipartBody.Part.create(headersBuilder.build(),uploadBody));
             retrofit2.Response<Reply<List<Reply<NasPath>>>> response=null!=call?call.execute():null;
             Reply<List<Reply<NasPath>>> reply= null!=response&&response.isSuccessful()?response.body():null;
