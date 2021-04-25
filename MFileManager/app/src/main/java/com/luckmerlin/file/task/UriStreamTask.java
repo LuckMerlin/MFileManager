@@ -3,6 +3,8 @@ package com.luckmerlin.file.task;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.renderscript.ScriptGroup;
+
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.util.Closer;
 import com.luckmerlin.file.MD5;
@@ -14,10 +16,15 @@ import com.luckmerlin.file.nas.Nas;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Task;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
@@ -99,10 +106,10 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                 return new CodeResult(outputCode);
             }
             byte[] buffer=new byte[1024*1024];
-            int read=0;long mUploaded=0;float speed;
+            int read=0;long uploaded=0;float speed;
             long startTime=System.nanoTime();
             while ((read=inputStream.read(buffer))>=0){
-                mUploaded += read;
+                uploaded += read;
                 if (isCanceled()) {
                     return new CodeResult<>(What.WHAT_CANCEL);
                 } else if (read>0) {
@@ -113,6 +120,8 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                     }
                 }
             }
+            outputStream.flush();
+//            new Closer().close(outputStream);
             if (mRecheck){//Recheck again
                 outputOpener=deleteFailOpener=createOutputStream(to);//Create output stream again to recheck
                 if (null==outputOpener||!checkIfAlreadyDone(inputOpener,outputOpener)||outputOpener.mLength!=inputOpener.mLength){
@@ -180,7 +189,7 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                     long length=file.length();
                     if (seek>0&&seek!=length){
                         Debug.W("Can't create outputStream while seek not match.");
-                        return null;
+                        return new CodeResult<>(What.WHAT_FAIL);
                     }
                     return new CodeResult<>(What.WHAT_SUCCEED,new FileOutputStream(file,seek>0));
                 }
@@ -191,14 +200,15 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                 }
             };
         }else if (scheme.startsWith("http")){
-            final String finalScheme=null!=scheme?scheme.toLowerCase():null;
-            String specificPart=uri.getEncodedSchemeSpecificPart();
-            final String hostUri=null!=specificPart?scheme+":"+specificPart:null;
+//            final String finalScheme=null!=scheme?scheme.toLowerCase():null;
+            final String host=uri.getHost();
+            final int port=uri.getPort();
+            final String hostUri=null!=host?scheme+"://"+host+":"+port:null;
             if (null==hostUri||hostUri.length()<=0){
                 Debug.W("Can't create Uri outputStream while TO's host uri invalid.");
                 return new StreamOpener(What.WHAT_ERROR);
             }
-            Map args=new HashMap();
+            final Map args=new HashMap();
             final String path=uri.getQueryParameter(Label.LABEL_PATH);
             args.put(Label.LABEL_PATH,null!=path?path:"");
             final Nas nas=new Nas();
@@ -208,30 +218,44 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                 return new StreamOpener(What.WHAT_ERROR);
             }
             final NasPath existPath=null!=reply?reply.getData():null;
-            return new StreamOpener(What.WHAT_SUCCEED,null!=existPath?existPath.getLength():0,
-                    null!=existPath?existPath.getMd5():null){
+            final long existLength=null!=existPath?existPath.getLength():0;
+            return new StreamOpener(What.WHAT_SUCCEED,existLength, null!=existPath?existPath.getMd5():null){
                 @Override
                 CodeResult<OutputStream> open(long seek) throws Exception{
-                    String uriPath=uri.getPath();
-                    final URL url = null!=uriPath?new URL(uriPath):null;
-                    URLConnection urlConnection=null!=url?url.openConnection():null;
+                    if (seek>0&&seek!=existLength){
+                        Debug.W("Can't create outputStream while seek not match.");
+                        return new CodeResult<>(What.WHAT_FAIL);
+                    }
+                    final URL url = new URL(hostUri+"/file/save");
+                    HttpURLConnection urlConnection=null!=url? (HttpURLConnection) url.openConnection() :null;
                     if (null==urlConnection){
                         Debug.W("Can't open outputStream while connect fail.");
                         return new CodeResult<>(What.WHAT_FAIL);
                     }
                     urlConnection.setDoOutput(true);
-                    urlConnection.connect();
-                    urlConnection.getContentType();
-
+                    urlConnection.setDoInput(true);
                     OutputStream outputStream=urlConnection.getOutputStream();
-                    if ()
-                    long length=file.length();
-                    if (seek>0&&seek!=length){
-                        Debug.W("Can't create outputStream while seek not match.");
-                        return null;
-                    }
-//                    int contentLength = urlConnection.getContentLength();
-                    return null;
+                    outputStream.write("".getBytes());
+                    outputStream.flush();
+                    return new CodeResult<>(What.WHAT_SUCCEED,new OutputStream(){
+                        @Override
+                        public void write(int i) throws IOException {
+                            outputStream.write(i);
+                        }
+
+                        @Override
+                        public void flush() throws IOException {
+                           outputStream.flush();
+                        }
+
+                        @Override
+                        public void close() throws IOException {
+                            InputStream inputStream=urlConnection.getInputStream();
+                            inputStream.read();
+                            outputStream.close();
+                            urlConnection.disconnect();
+                        }
+                    });
                 }
 
                 @Override

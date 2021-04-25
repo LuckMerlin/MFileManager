@@ -8,6 +8,7 @@ import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.retrofit.Retrofit;
+import com.luckmerlin.file.task.CodeResult;
 import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.file.util.FileSize;
 
@@ -101,6 +102,26 @@ public final class Nas {
         }
         return null;
     }
+
+//    public CodeResult<OutputStream> openFileSaveStream(String hostUri, String path, long seek) throws IOException {
+//        if (null==hostUri||hostUri.length()<=0){
+//            return new CodeResult<>(What.WHAT_ARGS_INVALID);
+//        }
+//        Map<String, RequestBody> map = new HashMap<>();
+//        map.put(Label.LABEL_PATH,RequestBody.create(MediaType.parse("text/plain"), "我爱你"));
+//        StringBuilder disposition = new StringBuilder("form-data; name=Merlin;filename=luckmerlin");
+//        Headers.Builder headersBuilder = new Headers.Builder().addUnsafeNonAscii("Content-Disposition", disposition.toString());
+//        final String encoding="utf-8";
+//        headersBuilder.add(Label.LABEL_PATH,encode(path, "", encoding));
+//        headersBuilder.add(Label.LABEL_POSITION,encode(Long.toString(seek), "", encoding));
+//        Call<Reply<List<Reply<NasPath>>>> call= mRetrofit.prepare(ApiFile.class, hostUri).save(map,
+//                MultipartBody.Part.create(headersBuilder.build(),uploadBody));
+//
+//        retrofit2.Response<Reply<List<Reply<NasPath>>>> response=null!=call?call.execute():null;
+//        Reply<List<Reply<NasPath>>> reply= null!=response&&response.isSuccessful()?response.body():null;
+//        List<Reply<NasPath>> list=null!=reply?reply.getData():null;
+//        return null!=list&&list.size()>0?list.get(0):null;
+//    }
 
     public final Reply<NasPath> upload(File file, String serverUrl, String toPath, long seek, int cover,String localMd5,
                                  OnUploadProgressChange callback, String debug){
