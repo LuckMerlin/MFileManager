@@ -120,14 +120,12 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                     }
                 }
             }
-            outputStream.flush();
-//            new Closer().close(outputStream);
+            OutputStream temp=outputStream;
+            outputStream=null;
+            new Closer().close(temp);
             if (mRecheck){//Recheck again
-                outputOpener=deleteFailOpener=createOutputStream(to);//Create output stream again to recheck
-                if (null==outputOpener||!checkIfAlreadyDone(inputOpener,outputOpener)||outputOpener.mLength!=inputOpener.mLength){
-                    Debug.W("Fail match just done uri stream."+to);
-                    return new CodeResult<>(What.WHAT_MATCH_FAIL);
-                }
+//
+
             }
             deleteFailOpener=null;//Clean delete fail while succeed
             Debug.D("Succeed done uri stream."+to);
@@ -234,25 +232,58 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                     }
                     urlConnection.setDoOutput(true);
                     urlConnection.setDoInput(true);
-                    OutputStream outputStream=urlConnection.getOutputStream();
-                    outputStream.write("".getBytes());
-                    outputStream.flush();
+                    urlConnection.setRequestProperty("Content-Type", "application/octet-stream");
+                    urlConnection.setUseCaches(false);
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.setConnectTimeout(5000);
+                    urlConnection.setReadTimeout(500000);
+                    urlConnection.setDefaultUseCaches(false);
+                    urlConnection.setRequestProperty("Connection", "Keep-Alive");
+                    urlConnection.setRequestProperty("Charset", "UTF-8");
+                    final OutputStream outputStream=urlConnection.getOutputStream();
+                    if (null==outputStream){
+                        Debug.W("Can't open outputStream while connect outputStream NULL.");
+                        return new CodeResult<>(What.WHAT_FAIL);
+                    }
                     return new CodeResult<>(What.WHAT_SUCCEED,new OutputStream(){
+
+                        @Override
+                        public void write(byte[] b, int off, int len) throws IOException {
+                            outputStream.write(b,off,len);
+                        }
+
+                        @Override
+                        public void write(byte[] b) throws IOException {
+                            outputStream.write(b);
+                        }
+
                         @Override
                         public void write(int i) throws IOException {
                             outputStream.write(i);
                         }
 
                         @Override
-                        public void flush() throws IOException {
-                           outputStream.flush();
-                        }
-
-                        @Override
                         public void close() throws IOException {
-                            InputStream inputStream=urlConnection.getInputStream();
-                            inputStream.read();
-                            outputStream.close();
+                            InputStream inputStream=null;
+                            try {
+                                int code=urlConnection.getResponseCode();
+                                Debug.D("DDdd  DDDDDd "+code);
+                                inputStream=urlConnection.getInputStream();
+                                if (null!=inputStream){
+                                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                                    StringBuffer stringBuffer = new StringBuffer();
+                                    String tempStr;
+                                    while ((tempStr = bufferedReader.readLine()) != null) {
+                                        tempStr = new String(tempStr.getBytes("UTF-8"));
+                                        stringBuffer.append(tempStr);
+                                    }
+                                    Debug.D("DDDDDDDd "+stringBuffer);
+                                }
+                            }catch (Exception e){
+                                Debug.D("DDDDDDDd "+e);
+                                e.printStackTrace();
+                            }
+                            new Closer().close(outputStream,inputStream);
                             urlConnection.disconnect();
                         }
                     });
