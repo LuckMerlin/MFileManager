@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @deprecated
+ */
 public class UploadTask extends FileTask<Path,Folder>{
     private final Nas mNas=new Nas();
     private boolean mDeleteAfterSucceed=false;

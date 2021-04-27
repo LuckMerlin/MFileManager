@@ -5,10 +5,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.renderscript.ScriptGroup;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.util.Closer;
 import com.luckmerlin.file.MD5;
 import com.luckmerlin.file.NasPath;
+import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
@@ -17,8 +20,11 @@ import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Task;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,12 +37,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public final class UriStreamTask extends FromToTask<Uri, Uri> {
     private final WeakReference<Context> mContext;
-    private boolean mRecheck=false;
+    private boolean mRecheckMd5=false;
     private boolean mDeleteFail=false;
 
     public UriStreamTask(Context context,Uri from, Uri to) {
@@ -44,8 +51,8 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
         mContext=null!=context?new WeakReference<>(context):null;
     }
 
-    public final UriStreamTask enableRecheck(boolean enable) {
-        this.mRecheck = enable;
+    public final UriStreamTask enableRecheckMd5(boolean enable) {
+        this.mRecheckMd5 = enable;
         return this;
     }
 
@@ -60,76 +67,81 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
             Debug.W("Can't execute Uri stream task while args invalid.");
             return new CodeResult(What.WHAT_ARGS_INVALID);
         }
-        InputStream inputStream=null;OutputStream outputStream=null;
-        StreamOpener<CodeResult<OutputStream>> deleteFailOpener=null;
+        StreamOpener<CodeResult<WriteableStream>> deleteFailOpener=null;
+        ReadableStream readableStream=null;
+        WriteableStream writeableStream=null;
         try {
-            StreamOpener<CodeResult<OutputStream>> outputOpener=deleteFailOpener=createOutputStream(to);
-            int outputCode=null!=outputOpener?outputOpener.mCode:What.WHAT_FAIL;
+            final StreamOpener<CodeResult<WriteableStream>> outputOpener=deleteFailOpener=createOutputStream(to);
+            int outputCode=null!=outputOpener?outputOpener.getCode():What.WHAT_FAIL;
             if (outputCode!=What.WHAT_SUCCEED){
                 Debug.W("Fail execute uri stream task while TO stream opener create fail.");
                 return new CodeResult(outputCode);
             }
-            StreamOpener<CodeResult<InputStream>> inputOpener=createInputStream(from);
-            int inputCode=null!=inputOpener?inputOpener.mCode:What.WHAT_FAIL;
+            final StreamOpener<CodeResult<ReadableStream>> inputOpener=createInputStream(from);
+            int inputCode=null!=inputOpener?inputOpener.getCode():What.WHAT_FAIL;
             if (inputCode!=What.WHAT_SUCCEED){
                 Debug.W("Fail execute uri stream task while FROM stream opener create fail.");
                 return new CodeResult(inputCode);
             }
-            final long inputLength=inputOpener.mLength;
-            final long outputLength=outputOpener.mLength;
-            if (outputLength<0||inputLength<0){
-                Debug.W("Fail execute uri stream task while FROM or TO's length invalid."+outputLength+" "+inputLength);
-                return new CodeResult(What.WHAT_FAIL);
-            }else if (outputLength>inputLength){//Already length match
-                Debug.W("Fail execute uri stream task while TO's length already larger than FROM.");
-                return new CodeResult(What.WHAT_ERROR);
-            }else if (outputLength==inputLength){//Already
-                if (checkIfAlreadyDone(inputOpener,outputOpener)){
-                    Debug.W("Uri stream already done.");
-                    return new CodeResult(What.WHAT_ALREADY_DONE);
-                }
-                Debug.W("Fail execute uri stream task while TO's length already match FROM but md5 not match.");
-                return new CodeResult(What.WHAT_ERROR);
+            CodeResult checkCode=checkIfAlreadyDone(inputOpener,outputOpener);
+            if (null==checkCode||checkCode.getCode()!=What.WHAT_SUCCEED){
+                Debug.W("Check skip do uri stream.checkCode="+checkCode);
+                return null!=checkCode?checkCode:new CodeResult<>(What.WHAT_FAIL);
             }
-            CodeResult<InputStream> inputStreamResult=inputOpener.open(outputLength);
+            final String inputMd5=inputOpener.getMd5();
+            final long inputLength=inputOpener.getLength();
+            final long outputLength=outputOpener.getLength();
+            final boolean recheckMd5=mRecheckMd5;
+            CodeResult<ReadableStream> inputStreamResult=inputOpener.open(recheckMd5,outputLength);
             inputCode=null!=inputStreamResult?inputStreamResult.getCode():What.WHAT_FAIL;
-            inputStream=null!=inputStreamResult?inputStreamResult.getArg():null;
-            if (inputCode!=What.WHAT_SUCCEED||null==inputStream){
+            readableStream=null!=inputStreamResult?inputStreamResult.getArg():null;
+            if (inputCode!=What.WHAT_SUCCEED||null==readableStream){
                 Debug.W("Fail execute uri stream task while FROM opener open fail."+inputCode);
                 return new CodeResult(outputCode);
             }
-            CodeResult<OutputStream> outputStreamResult=outputOpener.open(outputLength);
-            outputStream=null!=outputStreamResult?outputStreamResult.getArg():null;
+            CodeResult<WriteableStream> outputStreamResult=outputOpener.open(recheckMd5,outputLength);
+            writeableStream=null!=outputStreamResult?outputStreamResult.getArg():null;
             outputCode=null!=outputStreamResult?outputStreamResult.getCode():What.WHAT_FAIL;
-            if (outputCode!=What.WHAT_SUCCEED||null==outputStreamResult){
+            if (null==writeableStream||outputCode!=What.WHAT_SUCCEED||null==outputStreamResult){
                 Debug.W("Fail execute uri stream task while TO opener open fail."+outputCode);
                 return new CodeResult(outputCode);
             }
             byte[] buffer=new byte[1024*1024];
             int read=0;long uploaded=0;float speed;
             long startTime=System.nanoTime();
-            while ((read=inputStream.read(buffer))>=0){
+            while ((read=readableStream.read(buffer))>=0){
                 uploaded += read;
                 if (isCanceled()) {
+                    Debug.D("Cancel uri stream task.");
                     return new CodeResult<>(What.WHAT_CANCEL);
                 } else if (read>0) {
-                    outputStream.write(buffer,0,read);
+                    writeableStream.write(buffer,0,read);
                     if ((startTime = startTime > 0 ? System.nanoTime() - startTime : -1) > 0) {
                         startTime = TimeUnit.NANOSECONDS.toMillis(startTime);
                         speed = startTime > 0 ? read / startTime : 0;
                     }
                 }
             }
-            OutputStream temp=outputStream;
-            outputStream=null;
-            new Closer().close(temp);
-            if (mRecheck){//Recheck again
-//
-
+            //Done stream
+            Reply<?extends Path> path=writeableStream.close();
+            Path donePath=null!=path&&path.getWhat()==What.WHAT_SUCCEED?path.getData():null;
+            if (null!=donePath){
+                if (donePath.getLength()!=inputLength){
+                    Debug.D("Fail done uri stream while length match fail."+to);
+                    return new CodeResult<>(What.WHAT_MATCH_FAIL);
+                }
+                String doneMd5=donePath.getMd5();
+                if (recheckMd5&&null!=inputMd5
+                        &&!((null==inputMd5&&null==doneMd5)||(null!=inputMd5&&null!=doneMd5&&inputMd5.equals(doneMd5)))){//Check md5
+                    Debug.D("Fail done uri stream while md5 match fail."+to);
+                    return new CodeResult<>(What.WHAT_MATCH_FAIL);
+                }
+                deleteFailOpener=null;//Clean delete fail while succeed
+                Debug.D("Succeed done uri stream."+to);
+                return new CodeResult<>(What.WHAT_SUCCEED);
             }
-            deleteFailOpener=null;//Clean delete fail while succeed
-            Debug.D("Succeed done uri stream."+to);
-            return new CodeResult<>(What.WHAT_SUCCEED);
+            Debug.D("Failed do uri stream."+to);
+            return new CodeResult(What.WHAT_FAIL);
         } catch (Exception e) {
             Debug.W("Can't execute Uri stream task while exception."+e);
             e.printStackTrace();
@@ -141,22 +153,44 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                     Debug.W("Fail to delete not success uri stream.");
                 }
             }
-            new Closer().close(inputStream,outputStream);
+            new Closer().close(readableStream);
+            if (null!=writeableStream){
+                try {
+                    writeableStream.close();
+                } catch (Exception e) {
+                    //Do nothing
+                }
+            }
         }
     }
 
-    private boolean checkIfAlreadyDone(StreamOpener<CodeResult<InputStream>> inputOpener, StreamOpener<CodeResult<OutputStream>> outputOpener){
+    private CodeResult checkIfAlreadyDone(StreamOpener<CodeResult<ReadableStream>> inputOpener,
+                                          StreamOpener<CodeResult<WriteableStream>> outputOpener){
        if (null!=inputOpener&&null!=outputOpener){
-           String inputMd5=inputOpener.mMd5;
-           String outputMd5=outputOpener.mMd5;
-           if (null!=inputMd5&&null!=outputMd5&&inputMd5.equals(outputMd5)){
-               return true;
+           final long inputLength=inputOpener.getLength();
+           final long outputLength=outputOpener.getLength();
+           if (outputLength<0||inputLength<0){
+               Debug.W("Fail execute uri stream task while FROM or TO's length invalid."+outputLength+" "+inputLength);
+               return new CodeResult(What.WHAT_FAIL);
+           }else if (outputLength>inputLength){//Already length match
+               Debug.W("Fail execute uri stream task while TO's length already larger than FROM.");
+               return new CodeResult(What.WHAT_ERROR);
+           }else if (outputLength==inputLength){//Already
+               String inputMd5=inputOpener.getMd5();
+               String outputMd5=outputOpener.getMd5();
+               if (null!=inputMd5&&null!=outputMd5&&inputMd5.equals(outputMd5)){
+                   Debug.W("Uri stream already done.");
+                   return new CodeResult(What.WHAT_ALREADY_DONE);
+               }
+               Debug.W("Fail execute uri stream task while TO's length already match FROM but md5 not match.");
+               return new CodeResult(What.WHAT_ERROR);
            }
+           return new CodeResult(What.WHAT_SUCCEED);
        }
-       return false;
+        return new CodeResult(What.WHAT_ERROR);
     }
 
-    protected StreamOpener<CodeResult<OutputStream>> createOutputStream(Uri uri) throws Exception {
+    protected StreamOpener<CodeResult<WriteableStream>> createOutputStream(Uri uri) throws Exception {
         String scheme=uri.getScheme();
         scheme=null!=scheme?scheme.toLowerCase():null;
         if (null==scheme||scheme.length()<=0){
@@ -171,7 +205,7 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
             }
             return new StreamOpener(What.WHAT_SUCCEED,file.length(),new MD5().getFileMD5(file)){
                 @Override
-                CodeResult<OutputStream> open(long seek) throws Exception{
+                CodeResult<WriteableStream> open(boolean loadMd5,long seek) throws Exception{
                     if (!file.exists()){
                         File parent=file.getParentFile();
                         if (null!=parent&&!parent.exists()){
@@ -189,7 +223,19 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                         Debug.W("Can't create outputStream while seek not match.");
                         return new CodeResult<>(What.WHAT_FAIL);
                     }
-                    return new CodeResult<>(What.WHAT_SUCCEED,new FileOutputStream(file,seek>0));
+                    final FileOutputStream fileOutputStream=new FileOutputStream(file,seek>0);
+                    return new CodeResult<>(What.WHAT_SUCCEED,new WriteableStream(){
+                        @Override
+                       public void write(byte[] b, int off, int len) throws IOException {
+                            fileOutputStream.write(b,off,len);
+                        }
+
+                        @Override
+                        public Reply<Path> close() {
+                            new Closer().close(fileOutputStream);
+                            return null;
+                        }
+                    });
                 }
 
                 @Override
@@ -219,11 +265,12 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
             final long existLength=null!=existPath?existPath.getLength():0;
             return new StreamOpener(What.WHAT_SUCCEED,existLength, null!=existPath?existPath.getMd5():null){
                 @Override
-                CodeResult<OutputStream> open(long seek) throws Exception{
+                CodeResult<WriteableStream> open(boolean loadMd5,long seek) throws Exception{
                     if (seek>0&&seek!=existLength){
                         Debug.W("Can't create outputStream while seek not match.");
                         return new CodeResult<>(What.WHAT_FAIL);
                     }
+
                     final URL url = new URL(hostUri+"/file/save");
                     HttpURLConnection urlConnection=null!=url? (HttpURLConnection) url.openConnection() :null;
                     if (null==urlConnection){
@@ -232,59 +279,60 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                     }
                     urlConnection.setDoOutput(true);
                     urlConnection.setDoInput(true);
+                    urlConnection.setChunkedStreamingMode(1024 * 1024);
+                    urlConnection.setRequestProperty(Label.LABEL_PATH, path);
+                    urlConnection.setRequestProperty(Label.LABEL_MD5, loadMd5?Label.LABEL_MD5:"");
+                    urlConnection.setRequestProperty(Label.LABEL_POSITION, Long.toString(seek));
                     urlConnection.setRequestProperty("Content-Type", "application/octet-stream");
-                    urlConnection.setUseCaches(false);
                     urlConnection.setRequestMethod("POST");
-                    urlConnection.setConnectTimeout(5000);
+                    urlConnection.setConnectTimeout(50000);
                     urlConnection.setReadTimeout(500000);
-                    urlConnection.setDefaultUseCaches(false);
                     urlConnection.setRequestProperty("Connection", "Keep-Alive");
                     urlConnection.setRequestProperty("Charset", "UTF-8");
+                    urlConnection.connect();
                     final OutputStream outputStream=urlConnection.getOutputStream();
                     if (null==outputStream){
                         Debug.W("Can't open outputStream while connect outputStream NULL.");
                         return new CodeResult<>(What.WHAT_FAIL);
                     }
-                    return new CodeResult<>(What.WHAT_SUCCEED,new OutputStream(){
-
+                    return new CodeResult<>(What.WHAT_SUCCEED,new WriteableStream(){
                         @Override
                         public void write(byte[] b, int off, int len) throws IOException {
                             outputStream.write(b,off,len);
                         }
 
                         @Override
-                        public void write(byte[] b) throws IOException {
-                            outputStream.write(b);
-                        }
-
-                        @Override
-                        public void write(int i) throws IOException {
-                            outputStream.write(i);
-                        }
-
-                        @Override
-                        public void close() throws IOException {
+                        public Reply<? extends Path> close() {
                             InputStream inputStream=null;
+                            String responseText=null;
                             try {
-                                int code=urlConnection.getResponseCode();
-                                Debug.D("DDdd  DDDDDd "+code);
                                 inputStream=urlConnection.getInputStream();
                                 if (null!=inputStream){
                                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                                     StringBuffer stringBuffer = new StringBuffer();
-                                    String tempStr;
-                                    while ((tempStr = bufferedReader.readLine()) != null) {
-                                        tempStr = new String(tempStr.getBytes("UTF-8"));
-                                        stringBuffer.append(tempStr);
+                                    String responseLine;
+                                    while ((responseLine = bufferedReader.readLine()) != null) {
+                                        stringBuffer.append(responseLine);
                                     }
-                                    Debug.D("DDDDDDDd "+stringBuffer);
+                                    responseText=stringBuffer.toString();
+                                    responseText=null!=responseText&&responseText.length()>0?responseText.trim():null;
+                                    JSONObject json=null!=responseText&&responseText.length()>0? new JSONObject(responseText) :null;
+                                    if (null!=json){
+                                        Object object=json.opt(Label.LABEL_DATA);
+                                        return new Reply<NasPath>(json.optBoolean(Label.LABEL_SUCCESS,false),
+                                                json.optInt(Label.LABEL_WHAT,What.WHAT_FAIL),json.optString(Label.LABEL_NOTE,"Parse response fail."),
+                                                null!=object?new Gson().fromJson(object.toString(),NasPath.class):null);
+                                    }
                                 }
+                                Debug.W("Uri stream output response fail.\n"+responseText);
                             }catch (Exception e){
-                                Debug.D("DDDDDDDd "+e);
+                                Debug.E("Exception read uri stream response.e="+e+"\n"+responseText);
                                 e.printStackTrace();
+                            }finally {
+                                new Closer().close(inputStream,outputStream);
+                                urlConnection.disconnect();
                             }
-                            new Closer().close(outputStream,inputStream);
-                            urlConnection.disconnect();
+                            return null;
                         }
                     });
                 }
@@ -300,7 +348,7 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
         return new StreamOpener(What.WHAT_NOT_SUPPORT);
     }
 
-    protected StreamOpener<CodeResult<InputStream>> createInputStream(Uri uri) throws Exception {
+    protected StreamOpener<CodeResult<ReadableStream>> createInputStream(Uri uri) throws Exception {
         String scheme=uri.getScheme();
         scheme=null!=scheme?scheme.toLowerCase():null;
         if (null==scheme||scheme.length()<=0){
@@ -309,32 +357,60 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
         }else if (scheme.equals(ContentResolver.SCHEME_FILE)){
             String path=uri.getPath();
             File file = null!=path&&path.length()>0?new File(path):null;
-            if (null==file||!file.exists()){
+            if (null==file||!file.exists()) {
                 Debug.W("Can't create Uri inputStream while from invalid.");
                 return new StreamOpener(What.WHAT_NOT_EXIST);
-            }else if (!file.canRead()){
+            }
+            final boolean isDirectory=file.isDirectory();
+            if (isDirectory?file.canExecute():file.canRead()){
                 Debug.W("Can't create Uri inputStream while from NONE permission.");
                 return new StreamOpener(What.WHAT_NONE_PERMISSION);
-            }else if (!file.isFile()){
-                Debug.W("Can't create Uri inputStream while from is not file.");
-                return new StreamOpener(What.WHAT_NOT_FILE);
             }
-            return new StreamOpener(What.WHAT_SUCCEED,file.length(),new MD5().getFileMD5(file)){
+//            else if (!file.isFile()){
+//                Debug.W("Can't create Uri inputStream while from is not file.");
+//                return new StreamOpener(What.WHAT_NOT_FILE);
+//            }
+            final long length=file.length();
+            final String md5=isDirectory||length==0?"":new MD5().getFileMD5(file);
+            return new StreamOpener<CodeResult<ReadableStream>>(What.WHAT_SUCCEED,length,md5){
                 @Override
-                CodeResult<InputStream> open(long seek) throws Exception {
+                CodeResult<ReadableStream> open(boolean loadMd5, long seek) throws Exception {
                     if (seek<0){
                         Debug.W("Can't open Uri inputStream while seek invalid."+seek);
                         return new CodeResult(What.WHAT_FAIL);
                     }
-                    InputStream inputStream=new FileInputStream(file);
-                    if (seek>0&&inputStream.skip(seek)!=seek){
-                        Debug.W("Can't open Uri inputStream while seek fail."+seek);
-                        new Closer().close(inputStream);
-                        return new CodeResult<>(What.WHAT_FAIL);
-                    }
-                    return new CodeResult<>(What.WHAT_SUCCEED,inputStream);
+                    return new CodeResult<>(What.WHAT_SUCCEED,new FileReadableStream(file));
                 }
             };
+//            return new StreamOpener(What.WHAT_SUCCEED,length,md5){
+//                @Override
+//                CodeResult<ReadableStream> open(boolean loadMd5,long seek) throws Exception {
+//                    if (seek<0){
+//                        Debug.W("Can't open Uri inputStream while seek invalid."+seek);
+//                        return new CodeResult(What.WHAT_FAIL);
+//                    }else if (file.isDirectory()){
+//                        return new CodeResult<>(What.WHAT_FAIL);
+//                    }
+//                    InputStream inputStream=new FileInputStream(file);
+//                    if (seek>0&&inputStream.skip(seek)!=seek){
+//                        Debug.W("Can't open Uri inputStream while seek fail."+seek);
+//                        new Closer().close(inputStream);
+//                        return new CodeResult<>(What.WHAT_FAIL);
+//                    }
+//                    return new CodeResult<>(What.WHAT_SUCCEED, new ReadableStream() {
+//                        @Override
+//                        int read(byte[] b) throws IOException {
+//
+//                            return inputStream.read(b);
+//                        }
+//
+//                        @Override
+//                        public void close() throws IOException {
+//                            inputStream.close();
+//                        }
+//                    });
+//                }
+//            };
         }else if (scheme.equals(ContentResolver.SCHEME_CONTENT)){
             Context context=getContext();
             final ContentResolver resolver = null!=context?context.getContentResolver():null;
@@ -344,7 +420,7 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
             }
             return new StreamOpener(What.WHAT_SUCCEED){
                 @Override
-                CodeResult<InputStream> open(long seek) throws Exception {
+                CodeResult<ReadableStream> open(boolean loadMd5,long seek) throws Exception {
                     if (seek<0){
                         Debug.W("Can't open Uri inputStream while seek invalid."+seek);
                         return new CodeResult<>(What.WHAT_FAIL);
@@ -355,7 +431,17 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
                         new Closer().close(inputStream);
                         return new CodeResult<>(What.WHAT_FAIL);
                     }
-                    return new CodeResult<>(What.WHAT_SUCCEED,inputStream);
+                    return new CodeResult<>(What.WHAT_SUCCEED, new ReadableStream() {
+                        @Override
+                        public int read(byte[] b) throws IOException {
+                            return inputStream.read(b);
+                        }
+
+                        @Override
+                        public void close() throws IOException {
+                            inputStream.close();
+                        }
+                    });
                 }
             };
         }else if (scheme.equals(ContentResolver.SCHEME_ANDROID_RESOURCE)){
@@ -372,30 +458,6 @@ public final class UriStreamTask extends FromToTask<Uri, Uri> {
     public final Context getContext(){
         WeakReference<Context> reference=mContext;
         return null!=reference?reference.get():null;
-    }
-
-    private static class StreamOpener<T>{
-        private final int mCode;
-        private final String mMd5;
-        private final long mLength;
-
-        public StreamOpener(int code) {
-            this(code,-1,null);
-        }
-
-        public StreamOpener(int code, long length,String md5) {
-            mCode=code;
-            mLength=length;
-            mMd5=md5;
-        }
-
-        T open(long seek) throws Exception{
-            return null;
-        }
-
-        public CodeResult delete() {
-            return null;
-        }
     }
 
 }
