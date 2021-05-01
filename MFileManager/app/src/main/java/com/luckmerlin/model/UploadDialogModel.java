@@ -12,7 +12,6 @@ import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.adapter.UploadPrepareListAdapter;
-import com.luckmerlin.file.task.UploadTask;
 import com.luckmerlin.file.ui.UriPath;
 import com.luckmerlin.lib.StringBuffer;
 import com.luckmerlin.task.Status;
@@ -95,7 +94,7 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
                 buffer.append("\n🔼\n");
                 if (null!=finalPath){
                     buffer.append(null!=(name=finalPath.getNameWithExtension())?(name.length()>15?name.substring(0,15):name)+"\n":null);
-                    listAdapter.add(new UploadTask(finalPath,folder).deleteSucceed(mDeleteSucceed));
+//                    listAdapter.add(new UploadTask(finalPath,folder).deleteSucceed(mDeleteSucceed));
                 }
                 buffer.append(""+getString(R.string.summeryItemWhich,null,listAdapter.getDataCount()));
                 mMessage.set(buffer.toString());

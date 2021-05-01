@@ -9,7 +9,6 @@ import android.os.Looper;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.match.Matchable;
 import com.luckmerlin.core.match.Matcher;
-import com.luckmerlin.file.task.GroupTask;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Task;
 import com.luckmerlin.task.TaskExecutor;

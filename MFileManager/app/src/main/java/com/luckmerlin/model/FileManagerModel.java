@@ -2,17 +2,10 @@ package com.luckmerlin.model;
 
 import android.content.Context;
 import android.net.Uri;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.gson.Gson;
-import com.luckmerlin.core.debug.Debug;
-import com.luckmerlin.databinding.DataBindingUtil;
 import com.luckmerlin.databinding.dialog.Dialog;
 import com.luckmerlin.databinding.dialog.PopupWindow;
 import com.luckmerlin.databinding.touch.OnViewClick;
@@ -21,31 +14,19 @@ import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalClient;
 import com.luckmerlin.file.LocalFolder;
-import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Mode;
 import com.luckmerlin.file.NasClient;
-import com.luckmerlin.file.NasFolder;
 import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.TaskListActivity;
 import com.luckmerlin.file.adapter.ClientAdapter;
-import com.luckmerlin.file.adapter.FileBrowserAdapter;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
-import com.luckmerlin.file.databinding.FileBrowserMenuBinding;
-import com.luckmerlin.file.nas.Nas;
-import com.luckmerlin.file.task.DownloadTask;
-import com.luckmerlin.file.task.UploadTask;
-import com.luckmerlin.file.task.UriStreamTask;
-
-import org.json.JSONObject;
-
+import com.luckmerlin.file.task.StreamTask;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FileManagerModel extends FileBrowserModel implements OnViewClick, OnViewLongClick {
     private final PopupWindow mClientNamePopupWindow=new PopupWindow(true,null);
@@ -61,8 +42,9 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
         post(()->{
 //            File file=new File("/storage/emulated/0/Android/data/com.luckmerlin.file/cache/1914wx_camera_1618929165018.mp4");
             File file=new File("/storage/emulated/0/Android/data/com.luckmerlin.file");
-            startTask(new UriStreamTask(getApplicationContext(),Uri.fromFile(file),
-//                    Uri.fromFile(new File("/sdcard/linqiang2021.mp4"))
+            startTask(new StreamTask(getApplicationContext(),
+//                    Uri.fromFile(file),
+                    Uri.fromFile(new File("/sdcard/linqiang2021.mp4")),
                    Uri.parse(client.getHostUri()+"?"+Label.LABEL_PATH+"="+"/Volume/Others/linqiang.jpg")
             ).enableRecheckMd5(true).enableDeleteFail(true),null);
         },3000);
@@ -109,9 +91,10 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
                 if (null==downloadFolder||!(downloadFolder instanceof LocalFolder)){
                     return toast(R.string.notActionHere)||true;
                 }
-                return null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD&& startTask(new DownloadTask(getString(R.string.download,null),modeDownload.getArgs(),
-                        downloadFolder),"While download view click.")&&
-                        (selectMode(null,"While download view click.")||true);
+//                return null!=modeDownload&&modeDownload.getMode()==Mode.MODE_DOWNLOAD&& startTask(new DownloadTask(getString(R.string.download,null),modeDownload.getArgs(),
+//                        downloadFolder),"While download view click.")&&
+//                        (selectMode(null,"While download view click.")||true);
+                return false;
             case R.string.cancel://Get through
             case R.drawable.selector_cancel:
                 return selectMode(null,"While cancel view click.");

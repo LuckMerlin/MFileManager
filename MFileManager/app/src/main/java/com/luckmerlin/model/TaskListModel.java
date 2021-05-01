@@ -8,7 +8,6 @@ import androidx.databinding.ObservableField;
 import androidx.recyclerview.widget.RecyclerView;
 import com.luckmerlin.adapter.recycleview.OnItemSlideRemove;
 import com.luckmerlin.adapter.recycleview.Remover;
-import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.match.Matchable;
 import com.luckmerlin.databinding.Model;
 import com.luckmerlin.databinding.touch.OnViewClick;
@@ -16,7 +15,6 @@ import com.luckmerlin.file.R;
 import com.luckmerlin.file.adapter.TaskListAdapter;
 import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
-import com.luckmerlin.file.task.UploadTask;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
@@ -64,7 +62,7 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
     @Override
     public void onItemSlideRemove(int i, Object object, int i1, RecyclerView.ViewHolder viewHolder, Remover remover) {
        if (null!=object){
-           if (object instanceof UploadTask){
+           if (object instanceof Task){
                remover.remove(false);
            }
        }

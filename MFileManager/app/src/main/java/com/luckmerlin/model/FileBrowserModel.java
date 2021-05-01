@@ -5,27 +5,21 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.IBinder;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.databinding.ObservableField;
 
-import com.luckmerlin.adapter.recycleview.Section;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.Model;
 import com.luckmerlin.databinding.dialog.Dialog;
 import com.luckmerlin.file.Client;
 import com.luckmerlin.file.Folder;
 import com.luckmerlin.file.LocalClient;
-import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Mode;
 import com.luckmerlin.file.NasFolder;
 import com.luckmerlin.file.Path;
@@ -38,12 +32,8 @@ import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.service.TaskBinder;
 import com.luckmerlin.file.service.TaskService;
-import com.luckmerlin.file.task.ActionFolderTask;
-import com.luckmerlin.file.task.GroupTask;
 import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.file.ui.OnPathSpanClick;
-import com.luckmerlin.file.ui.UriPath;
-import com.luckmerlin.lib.ArraysList;
 import com.luckmerlin.mvvm.activity.OnActivityBackPress;
 import com.luckmerlin.mvvm.activity.OnActivityStart;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
@@ -51,9 +41,7 @@ import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Task;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivityBackPress,
@@ -365,16 +353,6 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     protected final boolean startTask(Object task,String debug){
         if (null==task){
             return false;
-        }
-        if (task instanceof GroupTask &&((GroupTask)task).isEmpty()){
-            return toast(R.string.emptyContent)&&false;
-        }
-        if (task instanceof ActionFolderTask){
-            if (((ActionFolderTask)task).getFolder()==null){
-                return toast(R.string.noneTargetFolder)&&false;
-            }else if (((ActionFolderTask)task).isAllInSameFolder()){
-                return toast(R.string.notActionHere)&&false;
-            }
         }
         TaskBinder binder=mTaskBinder;
         if (null==binder){
