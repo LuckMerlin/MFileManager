@@ -79,12 +79,15 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
             final long total=input.getLength();
             final long currentLength=output.getLength();
             Debug.D("Now,Doing stream stark."+to);
-            if (total<0||currentLength<0){
+            if (total<0){
                 Debug.W("Can't execute Uri stream task while input length not match output length.");
                 return new CodeResult<>(What.WHAT_MATCH_FAIL);
             }else if (currentLength>total){
                 Debug.W("Can't execute Uri stream task while file already exist.");
                 return new CodeResult<>(What.WHAT_EXIST);
+            }else if (currentLength==total){
+                Debug.W("Not need execute Uri stream task while file already done."+currentLength+" "+total);
+                return new CodeResult<>(What.WHAT_ALREADY_DONE);
             }else if (currentLength<total){//If need load again
                 CodeResult openResult=input.open(currentLength);
                 openResult=null!=openResult?openResult:new CodeResult(What.WHAT_FAIL);
@@ -98,6 +101,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
                     Debug.W("Can't execute Uri stream task while output open fail.");
                     return openResult;
                 }
+                //Head json
                 hasWriteFLag=true;
                 byte[] buffer=new byte[1024*1024];
                 int read=0;long uploaded=0;float speed;
@@ -127,6 +131,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
             String inputMd5=null!=inputPath?inputPath.isDirectory()||inputPath.getLength()<=0?"":inputPath.getMd5():null;
             String outputMd5=null!=outputPath?outputPath.isDirectory()||outputPath.getLength()<=0?"":outputPath.getMd5():null;
             if ((null==inputMd5&&outputMd5==null)||(null!=inputMd5&&null!=outputMd5&&inputMd5.toLowerCase().equals(outputMd5.toLowerCase()))){
+                Debug.D("Succeed do stream task."+hasWriteFLag+" "+to);
                 return new CodeResult(hasWriteFLag?What.WHAT_SUCCEED:What.WHAT_ALREADY_DONE);
             }
         }
@@ -167,8 +172,11 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
         }else if (scheme.equals(ContentResolver.SCHEME_FILE)){
             String path=uri.getPath();
             File file = null!=path&&path.length()>0?new File(path):null;
-            if (null==file||!file.exists()) {
+            if (null==file) {
                 Debug.W("Can't create Uri input while from invalid.");
+                return new CodeResult(What.WHAT_ARGS_INVALID);
+            }else if (!file.exists()){
+                Debug.W("Can't create Uri input while from not exist.");
                 return new CodeResult(What.WHAT_NOT_EXIST);
             }
             return new CodeResult(What.WHAT_SUCCEED, new FileInput(file));

@@ -44,8 +44,9 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
             File file=new File("/storage/emulated/0/Android/data/com.luckmerlin.file");
             startTask(new StreamTask(getApplicationContext(),
 //                    Uri.fromFile(file),
-                    Uri.fromFile(new File("/sdcard/linqiang2021.mp4")),
-                   Uri.parse(client.getHostUri()+"?"+Label.LABEL_PATH+"="+"/Volume/Others/linqiang.jpg")
+//                    Uri.fromFile(new File("/sdcard/linqiang2021.mp4")),
+                    Uri.fromFile(new File("/sdcard/DCIM/Camera/IMG_20201112_232734_1_145355615081.jpg")),
+                   Uri.parse(client.getHostUri()+"?"+Label.LABEL_PATH+"="+"/Volumes/Others/linqiang.jpg")
             ).enableRecheckMd5(true).enableDeleteFail(true),null);
         },3000);
     }

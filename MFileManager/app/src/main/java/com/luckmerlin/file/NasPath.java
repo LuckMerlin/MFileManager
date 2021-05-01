@@ -99,8 +99,7 @@ public final class NasPath extends Path implements Parcelable {
 
     @Override
     public Object getThumb() {
-        String thumb=this.thumb;
-        return null!=thumb&&thumb.length()>0?Base64.decode(thumb.getBytes(), Base64.DEFAULT):null;
+        return this.thumb;
     }
 
     public NasPath setModifyTime(long modifyTime) {

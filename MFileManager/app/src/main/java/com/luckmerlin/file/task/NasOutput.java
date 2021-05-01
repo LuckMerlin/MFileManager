@@ -137,7 +137,8 @@ public class NasOutput implements Output {
                 connection.disconnect();
             }
         }
-        return null;
+        Reply<NasPath> nasReply=mNasReply;
+        return null!=nasReply?nasReply.getData():null;
     }
 
     @Override

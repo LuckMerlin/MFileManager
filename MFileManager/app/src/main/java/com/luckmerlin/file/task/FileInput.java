@@ -3,10 +3,10 @@ package com.luckmerlin.file.task;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.util.Closer;
 import com.luckmerlin.file.LocalPath;
-import com.luckmerlin.file.MD5;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.What;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -24,8 +24,11 @@ public final class FileInput implements Input  {
     @Override
     public CodeResult open(long seek) throws Exception {
         File file=mFile;
-        if (null==file||!file.exists()) {
+        if (null==file) {
             Debug.W("Can't open input while from invalid.");
+            return new CodeResult(What.WHAT_ARGS_INVALID);
+        }else if (!file.exists()) {
+            Debug.W("Can't open input while from not exist.");
             return new CodeResult(What.WHAT_NOT_EXIST);
         }else if (file.isDirectory()?!file.canExecute():!file.canRead()){
             Debug.W("Can't open input while from NONE permission.");
@@ -34,10 +37,14 @@ public final class FileInput implements Input  {
             Debug.W("Can't open Uri inputStream while seek invalid."+seek);
             return new CodeResult(What.WHAT_FAIL);
         }else if (file.isDirectory()){
-            Debug.W("Can't open Uri inputStream while file is directory.");
-            return new CodeResult<>(What.WHAT_FAIL);
+            Debug.W("Can't open Uri inputStream while from is directory.");
+            return new CodeResult(What.WHAT_ARGS_INVALID);
         }
+        Debug.D("Open file. seek="+seek+" "+file);
         new Closer().close(mInputStream);
+        if (file.isDirectory()){//Directory has none content
+            return new CodeResult<>(What.WHAT_SUCCEED);
+        }
         InputStream inputStream=mInputStream=new FileInputStream(file);
         if (seek>0&&inputStream.skip(seek)!=seek){
             Debug.W("Can't open Uri inputStream while seek fail."+seek);
@@ -58,6 +65,7 @@ public final class FileInput implements Input  {
         InputStream inputStream=mInputStream;
         if (null!=inputStream){
             mInputStream=null;
+            Debug.D("Close file."+mFile);
             new Closer().close(inputStream);
             mLocalPath=null;//Clean to reload path
         }
@@ -73,7 +81,7 @@ public final class FileInput implements Input  {
     @Override
     public long getLength() {
         File file=mFile;
-        return null!=file?file.length():0;
+        return null!=file&&file.exists()?file.length():-1;
     }
 
     final LocalPath getLocalPath(){
