@@ -7,8 +7,10 @@ import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.What;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
-public final class FileOutput implements Output{
+final class FileOutput implements Output{
     private final File mFile;
     private FileOutputStream mOutputStream;
 
@@ -51,8 +53,17 @@ public final class FileOutput implements Output{
 
     @Override
     public Path close() {
-        new Closer().close(mOutputStream);
+        OutputStream outputStream=mOutputStream;
         mOutputStream=null;
+        if (null!=outputStream){
+            try {
+                outputStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                new Closer().close(outputStream);
+            }
+        }
         File file=mFile;
         return null!=file?LocalPath.create(file):null;
     }

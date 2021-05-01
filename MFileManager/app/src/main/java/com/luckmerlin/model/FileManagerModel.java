@@ -36,11 +36,13 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
         super.onRootAttached(view);
 //        NasClient client=new NasClient("http://192.168.0.6",2018,"NAS");
         NasClient client=new NasClient("http://192.168.0.4",2019,"NAS");
-        add(new LocalClient("/sdcard",getString(R.string.local,null)).setSyncHost(client.getHostUri()),"");
+//        add(new LocalClient("/sdcard",getString(R.string.local,null)).setSyncHost(client.getHostUri()),"");
         add(client,"");
         new File("/sdcard/linqiang2021.mp4").delete();
-        post(()->{
-////            File file=new File("/storage/emulated/0/Android/data/com.luckmerlin.file/cache/1914wx_camera_1618929165018.mp4");
+        post(new Runnable() {
+            @Override
+            public void run() {
+                ////            File file=new File("/storage/emulated/0/Android/data/com.luckmerlin.file/cache/1914wx_camera_1618929165018.mp4");
 //            File file=new File("/storage/emulated/0/Android/data/com.luckmerlin.file");
 //            startTask(new StreamTask(getApplicationContext(),
 ////                    Uri.fromFile(file),
@@ -49,7 +51,11 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
 //                   Uri.parse(client.getHostUri()+"?"+Label.LABEL_PATH+"="+"/Volumes/Others/linqiang.jpg")
 //            ).enableRecheckMd5(true).enableDeleteFail(true),null);
 //            startUploadFiles(Uri.fromFile(new File("/sdcard/360/sdk/persistence/data")),true,"");
-        },3000);
+//            startUploadFiles(Uri.fromFile(new File("/sdcard/360/sdk/persistence/data")),true,"");
+                startUploadFiles(Uri.fromFile(new File("/sdcard/DCIM/Camera/IMG_20201112_232734_1_145355615081.jpg")),
+                        true,"");
+            }
+        }, 3000);
     }
 
     @Override

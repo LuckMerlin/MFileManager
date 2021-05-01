@@ -15,9 +15,11 @@ import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.nas.Nas;
+import com.luckmerlin.file.util.FileSize;
 import com.luckmerlin.task.FromToTask;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Result;
+import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 
 import org.json.JSONObject;
@@ -39,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 
 public final class StreamTask extends FromToTask<Uri, Uri> {
     private final WeakReference<Context> mContext;
-    private boolean mRecheckMd5=false;
     private boolean mDeleteFail=false;
 
     public StreamTask(String name,Uri from, Uri to) {
@@ -51,12 +52,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
         mContext=null!=context?new WeakReference<>(context):null;
     }
 
-    public final StreamTask enableRecheckMd5(boolean enable) {
-        this.mRecheckMd5 = enable;
-        return this;
-    }
-
-    public final StreamTask enableDeleteFail(boolean deleteFail) {
+    public final StreamTask deleteFail(boolean deleteFail) {
         mDeleteFail = deleteFail;
         return this;
     }
@@ -81,6 +77,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
         }
         Input streamInput=null;Output streamOutput=null;boolean hasWriteFLag=false;
         try{
+            notifyTaskUpdate(Status.PREPARING,null,callback);
             CodeResult<Output> outputResult=createOutputOpener(to);
             final Output output=streamOutput=null!=outputResult?outputResult.getArg():null;
             if (null==output||outputResult.getCode()!=What.WHAT_SUCCEED){
@@ -118,10 +115,13 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
                     Debug.W("Can't execute Uri stream task while output open fail.");
                     return openResult;
                 }
+                final FileProgress progress=new FileProgress(total,getName());
                 //Head json
                 hasWriteFLag=true;
                 byte[] buffer=new byte[1024*1024];
-                int read=0;long uploaded=0;float speed;
+                int read=0;long uploaded=currentLength;float speed;
+                progress.mDone=uploaded;
+                notifyTaskUpdate(Status.EXECUTING,progress,callback);
                 long startTime=System.nanoTime();
                 while ((read=input.read(buffer))>=0){
                     uploaded += read;
@@ -133,6 +133,9 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
                         if ((startTime = startTime > 0 ? System.nanoTime() - startTime : -1) > 0) {
                             startTime = TimeUnit.NANOSECONDS.toMillis(startTime);
                             speed = startTime > 0 ? read / startTime : 0;
+                            progress.mSpeed=speed;
+                            progress.mDone=uploaded;
+                            notifyTaskUpdate(Status.EXECUTING,progress,callback);
                         }
                     }
                 }
@@ -235,4 +238,36 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
         return null!=reference?reference.get():null;
     }
 
+    static class FileProgress implements Progress{
+        long mDone;
+        final long mTotal;
+        final Object mTitle;
+        float mSpeed;
+
+        FileProgress(long total,Object title){
+            mTotal=total;
+            mTitle=title;
+        }
+
+        @Override
+        public Object getProgress(int type) {
+            switch (type){
+                case Progress.TYPE_DONE:
+                    return mDone;
+                case Progress.TYPE_SPEED:
+                    return FileSize.formatSizeText(mSpeed)+"/s";
+                case Progress.TYPE_TOTAL:
+                    return mTotal;
+                case Progress.TYPE_TITLE:
+                    return mTitle;
+                case Progress.TYPE_PERCENT:
+                    long total=mTotal;
+                    long upload=mDone;
+                    return total>0?(upload<=0?0:upload)*100.f/total:0;
+                case (Progress.TYPE_DONE|Progress.TYPE_TOTAL):
+                    return FileSize.formatSizeText(mDone)+"/"+FileSize.formatSizeText(mTotal);
+            }
+            return null;
+        }
+    }
 }

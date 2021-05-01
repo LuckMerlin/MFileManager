@@ -2,7 +2,7 @@ package com.luckmerlin.file.task;
 
 import com.luckmerlin.file.Path;
 
-public interface Input  {
+ interface Input  {
 
     CodeResult open(long seek) throws Exception;
 

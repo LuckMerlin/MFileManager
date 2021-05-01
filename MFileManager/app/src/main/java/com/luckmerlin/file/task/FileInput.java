@@ -5,13 +5,11 @@ import com.luckmerlin.core.util.Closer;
 import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.What;
-
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-public final class FileInput implements Input  {
+final class FileInput implements Input  {
     private final File mFile;
     private InputStream mInputStream;
     private LocalPath mLocalPath;

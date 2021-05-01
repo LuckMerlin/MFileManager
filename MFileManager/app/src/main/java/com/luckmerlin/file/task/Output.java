@@ -3,7 +3,7 @@ package com.luckmerlin.file.task;
 
 import com.luckmerlin.file.Path;
 
-public interface Output {
+ interface Output {
       long getLength();
       CodeResult open(long seek) throws Exception;
       Path close();

@@ -12,6 +12,7 @@ import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.nas.Nas;
 import org.json.JSONObject;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -20,7 +21,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NasOutput implements Output {
+ class NasOutput implements Output {
     private final String mHostUri;
     private final String mPath;
     private OutputStream mOutputStream;
@@ -103,7 +104,15 @@ public class NasOutput implements Output {
     @Override
     public Path close() {
         final HttpURLConnection connection= mURLConnection;
-        mOutputStream=null;
+        OutputStream outputStream=mOutputStream;
+        if (null!=outputStream){
+            mOutputStream=null;
+            try {
+                outputStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         InputStream inputStream=null;
         String responseText=null;
         try {
@@ -132,7 +141,7 @@ public class NasOutput implements Output {
             Debug.E("Exception read uri stream response.e="+e+"\n"+responseText);
             e.printStackTrace();
         }finally {
-            new Closer().close(inputStream,mOutputStream);
+            new Closer().close(inputStream,outputStream);
             if (null!=connection){
                 connection.disconnect();
             }

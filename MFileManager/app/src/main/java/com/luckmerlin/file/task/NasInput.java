@@ -6,7 +6,7 @@ import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.Label;
 
-public class NasInput implements Input {
+ class NasInput implements Input {
     private final String mHostUri;
     private final String mPath;
     private NasPath mNasPath;
