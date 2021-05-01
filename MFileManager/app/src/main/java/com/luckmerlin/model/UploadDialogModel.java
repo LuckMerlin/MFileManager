@@ -1,9 +1,12 @@
 package com.luckmerlin.model;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.view.View;
 
 import androidx.databinding.ObservableField;
+
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.Model;
 import com.luckmerlin.databinding.OnModelResolve;
 import com.luckmerlin.databinding.touch.OnViewClick;
@@ -12,12 +15,14 @@ import com.luckmerlin.file.LocalPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.adapter.UploadPrepareListAdapter;
+import com.luckmerlin.file.task.StreamTask;
 import com.luckmerlin.file.ui.UriPath;
 import com.luckmerlin.lib.StringBuffer;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 import java.io.File;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -44,7 +49,7 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
         mCanceled=false;
         mStatus.set(R.string.preparing);
         Observable.create((ObservableEmitter<Collection> emitter)->{
-            prepare(mFiles);
+            prepare(mFiles,mFolder,null);
             post(()->mStatus.set(getString(R.string.sureWhich,null,getString(R.string.upload,null))));
             emitter.onComplete();
         }).subscribeOn(Schedulers.io()).subscribe();
@@ -55,51 +60,81 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
         return false;
     }
 
-    private boolean prepare(Object files){
+    private boolean prepare(Object files,Folder folder,List<String> layers){
         Object currentStatus=mStatus.get();
         if (null==currentStatus||!(currentStatus instanceof Integer)||((Integer)currentStatus)!=R.string.preparing){
             return false;
         }else if (mCanceled){
             return setStatus(getString(R.string.whichFailed,null,getString(R.string.cancel,null)))&&false;
+        }else if (null==folder){
+            return false;
         }
         final UploadPrepareListAdapter listAdapter=mPrepareListAdapter;
         final Object status=mStatus.get();
-        final Folder folder=mFolder;
         if (null==files||null==listAdapter||null==folder||folder.isLocal()){
             return setStatus(getString(R.string.whichFailed,null,getString(R.string.prepare,null)))&&false;
         }else if (null!=status&&status instanceof Integer&&(Integer)status==Status.PREPARING){
             return setStatus(getString(R.string.alreadyWhich,null,getString(R.string.prepare,null)))&&false;
-        }else if (files instanceof Uri){
-            return prepare(new UriPath().getUriPath(getContext(), (Uri) files));
         }else if (files instanceof String){
-            return prepare(new File((String)files));
+            return prepare(new File((String)files),folder,layers);
         }else if (files instanceof File){
-            return prepare(LocalPath.create((File)files));
+            return prepare(Uri.fromFile((File)files),folder,layers);
+        }else if (files instanceof Path){
+            return prepare(((Path)files).toUri(),folder,layers);
         }else if (files instanceof Collection){
             Collection collection=(Collection)files;
             for (Object child:collection) {
                 if (mCanceled){
                     break;
                 }
-                prepare(child);
+                prepare(child,folder,layers);
             }
-           return true;
-        }else if (files instanceof Path){
-            final Path finalPath=(Path)files;
-            final String folderName=folder.getNameWithExtension();
-            post(()->{
-                String name=null;
-                StringBuffer buffer=new StringBuffer();
-                buffer.append(null!=folderName&&folderName.length()>15?folderName.substring(0,14):folderName);
-                buffer.append("\n🔼\n");
-                if (null!=finalPath){
-                    buffer.append(null!=(name=finalPath.getNameWithExtension())?(name.length()>15?name.substring(0,15):name)+"\n":null);
-//                    listAdapter.add(new UploadTask(finalPath,folder).deleteSucceed(mDeleteSucceed));
+            return true;
+        }else if (files instanceof Uri){
+            Uri uri=(Uri)files;
+            String scheme=uri.getScheme();
+            String localFilePath=null!=scheme&&scheme.equals(ContentResolver.SCHEME_FILE)?uri.getPath():null;
+            File localFile=null!=localFilePath&&localFilePath.length()>0?new File(localFilePath):null;
+            final String fileName=localFile.getName();
+            if (null==fileName||fileName.length()<=0){
+                Debug.W("Fail scan directory files while file name invalid.");
+                return false;
+            }
+            (layers=null!=layers?layers:new LinkedList<>()).add(fileName);
+            if (null!=localFile&&localFile.isDirectory()){//Browser all files
+                String folderSep=folder.getSep();
+                if (null==folderSep||folderSep.length()<=0){
+                    Debug.W("Fail scan directory files while folder sep invalid.");
+                    return false;
                 }
-                buffer.append(""+getString(R.string.summeryItemWhich,null,listAdapter.getDataCount()));
+                File[] listFiles=localFile.listFiles();
+                if (null==listFiles||listFiles.length<=0){//Empty
+                    return true;
+                }
+                for (File child:listFiles) {
+                    prepare(Uri.fromFile(child),folder,layers);
+                }
+                return true;
+            }
+//            StreamTask task=new StreamTask(uri,null!=layers&&layers.size()>0?folder.getChildUri(layers):null);
+//            Debug.D("上传 "+task.getName()+" from="+task.getFrom()+" to="+task.getTo());
+            return addFileTask(new StreamTask(fileName,uri,null!=layers&&layers.size()>0?folder.getChildUri(layers):null));
+        }
+        return false;
+    }
+
+    private boolean addFileTask(StreamTask task){
+        UploadPrepareListAdapter adapter=mPrepareListAdapter;
+        if (null!=task&&null!=adapter){
+            final String fileName=task.getName();
+            return post(()->{
+                StringBuffer buffer=new StringBuffer();
+                buffer.append(null!=fileName&&fileName.length()>15?fileName.substring(0,14):fileName);
+                buffer.append("\n🔼\n");
+                adapter.add(task);
+                buffer.append(""+getString(R.string.summeryItemWhich,null,adapter.getDataCount()));
                 mMessage.set(buffer.toString());
             });
-            return true;
         }
         return false;
     }

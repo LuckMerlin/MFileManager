@@ -15,6 +15,7 @@ import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.nas.Nas;
+import com.luckmerlin.task.FromToTask;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Task;
@@ -41,8 +42,12 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
     private boolean mRecheckMd5=false;
     private boolean mDeleteFail=false;
 
-    public StreamTask(Context context, Uri from, Uri to) {
-        super(from, to);
+    public StreamTask(String name,Uri from, Uri to) {
+        this(null,name,from,to);
+    }
+
+    public StreamTask(Context context,String name, Uri from, Uri to) {
+        super(name,from, to);
         mContext=null!=context?new WeakReference<>(context):null;
     }
 
@@ -57,7 +62,19 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
     }
 
     @Override
-    final Result onExecute(Uri from, Uri to, Task task, OnTaskUpdate callback) {
+    public String getName() {
+        String name=super.getName();
+        if (null!=name&&name.length()>0){
+            return name;
+        }
+        Uri uri=getFrom();
+        return null!=uri?uri.getQueryParameter(Label.LABEL_NAME):null;
+    }
+
+    @Override
+    protected Result onExecute(Task task, OnTaskUpdate callback) {
+        final Uri from=getFrom();
+        final Uri to=getTo();
         if (null==from||null==to){
             Debug.W("Can't execute Uri stream task while args invalid.");
             return new CodeResult(What.WHAT_ARGS_INVALID);

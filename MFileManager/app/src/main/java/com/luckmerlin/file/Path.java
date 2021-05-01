@@ -1,5 +1,11 @@
 package com.luckmerlin.file;
 
+import android.net.Uri;
+
+import com.luckmerlin.core.debug.Debug;
+
+import java.util.List;
+
 public abstract class  Path implements Permission  {
     public final static int TYPE_IMAGE=1212;
     public final static int TYPE_VIDEO=1213;
@@ -50,6 +56,31 @@ public abstract class  Path implements Permission  {
 
     public final boolean isLocal(){
         return this instanceof LocalPath;
+    }
+
+    public final Uri toUri(){
+        return getChildUri(null);
+    }
+
+    public abstract Uri getChildUri(List<String> childNames);
+
+    public final String getChildPath(List<String> childNames){
+        String path=getPath();
+        if (null!=childNames&&childNames.size()>0){
+            String sep=getSep();
+            if (null==sep||sep.length()<=0){
+                Debug.W("Can't create child uri while sep invalid."+this);
+                return null;
+            }
+            for (String child:childNames) {
+                if (null==child){
+                    Debug.W("Can't create child uri while child invalid."+this);
+                    return null;
+                }
+                path=(path.endsWith(sep)?sep:path+sep)+child;
+            }
+        }
+        return path;
     }
 
     public final String getPath() {

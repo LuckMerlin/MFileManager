@@ -12,15 +12,15 @@ public abstract class Task implements Status{
     private Progress mProgress;
     private int mStatus=Status.IDLE;
     private boolean mCanceled=false;
-    private final String mName;
     private long mStartTime;
+    private String mName;
     private long mEndTime;
 
     public Task(){
-        this(null,null);
+        this(null);
     }
 
-    public Task(String name,String action){
+    public Task(String name){
         mName=name;
     }
 
@@ -30,7 +30,7 @@ public abstract class Task implements Status{
         }
         mCanceled=false;
         mResult=null;
-        String name=mName;
+        String name=getName();
         Debug.D("Start execute task "+(null!=name?name:"."));
         notifyTaskUpdate(Status.STARTED,null,callback);
         mStartTime=System.currentTimeMillis();
@@ -99,7 +99,7 @@ public abstract class Task implements Status{
         return Color.TRANSPARENT;
     }
 
-    public final String getName() {
+    public String getName() {
         return mName;
     }
 

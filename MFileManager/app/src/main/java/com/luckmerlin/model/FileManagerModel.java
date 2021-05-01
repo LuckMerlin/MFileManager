@@ -40,14 +40,15 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
         add(client,"");
         new File("/sdcard/linqiang2021.mp4").delete();
         post(()->{
-//            File file=new File("/storage/emulated/0/Android/data/com.luckmerlin.file/cache/1914wx_camera_1618929165018.mp4");
-            File file=new File("/storage/emulated/0/Android/data/com.luckmerlin.file");
-            startTask(new StreamTask(getApplicationContext(),
-//                    Uri.fromFile(file),
-//                    Uri.fromFile(new File("/sdcard/linqiang2021.mp4")),
-                    Uri.fromFile(new File("/sdcard/DCIM/Camera/IMG_20201112_232734_1_145355615081.jpg")),
-                   Uri.parse(client.getHostUri()+"?"+Label.LABEL_PATH+"="+"/Volumes/Others/linqiang.jpg")
-            ).enableRecheckMd5(true).enableDeleteFail(true),null);
+////            File file=new File("/storage/emulated/0/Android/data/com.luckmerlin.file/cache/1914wx_camera_1618929165018.mp4");
+//            File file=new File("/storage/emulated/0/Android/data/com.luckmerlin.file");
+//            startTask(new StreamTask(getApplicationContext(),
+////                    Uri.fromFile(file),
+////                    Uri.fromFile(new File("/sdcard/linqiang2021.mp4")),
+//                    Uri.fromFile(new File("/sdcard/DCIM/Camera/IMG_20201112_232734_1_145355615081.jpg")),
+//                   Uri.parse(client.getHostUri()+"?"+Label.LABEL_PATH+"="+"/Volumes/Others/linqiang.jpg")
+//            ).enableRecheckMd5(true).enableDeleteFail(true),null);
+//            startUploadFiles(Uri.fromFile(new File("/sdcard/360/sdk/persistence/data")),true,"");
         },3000);
     }
 

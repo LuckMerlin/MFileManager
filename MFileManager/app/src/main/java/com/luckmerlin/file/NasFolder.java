@@ -1,5 +1,7 @@
 package com.luckmerlin.file;
 
+import android.net.Uri;
+
 import java.util.List;
 
 public class NasFolder<A> extends Folder<A,NasPath> {
@@ -15,6 +17,12 @@ public class NasFolder<A> extends Folder<A,NasPath> {
     public String getParent() {
         NasPath current=folder;
         return null!=current?current.getParent():null;
+    }
+
+    @Override
+    public Uri getChildUri(List<String> childNames) {
+        NasPath current=folder;
+        return null!=current?current.getChildUri(childNames):null;
     }
 
     public final NasFolder setHost(String host) {

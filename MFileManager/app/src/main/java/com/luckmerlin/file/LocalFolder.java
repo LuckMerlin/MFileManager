@@ -1,5 +1,7 @@
 package com.luckmerlin.file;
 
+import android.net.Uri;
+
 import java.util.List;
 
 public final class LocalFolder<A> extends Folder<A,LocalPath> {
@@ -21,6 +23,12 @@ public final class LocalFolder<A> extends Folder<A,LocalPath> {
     public boolean isLink() {
         LocalPath path=mPath;
         return null!=path&&path.isLink();
+    }
+
+    @Override
+    public Uri getChildUri(List<String> childNames) {
+        LocalPath path=mPath;
+        return null!=path?path.getChildUri(childNames):null;
     }
 
     @Override

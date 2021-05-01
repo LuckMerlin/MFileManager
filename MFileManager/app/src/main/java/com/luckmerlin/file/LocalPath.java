@@ -1,6 +1,7 @@
 package com.luckmerlin.file;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,6 +10,7 @@ import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
 
 import java.io.File;
+import java.util.List;
 
 public final class LocalPath extends Path implements Comparable, Parcelable {
     private final String mParent;
@@ -36,6 +38,12 @@ public final class LocalPath extends Path implements Comparable, Parcelable {
         dest.writeString(mName);
         dest.writeString(mExtension);
         dest.writeString(mMD5);
+    }
+
+    @Override
+    public Uri getChildUri(List<String> childNames) {
+        String path=getChildPath(childNames);
+        return null!=path&&path.length()>0?Uri.fromFile(new File(path)):null;
     }
 
     @Override

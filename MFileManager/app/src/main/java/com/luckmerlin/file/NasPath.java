@@ -1,13 +1,20 @@
 package com.luckmerlin.file;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Base64;
+
+import com.luckmerlin.core.debug.Debug;
+import com.luckmerlin.file.api.Label;
+
+import java.util.List;
 
 public final class NasPath extends Path implements Parcelable {
     private String name;
     private String parent;
     private String host;
+    private String protocol;
     private int port;
     private long size;
     private long length;
@@ -21,6 +28,7 @@ public final class NasPath extends Path implements Parcelable {
     private String md5;
 
     private NasPath(Parcel in) {
+        protocol = in.readString();
         name = in.readString();
         parent = in.readString();
         host = in.readString();
@@ -38,7 +46,26 @@ public final class NasPath extends Path implements Parcelable {
     }
 
     @Override
+    public Uri getChildUri(List<String> childNames) {
+        String protocol=this.protocol;
+        String host=this.host;
+        protocol=null!=protocol&&protocol.length()>0?protocol:"http";
+        String uri=protocol+"://"+host+":"+port;
+        String path=getChildPath(childNames);
+        uri+="?"+ Label.LABEL_PATH+"=" +(null!=path?path:"");
+        if (null!=md5&&md5.length()>0){
+            uri+="&"+Label.LABEL_MD5+"="+md5;
+        }
+        return null!=uri&&uri.length()>0?Uri.parse(uri):null;
+    }
+
+    public final String getProtocol() {
+        return protocol;
+    }
+
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(protocol);
         dest.writeString(name);
         dest.writeString(parent);
         dest.writeString(host);
