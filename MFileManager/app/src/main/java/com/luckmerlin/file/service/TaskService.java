@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Parcelable;
 
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.match.Matchable;
@@ -68,6 +69,7 @@ public final class TaskService extends Service implements Tasker{
                 if (task instanceof Task){
                     if (!list.contains(child=(Task)task)){
                         list.add(child);
+                        save(task);
                     }
                 }else{
                     int index=list.indexOf(task);
@@ -103,6 +105,16 @@ public final class TaskService extends Service implements Tasker{
             child=index>=0?list.get(index):null;
         }
         return null!=child&&child.cancel(true);
+    }
+
+    public final boolean save(Object task){
+
+        return false;
+    }
+
+    public boolean remove(Object task){
+
+        return false;
     }
 
     @Override

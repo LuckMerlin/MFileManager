@@ -91,12 +91,6 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         return null;
     }
 
-    @Override
-    protected void onRootAttached(View view) {
-        super.onRootAttached(view);
-//        post(()-> startUploadFiles(new File("/sdcard"),new NasFolder(),false,""),5000);
-    }
-
     protected final boolean createFile(boolean directory, String debug){
         Client client=getCurrentClient();
         final String title=getString(directory?R.string.createFolder:R.string.createFile,null);

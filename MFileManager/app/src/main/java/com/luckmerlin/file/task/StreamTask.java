@@ -1,55 +1,34 @@
 package com.luckmerlin.file.task;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.net.Uri;
-
-import com.google.gson.Gson;
 import com.luckmerlin.core.debug.Debug;
-import com.luckmerlin.core.util.Closer;
-import com.luckmerlin.file.LocalPath;
-import com.luckmerlin.file.MD5;
-import com.luckmerlin.file.NasPath;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.Label;
-import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
-import com.luckmerlin.file.nas.Nas;
 import com.luckmerlin.file.util.FileSize;
+import com.luckmerlin.json.JsonObject;
+import com.luckmerlin.json.JsonWriteable;
 import com.luckmerlin.task.FromToTask;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
-
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask{
-    private final WeakReference<Context> mContext;
+public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask, JsonWriteable {
     private boolean mDeleteFail=false;
 
-    public StreamTask(String name,Uri from, Uri to) {
-        this(null,name,from,to);
+    public StreamTask(String name, Uri from, Uri to) {
+        super(name,from, to);
     }
 
-    public StreamTask(Context context,String name, Uri from, Uri to) {
-        super(name,from, to);
-        mContext=null!=context?new WeakReference<>(context):null;
+    StreamTask(JsonObject json){
+        this(null!=json?json.optString(Label.LABEL_NAME,null):null,
+                null!=json?json.optUri(Label.LABEL_FROM,null):null,
+                null!=json?json.optUri(Label.LABEL_TO,null):null);
+        mDeleteFail=null!=json&&json.optBoolean(Label.LABEL_DELETE,false);
     }
 
     public final StreamTask deleteFail(boolean deleteFail) {
@@ -92,6 +71,9 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask{
             }
             final long total=input.getLength();
             final long currentLength=output.getLength();
+            final FileProgress progress=new FileProgress(total,getName());
+            progress.mDone=currentLength;
+            notifyTaskUpdate(Status.EXECUTING,progress,callback);
             Debug.D("Now,Doing stream stark."+to);
             if (total<0){
                 Debug.W("Can't execute Uri stream task while input length not match output length.");
@@ -115,13 +97,10 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask{
                     Debug.W("Can't execute Uri stream task while output open fail.");
                     return openResult;
                 }
-                final FileProgress progress=new FileProgress(total,getName());
                 //Head json
                 hasWriteFLag=true;
                 byte[] buffer=new byte[1024*1024];
                 int read=0;long uploaded=currentLength;float speed;
-                progress.mDone=uploaded;
-                notifyTaskUpdate(Status.EXECUTING,progress,callback);
                 long startTime=System.nanoTime();
                 while ((read=input.read(buffer))>=0){
                     uploaded += read;
@@ -177,6 +156,16 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask{
             return path;
         }
         return null;
+    }
+
+    @Override
+    public boolean write(JsonObject jsonObject) {
+        if (null!=jsonObject){
+            jsonObject.putNotNull(Label.LABEL_NAME,getName()).putNotNull(Label.LABEL_FROM,getFrom()).
+                    putNotNull(Label.LABEL_TO,getTo()).putNotNull(Label.LABEL_DELETE,mDeleteFail);
+            return true;
+        }
+        return false;
     }
 
     private CodeResult<Output> createOutputOpener(Uri uri){
@@ -248,11 +237,6 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask{
 
          Debug.W("Can't create Uri inputStream while scheme not support."+scheme);
         return new CodeResult(What.WHAT_NOT_SUPPORT);
-    }
-
-    public final Context getContext(){
-        WeakReference<Context> reference=mContext;
-        return null!=reference?reference.get():null;
     }
 
     static class FileProgress implements Progress{
