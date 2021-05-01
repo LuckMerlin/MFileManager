@@ -23,6 +23,7 @@ import com.luckmerlin.file.Thumbs;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.databinding.ItemTaskBinding;
 import com.luckmerlin.file.task.Progress;
+import com.luckmerlin.file.task.ThumbTask;
 import com.luckmerlin.file.util.Time;
 import com.luckmerlin.task.Response;
 import com.luckmerlin.task.Result;
@@ -61,7 +62,6 @@ public class TaskListAdapter extends ListAdapter<Task> implements OnItemTouchRes
             Object statusText=R.string.idle;
             String taskExecuteTime=null;
             if (null!=task){
-//                taskAction=task.getAction();
                 long startTime=task.getStartTime();
                 long endTime=task.getEndTime();
                 taskExecuteTime=startTime>0?Time.formatMediaDuration((endTime>=startTime?
@@ -78,6 +78,7 @@ public class TaskListAdapter extends ListAdapter<Task> implements OnItemTouchRes
             taskBinding.setProgress(null!=progressObj&&progressObj instanceof Number?((Number)progressObj).intValue():0);
             taskBinding.setTaskExecuteTime(taskExecuteTime);
             taskBinding.setStatusText(statusText);
+            taskBinding.setTaskThumb(null!=task&&task instanceof ThumbTask?((ThumbTask)task).getThumb():null);
             //Button color
             float[] outerR = new float[] { 20, 20, 20, 20, 20, 20, 20, 20 };
             RoundRectShape rr = new RoundRectShape(outerR, null, null);

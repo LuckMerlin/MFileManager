@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public final class StreamTask extends FromToTask<Uri, Uri> {
+public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask{
     private final WeakReference<Context> mContext;
     private boolean mDeleteFail=false;
 
@@ -160,6 +160,23 @@ public final class StreamTask extends FromToTask<Uri, Uri> {
             Debug.D("Deleted fail stream task output file."+to);
         }
         return new CodeResult<>(What.WHAT_FAIL);
+    }
+
+    @Override
+    public Object getThumb() {
+        Uri uri=getFrom();
+        if (null==uri){
+            return null;
+        }
+        String path=uri.getPath();
+        if (null!=path&&path.contains(Label.LABEL_THUMB)){
+            return path;
+        }
+        String scheme=uri.getScheme();
+        if (null!=scheme&&scheme.equals(ContentResolver.SCHEME_FILE)){
+            return path;
+        }
+        return null;
     }
 
     private CodeResult<Output> createOutputOpener(Uri uri){

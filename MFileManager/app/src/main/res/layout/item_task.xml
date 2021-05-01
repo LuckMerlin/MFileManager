@@ -4,6 +4,7 @@
     <data>
         <variable name="task" type="com.luckmerlin.task.Task" />
         <variable name="buttonBackground" type="android.graphics.drawable.Drawable" />
+        <variable name="taskThumb" type="Object" />
         <variable name="buttonText" type="Object" />
         <variable name="progress" type="int" />
         <variable name="taskExecuteTime" type="String" />
@@ -27,7 +28,7 @@
 
         <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
             <ImageView android:padding="5dp" android:layout_width="50dp" android:layout_height="50dp"
-                android:background="@drawable/round_corner_task_item" android:layout_margin="5dp"
+                android:src="@{taskThumb}" android:background="@drawable/round_corner_task_item" android:layout_margin="5dp"
                 binding:lmBinding="@{ImageBinding.image(task.progress.getProgress(Progress.TYPE_THUMB)).centerCrop(true)}"/>
             <TextView android:textSize="8sp" android:textColor="#fff" android:layout_gravity="center"
                 binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_SPEED),null,Touch.NONE)}"
