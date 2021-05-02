@@ -6,6 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.luckmerlin.adapter.recycleview.OnItemSlideRemove;
+import com.luckmerlin.adapter.recycleview.Remover;
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.databinding.dialog.Dialog;
 import com.luckmerlin.databinding.dialog.PopupWindow;
 import com.luckmerlin.databinding.touch.OnViewClick;
@@ -50,8 +54,8 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
 //            ).enableRecheckMd5(true).enableDeleteFail(true),null);
 //            startUploadFiles(Uri.fromFile(new File("/sdcard/360/sdk/persistence/data")),true,"");
 //            startUploadFiles(Uri.fromFile(new File("/sdcard/360/sdk/persistence/data")),true,"");
-                startUploadFiles(Uri.fromFile(new File("/sdcard/DCIM/Camera/IMG_20201112_232734_1_145355615081.jpg")),
-                        true,"");
+//                startUploadFiles(Uri.fromFile(new File("/sdcard/DCIM/Camera/IMG_20201112_232734_1_145355615081.jpg")),
+//                        true,"");
             }
         }, 3000);
     }
@@ -129,7 +133,7 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
         return false;
     }
 
-    private boolean showClientSelectOption(View view,String debug){
+    private boolean showClientSelectOption(View view, String debug){
         PopupWindow popupWindow=null!=view?mClientNamePopupWindow:null;
         if (null!=popupWindow){
             if (popupWindow.isShowing()){

@@ -32,7 +32,7 @@ import com.luckmerlin.task.Task;
 
 import java.util.List;
 
-public class TaskListAdapter extends ListAdapter<Task> implements OnItemTouchResolver {
+public class TaskListAdapter extends ListAdapter<Task> implements OnItemTouchResolver{
 
     @Override
     protected void onResolveFixedViewItem(RecyclerView recyclerView) {

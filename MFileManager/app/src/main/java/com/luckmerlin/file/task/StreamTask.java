@@ -13,7 +13,6 @@ import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
-
 import java.io.Externalizable;
 import java.io.File;
 import java.io.IOException;

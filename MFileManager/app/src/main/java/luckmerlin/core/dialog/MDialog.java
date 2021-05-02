@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.luckmerlin.databinding.Model;
 
 import luckmerlin.core.binding.ModelBinding;
@@ -53,9 +52,12 @@ public class MDialog extends Dialog{
     }
 
     public final MDialog immersive(){
-//        int color= Color.parseColor("#11000000");
-//        new Window().applyImmersive(getWindow(),color);
-//        setStatusBarColor(color);
+        return immersive(Color.TRANSPARENT);
+    }
+
+    public final MDialog immersive(int color){
+        new Window().applyImmersive(getWindow(),color);
+        setStatusBarColor(color);
         return this;
     }
 

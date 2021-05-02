@@ -8,8 +8,10 @@ import androidx.databinding.ObservableField;
 import androidx.recyclerview.widget.RecyclerView;
 import com.luckmerlin.adapter.recycleview.OnItemSlideRemove;
 import com.luckmerlin.adapter.recycleview.Remover;
+import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.match.Matchable;
 import com.luckmerlin.databinding.Model;
+import com.luckmerlin.databinding.dialog.Dialog;
 import com.luckmerlin.databinding.touch.OnViewClick;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.adapter.TaskListAdapter;
@@ -22,8 +24,6 @@ import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 import java.util.ArrayList;
 import java.util.List;
-
-import luckmerlin.core.dialog.MDialog;
 
 public class TaskListModel extends Model implements OnModelServiceResolve, OnServiceBindChange,
         OnTaskUpdate, OnViewClick, OnItemSlideRemove {
@@ -61,10 +61,10 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
            case R.drawable.selector_remove:
                 Task task=null!=o&&o instanceof Task?(Task)o:null;
                if (null!=task&&!task.isSucceed()){
-                   final MDialog dialog=new MDialog(getContext());
+                   final Dialog dialog=new Dialog(getContext());
                    String message=getString(R.string.deleteFailedFile,null);
                    message=null!=message?message+"\n"+task.getName():null;
-                   return null!=dialog.setContentView(new AlertDialogModel(R.string.notify,message,
+                   return dialog.setContentView(new AlertDialogModel(R.string.notify,message,
                            R.string.remove,R.string.cancel,R.string.delete,null){
                            @Override
                            public boolean onViewClick(View view, int i, int i1, Object o) {
@@ -75,7 +75,7 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
                                }
                                return null!=dialog.dismiss()||true;
                            }
-                   },null).fullscreen(false).show()||true;
+                   }).show()||true;
                }
                return actionTask(Status.REMOVE,o)||true;
        }
@@ -84,10 +84,11 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
 
     @Override
     public void onItemSlideRemove(int i, Object object, int i1, RecyclerView.ViewHolder viewHolder, Remover remover) {
-       if (null!=object){
-           if (object instanceof Task){
-               remover.remove(false);
-           }
+       if (null!=object&&object instanceof Task){
+           Task task=(Task)object;
+           View itemView=null!=viewHolder?viewHolder.itemView:null;
+           Debug.D("QQQQQQQQQQq  "+i+" "+object+" "+i1);
+           remover.remove(false);
        }
     }
 

@@ -140,17 +140,27 @@ public class Dialog implements DialogInterface.OnCancelListener, DialogInterface
         return this;
     }
 
-    public Dialog show(){
-        return show(null, null);
+    public boolean show(){
+        return show(null,null);
     }
 
-    public Dialog show(Integer width,Integer height){
+    public Dialog open(){
+        return open(null,null);
+    }
+
+    public Dialog open(Integer width,Integer height){
+        show(width, height);
+        return this;
+    }
+
+    public boolean show(Integer width,Integer height){
         android.app.Dialog dialog=mDialog;
         if (null!=dialog&&!dialog.isShowing()){
             dialog.show();
             setLayout(null!=width?width:ViewGroup.LayoutParams.MATCH_PARENT, null!=height?height:ViewGroup.LayoutParams.MATCH_PARENT);
+            return true;
         }
-        return this;
+        return false;
     }
 
     public final View findViewById(int viewId){

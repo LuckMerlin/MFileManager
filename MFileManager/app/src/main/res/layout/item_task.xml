@@ -33,6 +33,7 @@
                     android:background="@drawable/round_corner_task_item" android:layout_margin="5dp"
                     binding:lmBinding="@{ImageBinding.image(taskThumb).centerCrop(true)}"/>
                 <TextView android:textSize="8sp" android:textColor="#fff" android:layout_gravity="center"
+                    android:visibility="@{task.status==Status.IDLE?View.INVISIBLE:View.VISIBLE}"
                     binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_SPEED),null,Touch.NONE)}"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </FrameLayout>
