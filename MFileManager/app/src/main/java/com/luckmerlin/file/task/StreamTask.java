@@ -30,8 +30,9 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
         super(name,from,to);
     }
 
-    private String uri2String(Uri uri){
-        return null!=uri?uri.toString():null;
+    private String uri2String(Uri uri,String def){
+        String text= null!=uri?uri.toString():def;
+        return null!=text?text:def;
     }
 
     private Uri string2Uri(String uri){
@@ -42,8 +43,8 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeUTF(getId());
         out.writeUTF(getName());
-        out.writeUTF(uri2String(getFrom()));
-        out.writeUTF(uri2String(getTo()));
+        out.writeUTF(uri2String(getFrom(),""));
+        out.writeUTF(uri2String(getTo(),""));
     }
 
     @Override

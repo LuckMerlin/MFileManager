@@ -1,7 +1,9 @@
 package com.luckmerlin.model;
 
 import android.content.ContentResolver;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.view.View;
 
 import androidx.databinding.ObservableField;
@@ -92,33 +94,49 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
             return true;
         }else if (files instanceof Uri){
             Uri uri=(Uri)files;
+            String taskName=null;
             String scheme=uri.getScheme();
-            String localFilePath=null!=scheme&&scheme.equals(ContentResolver.SCHEME_FILE)?uri.getPath():null;
-            File localFile=null!=localFilePath&&localFilePath.length()>0?new File(localFilePath):null;
-            final String fileName=localFile.getName();
-            if (null==fileName||fileName.length()<=0){
-                Debug.W("Fail scan directory files while file name invalid.");
-                return false;
-            }
-            (layers=null!=layers?layers:new LinkedList<>()).add(fileName);
-            if (null!=localFile&&localFile.isDirectory()){//Browser all files
-                String folderSep=folder.getSep();
-                if (null==folderSep||folderSep.length()<=0){
-                    Debug.W("Fail scan directory files while folder sep invalid.");
+            if (null!=scheme&&scheme.equals(ContentResolver.SCHEME_FILE)){
+                String localFilePath=uri.getPath();
+                File localFile=null!=localFilePath&&localFilePath.length()>0?new File(localFilePath):null;
+                final String fileName=null!=localFile?localFile.getName():null;
+                if (null==fileName||fileName.length()<=0){
+                    Debug.W("Fail scan directory files while file name invalid.");
                     return false;
                 }
-                File[] listFiles=localFile.listFiles();
-                if (null==listFiles||listFiles.length<=0){//Empty
+                taskName=fileName;
+                (layers=null!=layers?layers:new LinkedList<>()).add(fileName);
+                if (null!=localFile&&localFile.isDirectory()){//Browser all files
+                    String folderSep=folder.getSep();
+                    if (null==folderSep||folderSep.length()<=0){
+                        Debug.W("Fail scan directory files while folder sep invalid.");
+                        return false;
+                    }
+                    File[] listFiles=localFile.listFiles();
+                    if (null==listFiles||listFiles.length<=0){//Empty
+                        return true;
+                    }
+                    for (File child:listFiles) {
+                        prepare(Uri.fromFile(child),folder,layers);
+                    }
                     return true;
                 }
-                for (File child:listFiles) {
-                    prepare(Uri.fromFile(child),folder,layers);
+            }else if (null!=scheme&&scheme.equals(ContentResolver.SCHEME_CONTENT)){
+                ContentResolver contentResolver=getContentResolver();
+                Cursor cursor = null!=contentResolver?contentResolver.query(uri, null, null,
+                        null, null, null):null;
+                if (null!=cursor){
+                    while (cursor.moveToFirst()){
+                        taskName=cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                        break;
+                    }
+                    cursor.close();
                 }
-                return true;
             }
+            Debug.D("WWWWWWWWWW "+scheme+" "+taskName+" "+uri.getPath()+" "+uri.toString());
 //            StreamTask task=new StreamTask(uri,null!=layers&&layers.size()>0?folder.getChildUri(layers):null);
 //            Debug.D("上传 "+task.getName()+" from="+task.getFrom()+" to="+task.getTo());
-            return addFileTask(new StreamTask(fileName,uri,null!=layers&&layers.size()>0?folder.getChildUri(layers):null));
+            return addFileTask(new StreamTask(taskName,uri,null!=layers&&layers.size()>0?folder.getChildUri(layers):null));
         }
         return false;
     }

@@ -69,9 +69,9 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
                            @Override
                            public boolean onViewClick(View view, int i, int i1, Object o) {
                                if (i==R.string.delete){
-                                   actionTask(Status.DELETE,o);
+                                   actionTask(Status.DELETE|Status.REMOVE,task);
                                }else if (i==R.string.remove){
-                                   actionTask(Status.REMOVE,o);
+                                   actionTask(Status.REMOVE,task);
                                }
                                return null!=dialog.dismiss()||true;
                            }
