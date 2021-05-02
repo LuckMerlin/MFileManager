@@ -1,20 +1,20 @@
 package com.luckmerlin.task;
 
+import android.content.Context;
 import android.graphics.Color;
-
 import com.luckmerlin.core.debug.Debug;
-import com.luckmerlin.file.R;
-import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.task.Progress;
 
-public abstract class Task implements Status{
-    private Result mResult;
-    private Progress mProgress;
-    private int mStatus=Status.IDLE;
-    private boolean mCanceled=false;
-    private long mStartTime;
-    private String mName;
-    private long mEndTime;
+public abstract class Task implements Status {
+    private  String mId;
+    private  Result mResult;
+    private  Progress mProgress;
+    private  int mStatus=Status.IDLE;
+    private  Boolean mCanceled;
+    private  Boolean mDeleteFailed;
+    private  long mStartTime;
+    private  String mName;
+    private  long mEndTime;
 
     public Task(){
         this(null);
@@ -24,19 +24,20 @@ public abstract class Task implements Status{
         mName=name;
     }
 
-    public final synchronized boolean execute(OnTaskUpdate callback) {
+    public final synchronized boolean execute(Context context,boolean start,OnTaskUpdate callback) {
         if (isStarted()||isExecuting()){//Check if already doing
             return false;
         }
-        mCanceled=false;
+        mDeleteFailed=null;
+        mCanceled=null;
         mResult=null;
         String name=getName();
         Debug.D("Start execute task "+(null!=name?name:"."));
-        notifyTaskUpdate(Status.STARTED,null,callback);
+        notifyTaskUpdate(Status.START,null,callback);
         mStartTime=System.currentTimeMillis();
         mEndTime=-1;
-        Result result=mResult=onExecute(this,(Task task1, int status)-> {
-            if (Status.STARTED!=status&&status!=Status.STARTED){
+        mResult=onExecute(this,context,start,(Task task1, int status)-> {
+            if (Status.START!=status){
                 notifyTaskUpdate(task1,status,null,callback);
             }
         });
@@ -60,16 +61,33 @@ public abstract class Task implements Status{
         return time>0?time:0;
     }
 
+    protected final Task setId(Object id) {
+        if (null==mId){
+            this.mId = null!=id?id.toString():null;
+        }
+        return this;
+    }
+
+    public final void setName(String name) {
+        this.mName = name;
+    }
+
+    public final String getId() {
+        return mId;
+    }
+
     public final boolean isSucceed(){
         return isResultSucceed(mResult);
     }
 
     public final boolean isCanceled(){
-        return mCanceled;
+        Boolean canceled=mCanceled;
+        return null!=canceled&&canceled;
     }
 
     public final boolean cancel(boolean cancel){
-        if (mCanceled!=cancel){
+        Boolean canceled=mCanceled;
+        if (null==canceled||canceled!=cancel){
             mCanceled=cancel;
             return true;
         }
@@ -78,12 +96,10 @@ public abstract class Task implements Status{
 
     public int getStatusColor(){
         switch (mStatus) {
-            case Status.EXECUTING:
+            case Status.START:
                 return Color.parseColor("#008000");
-            case Status.PREPARING:
+            case Status.PREPARE:
                 return Color.parseColor("#FFD700");
-            case Status.STARTED:
-                return Color.parseColor("#7CFC00");
             case Status.IDLE:
                 Result result=mResult;
                 if (null==result){
@@ -111,7 +127,7 @@ public abstract class Task implements Status{
         return null!=mResult;
     }
 
-    protected abstract Result onExecute(Task task, OnTaskUpdate callback);
+    protected abstract Result onExecute(Task task,Context context,boolean start, OnTaskUpdate callback);
 
     public final boolean isStarted(){
         return mStatus!=Status.IDLE;
@@ -131,6 +147,18 @@ public abstract class Task implements Status{
             }
         }
         return false;
+    }
+
+    public final Task deleteFailed(boolean deleteFail){
+        Boolean deleteFailed=mDeleteFailed;
+        if (null==deleteFailed||deleteFailed!=deleteFail){
+            mDeleteFailed=deleteFailed;
+        }
+        return this;
+    }
+
+    public final boolean isDeleteFailed() {
+        return mDeleteFailed;
     }
 
     public final int getStatus() {

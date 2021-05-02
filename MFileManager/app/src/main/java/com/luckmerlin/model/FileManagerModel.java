@@ -21,11 +21,9 @@ import com.luckmerlin.file.Path;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.TaskListActivity;
 import com.luckmerlin.file.adapter.ClientAdapter;
-import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
-import com.luckmerlin.file.task.StreamTask;
 import java.io.File;
 
 public class FileManagerModel extends FileBrowserModel implements OnViewClick, OnViewLongClick {

@@ -1,11 +1,8 @@
-package com.luckmerlin.file.service;
+package com.luckmerlin.task;
 
 import android.os.Binder;
 
-import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.match.Matchable;
-import com.luckmerlin.task.OnTaskUpdate;
-import com.luckmerlin.task.Task;
 
 import java.util.List;
 
@@ -29,15 +26,9 @@ public class TaskBinder extends Binder implements Tasker{
      }
 
     @Override
-    public boolean startTask(Object task) {
+    public boolean action(int action, Object... tasks) {
         TaskService service=mTaskService;
-        return null!=service&&service.startTask(task);
-    }
-
-    @Override
-    public boolean cancelTask(Object task) {
-        TaskService service=mTaskService;
-        return null!=service&&service.cancelTask(task);
+        return null!=service&&service.action(action,tasks);
     }
 
     @Override

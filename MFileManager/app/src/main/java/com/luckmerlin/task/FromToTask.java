@@ -1,13 +1,27 @@
 package com.luckmerlin.task;
 
 public abstract class FromToTask<T,V> extends Task {
-    private final T mFrom;
-    private final V mTo;
+    private T mFrom;
+    private V mTo;
+
+    public FromToTask(){
+        this(null,null,null);
+    }
 
     public FromToTask(String name, T from, V to){
         super(name);
         mFrom=from;
         mTo=to;
+    }
+
+    protected final FromToTask setFrom(T from) {
+        this.mFrom = from;
+        return this;
+    }
+
+    protected final FromToTask setTo(V to) {
+        this.mTo = to;
+        return this;
     }
 
     public final T getFrom() {

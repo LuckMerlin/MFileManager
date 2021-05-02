@@ -1,39 +1,58 @@
 package com.luckmerlin.file.task;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.What;
 import com.luckmerlin.file.util.FileSize;
-import com.luckmerlin.json.JsonObject;
-import com.luckmerlin.json.JsonWriteable;
 import com.luckmerlin.task.FromToTask;
 import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Result;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
+
+import java.io.Externalizable;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.concurrent.TimeUnit;
 
-public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask, JsonWriteable {
-    private boolean mDeleteFail=false;
+public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask, Externalizable {
+
+    public StreamTask() {
+        this(null,null,null);
+    }
 
     public StreamTask(String name, Uri from, Uri to) {
-        super(name,from, to);
+        super(name,from,to);
     }
 
-    StreamTask(JsonObject json){
-        this(null!=json?json.optString(Label.LABEL_NAME,null):null,
-                null!=json?json.optUri(Label.LABEL_FROM,null):null,
-                null!=json?json.optUri(Label.LABEL_TO,null):null);
-        mDeleteFail=null!=json&&json.optBoolean(Label.LABEL_DELETE,false);
+    private String uri2String(Uri uri){
+        return null!=uri?uri.toString():null;
     }
 
-    public final StreamTask deleteFail(boolean deleteFail) {
-        mDeleteFail = deleteFail;
-        return this;
+    private Uri string2Uri(String uri){
+        return null!=uri&&uri.length()>0?Uri.parse(uri):null;
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(getId());
+        out.writeUTF(getName());
+        out.writeUTF(uri2String(getFrom()));
+        out.writeUTF(uri2String(getTo()));
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws ClassNotFoundException, IOException {
+        setId(in.readUTF());
+        setName(in.readUTF());
+        setFrom(string2Uri(in.readUTF()));
+        setTo(string2Uri(in.readUTF()));
     }
 
     @Override
@@ -47,7 +66,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
     }
 
     @Override
-    protected Result onExecute(Task task, OnTaskUpdate callback) {
+    protected Result onExecute(Task task, Context context, boolean start, OnTaskUpdate callback) {
         final Uri from=getFrom();
         final Uri to=getTo();
         if (null==from||null==to){
@@ -56,7 +75,8 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
         }
         Input streamInput=null;Output streamOutput=null;boolean hasWriteFLag=false;
         try{
-            notifyTaskUpdate(Status.PREPARING,null,callback);
+            final FileProgress progress=new FileProgress(0,getName());
+            notifyTaskUpdate(Status.PREPARE,null,callback);
             CodeResult<Output> outputResult=createOutputOpener(to);
             final Output output=streamOutput=null!=outputResult?outputResult.getArg():null;
             if (null==output||outputResult.getCode()!=What.WHAT_SUCCEED){
@@ -71,9 +91,8 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
             }
             final long total=input.getLength();
             final long currentLength=output.getLength();
-            final FileProgress progress=new FileProgress(total,getName());
-            progress.mDone=currentLength;
-            notifyTaskUpdate(Status.EXECUTING,progress,callback);
+            progress.mDone=currentLength;progress.mTotal=total;
+            notifyTaskUpdate(Status.DOING,progress,callback);
             Debug.D("Now,Doing stream stark."+to);
             if (total<0){
                 Debug.W("Can't execute Uri stream task while input length not match output length.");
@@ -114,7 +133,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
                             speed = startTime > 0 ? read / startTime : 0;
                             progress.mSpeed=speed;
                             progress.mDone=uploaded;
-                            notifyTaskUpdate(Status.EXECUTING,progress,callback);
+                            notifyTaskUpdate(Status.DOING,progress,callback);
                         }
                     }
                 }
@@ -135,7 +154,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
             }
         }
         Debug.D("Fail do stream task."+to);
-        if (mDeleteFail&&hasWriteFLag&&null!=streamOutput&&streamOutput.delete()){
+        if (isDeleteFailed()&&hasWriteFLag&&null!=streamOutput&&streamOutput.delete()){
             Debug.D("Deleted fail stream task output file."+to);
         }
         return new CodeResult<>(What.WHAT_FAIL);
@@ -156,16 +175,6 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
             return path;
         }
         return null;
-    }
-
-    @Override
-    public boolean write(JsonObject jsonObject) {
-        if (null!=jsonObject){
-            jsonObject.putNotNull(Label.LABEL_NAME,getName()).putNotNull(Label.LABEL_FROM,getFrom()).
-                    putNotNull(Label.LABEL_TO,getTo()).putNotNull(Label.LABEL_DELETE,mDeleteFail);
-            return true;
-        }
-        return false;
     }
 
     private CodeResult<Output> createOutputOpener(Uri uri){
@@ -241,7 +250,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
 
     static class FileProgress implements Progress{
         long mDone;
-        final long mTotal;
+        long mTotal;
         final Object mTitle;
         float mSpeed;
 

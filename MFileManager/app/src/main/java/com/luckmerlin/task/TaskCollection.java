@@ -1,5 +1,7 @@
 package com.luckmerlin.task;
 
+import android.content.Context;
+
 import com.luckmerlin.core.match.Matchable;
 import com.luckmerlin.core.match.Matcher;
 
@@ -14,7 +16,7 @@ public class TaskCollection<T extends Task,M extends Collection<T>>  extends Tas
     }
 
     @Override
-    protected Result onExecute(Task task, OnTaskUpdate callback) {
+    protected Result onExecute(Task task, Context context, boolean start, OnTaskUpdate callback) {
         return null;
     }
 

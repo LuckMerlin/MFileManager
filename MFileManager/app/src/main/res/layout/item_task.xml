@@ -20,53 +20,59 @@
         <import type="com.luckmerlin.task.Status"/>
         <import type="com.luckmerlin.file.R"/>
     </data>
-    <LinearLayout android:orientation="horizontal" android:background="@drawable/selector_round_dark_corner_small"
-        android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_width="match_parent"
+    <FrameLayout android:background="@drawable/selector_round_dark_corner_small"
         android:minHeight="60dp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
         android:layout_marginTop="5dp" android:layout_marginBottom="5dp"
-        android:layout_height="wrap_content" android:gravity="center_vertical">
+        android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent"
+            android:paddingLeft="5dp" android:paddingRight="5dp"
+            android:layout_height="wrap_content" android:gravity="center_vertical">
 
-        <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
-            <ImageView android:padding="2dp" android:layout_width="50dp" android:layout_height="50dp"
-                android:background="@drawable/round_corner_task_item" android:layout_margin="5dp"
-                binding:lmBinding="@{ImageBinding.image(taskThumb).centerCrop(true)}"/>
-            <TextView android:textSize="8sp" android:textColor="#fff" android:layout_gravity="center"
-                binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_SPEED),null,Touch.NONE)}"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-        </FrameLayout>
+            <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+                <ImageView android:padding="2dp" android:layout_width="50dp" android:layout_height="50dp"
+                    android:background="@drawable/round_corner_task_item" android:layout_margin="5dp"
+                    binding:lmBinding="@{ImageBinding.image(taskThumb).centerCrop(true)}"/>
+                <TextView android:textSize="8sp" android:textColor="#fff" android:layout_gravity="center"
+                    binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_SPEED),null,Touch.NONE)}"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </FrameLayout>
 
-        <LinearLayout android:orientation="vertical" android:gravity="center_vertical"
-            android:layout_width="match_parent" android:layout_height="wrap_content">
-            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical"
+            <LinearLayout android:orientation="vertical" android:gravity="center_vertical"
                 android:layout_width="match_parent" android:layout_height="wrap_content">
-                <TextView android:layout_width="match_parent" android:layout_weight="1"
-                    binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_TITLE),null,Touch.NONE)}"
-                    android:layout_gravity="bottom|center_horizontal" android:textColor="#fff"
-                    android:singleLine="true" android:textSize="13sp" android:layout_height="wrap_content"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp" android:padding="5dp"
-                    binding:lmBinding="@{Touch.textRes(task.succeed?R.string.succeed:task.isAnyStatus(Status.IDLE)?R.string.start:R.string.cancel,task,Touch.CLICK)}"/>
-            </LinearLayout>
-            <ProgressBar style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:progressDrawable="@drawable/progress_bar"
-                android:progress="@{task.status==Status.PREPARING?0:progress}"
-                android:secondaryProgress="@{task.status==Status.PREPARING?progress:100}"
-                android:layout_marginTop="3dp" android:layout_marginBottom="3dp"
-                android:layout_width="match_parent" android:layout_height="3dp"/>
-            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical"
-                android:layout_width="match_parent" android:layout_height="wrap_content">
-                <TextView android:layout_width="wrap_content" android:text="@{taskExecuteTime}"
-                    android:layout_marginLeft="5dp" android:textColor="#fff" android:textSize="8sp"
-                    android:gravity="left" android:layout_height="wrap_content"/>
-                <TextView binding:lmBinding="@{Touch.textRes(task.progress.getProgress((Progress.TYPE_DONE|Progress.TYPE_TOTAL)),null,Touch.NONE)}"
-                    android:singleLine="true" android:layout_width="0dp" android:textColor="@color/textTitle"
-                    android:layout_weight="1" android:textSize="11sp" android:alpha="0.8" android:gravity="center"
-                    android:layout_height="wrap_content" android:layout_gravity="center"/>
-                <TextView android:layout_width="wrap_content" android:text="@{taskExecuteTime}"
-                    android:layout_marginLeft="5dp" android:textColor="#fff" android:textSize="8sp"
-                    android:gravity="right" android:layout_height="wrap_content"/>
+                <LinearLayout android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:layout_width="match_parent" android:layout_weight="1"
+                        binding:lmBinding="@{Touch.textRes(task.progress.getProgress(Progress.TYPE_TITLE),null,Touch.NONE)}"
+                        android:layout_gravity="bottom|center_horizontal" android:textColor="#fff"
+                        android:singleLine="true" android:textSize="13sp" android:layout_height="wrap_content"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp" android:padding="5dp"
+                        binding:lmBinding="@{Touch.textRes(task.succeed?R.string.succeed:task.isAnyStatus(Status.IDLE)?R.string.start:R.string.cancel,task,Touch.CLICK)}"/>
+                </LinearLayout>
+                <ProgressBar style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:progressDrawable="@drawable/progress_bar"
+                    android:progress="@{task.status==Status.PREPARING?0:progress}"
+                    android:secondaryProgress="@{task.status==Status.PREPARING?progress:100}"
+                    android:layout_marginTop="3dp" android:layout_marginBottom="3dp"
+                    android:layout_width="match_parent" android:layout_height="3dp"/>
+                <LinearLayout android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:layout_width="wrap_content" android:text="@{taskExecuteTime}"
+                        android:layout_marginLeft="5dp" android:textColor="#fff" android:textSize="8sp"
+                        android:gravity="left" android:layout_height="wrap_content"/>
+                    <TextView binding:lmBinding="@{Touch.textRes(task.progress.getProgress((Progress.TYPE_DONE|Progress.TYPE_TOTAL)),null,Touch.NONE)}"
+                        android:singleLine="true" android:layout_width="0dp" android:textColor="@color/textTitle"
+                        android:layout_weight="1" android:textSize="11sp" android:alpha="0.8" android:gravity="center"
+                        android:layout_height="wrap_content" android:layout_gravity="center"/>
+                    <TextView android:layout_width="wrap_content" android:text="@{taskExecuteTime}"
+                        android:layout_marginLeft="5dp" android:textColor="#fff" android:textSize="8sp"
+                        android:gravity="right" android:layout_height="wrap_content"/>
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
-    </LinearLayout>
+        <ImageView binding:lmBinding="@{Touch.imageRes(R.drawable.selector_remove,task,Touch.CLICK)}"
+            android:layout_gravity="right|top" android:layout_width="15dp" android:layout_height="15dp"/>
+    </FrameLayout>
+
 </layout>

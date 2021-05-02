@@ -30,8 +30,8 @@ import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.OnApiFinish;
 import com.luckmerlin.file.api.Reply;
 import com.luckmerlin.file.api.What;
-import com.luckmerlin.file.service.TaskBinder;
-import com.luckmerlin.file.service.TaskService;
+import com.luckmerlin.task.TaskBinder;
+import com.luckmerlin.task.TaskService;
 import com.luckmerlin.file.task.Progress;
 import com.luckmerlin.file.ui.OnPathSpanClick;
 import com.luckmerlin.mvvm.activity.OnActivityBackPress;
@@ -39,6 +39,7 @@ import com.luckmerlin.mvvm.activity.OnActivityStart;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
+import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     private final ObservableField<CharSequence> mNotifyText=new ObservableField<>();
     private final List<Client> mClients=new ArrayList<>();
     private TaskBinder mTaskBinder;
+    private Runnable mNotifyAutoRemove;
     private final FileBrowserAdapter mBrowserAdapter=new FileBrowserAdapter();
 
     protected final boolean add(Client client, String debug){
@@ -232,7 +234,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
                     if (null==tasks||tasks.size()<=0){
                         toast(R.string.emptyContent);
                     }else{
-                        startTask(tasks,debug);
+                        actionTask(Status.START,tasks);
                     }
                 }
                 return null!=dialog.dismiss()||true;
@@ -344,15 +346,12 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         return true;
     }
 
-    protected final boolean startTask(Object task,String debug){
-        if (null==task){
-            return false;
-        }
+    protected final boolean actionTask(int action,Object ...tasks){
         TaskBinder binder=mTaskBinder;
         if (null==binder){
             return toast(R.string.transporterNotBind)&&false;
         }
-        return binder.startTask(task)||true;
+        return binder.action(action,tasks)||true;
     }
 
     protected final Mode getMode() {

@@ -13,14 +13,17 @@ import com.luckmerlin.databinding.Model;
 import com.luckmerlin.databinding.touch.OnViewClick;
 import com.luckmerlin.file.R;
 import com.luckmerlin.file.adapter.TaskListAdapter;
-import com.luckmerlin.file.service.TaskBinder;
-import com.luckmerlin.file.service.TaskService;
+import com.luckmerlin.task.TaskBinder;
+import com.luckmerlin.task.TaskService;
 import com.luckmerlin.mvvm.service.OnModelServiceResolve;
 import com.luckmerlin.mvvm.service.OnServiceBindChange;
 import com.luckmerlin.task.OnTaskUpdate;
+import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 import java.util.ArrayList;
 import java.util.List;
+
+import luckmerlin.core.dialog.MDialog;
 
 public class TaskListModel extends Model implements OnModelServiceResolve, OnServiceBindChange,
         OnTaskUpdate, OnViewClick, OnItemSlideRemove {
@@ -52,9 +55,29 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
            case R.drawable.selector_back:
                return onBackPressed(null);
            case R.string.start:
-               return startTask(o)||true;
+               return actionTask(Status.START,o)||true;
            case R.string.cancel:
-               return cancelTask(o)||true;
+               return actionTask(Status.CANCEL,o)||true;
+           case R.drawable.selector_remove:
+                Task task=null!=o&&o instanceof Task?(Task)o:null;
+               if (null!=task&&!task.isSucceed()){
+                   final MDialog dialog=new MDialog(getContext());
+                   String message=getString(R.string.deleteFailedFile,null);
+                   message=null!=message?message+"\n"+task.getName():null;
+                   return null!=dialog.setContentView(new AlertDialogModel(R.string.notify,message,
+                           R.string.remove,R.string.cancel,R.string.delete,null){
+                           @Override
+                           public boolean onViewClick(View view, int i, int i1, Object o) {
+                               if (i==R.string.delete){
+                                   actionTask(Status.DELETE,o);
+                               }else if (i==R.string.remove){
+                                   actionTask(Status.REMOVE,o);
+                               }
+                               return null!=dialog.dismiss()||true;
+                           }
+                   },null).fullscreen(false).show()||true;
+               }
+               return actionTask(Status.REMOVE,o)||true;
        }
         return false;
     }
@@ -90,25 +113,17 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
         return finishActivity(debug);
     }
 
-    private boolean startTask(Object task){
+    private boolean actionTask(int action,Object ...tasks){
         TaskBinder binder=mTaskBinder;
-        return null!=task&&null!=binder&&binder.startTask(task);
-    }
-
-    private boolean cancelTask(Object task){
-        TaskBinder binder=mTaskBinder;
-        return null!=task&&null!=binder&&binder.cancelTask(task);
+        return null!=tasks&&tasks.length>0&&null!=binder&&binder.action(action,tasks);
     }
 
     @Override
     public void onTaskUpdated(Task task, int status) {
         switch (status){
-            case Task.IDLE:
-                updateTasks(task,"While task idle status.");
-                break;
-            case Task.STARTED:
-                updateTasks(task,"While task started status.");
-                break;
+            case Task.IDLE: updateTasks(task,"While task idle status.");break;
+            case Task.START: updateTasks(task,"While task started status.");break;
+            case Task.REMOVE: mTaskListAdapter.remove(task,"While task remove status.");return;
         }
         mTaskListAdapter.replace(task,null);
     }
