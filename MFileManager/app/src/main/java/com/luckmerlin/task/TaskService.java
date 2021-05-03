@@ -91,11 +91,9 @@ public final class TaskService extends Service implements Tasker{
             action=(action&Status.START)>0?(action|Status.ADD):action;
             action=(action&Status.REMOVE)>0?(action|Status.CANCEL):action;
             action=(action&Status.DELETE)>0?(action|Status.CANCEL|Status.REMOVE):action;
-            Debug.D("QQQQQQQQQq  a "+action);
             if ((action&Status.ADD)>0){
                 return addTask(action,task);
             }else if ((action&Status.REMOVE)>0){
-                Debug.D("QQQQQQQQQq  b "+action);
                 return remove(task,(action&Status.CANCEL)>0, (action&Status.DELETE)>0);
             }
         }
@@ -104,6 +102,7 @@ public final class TaskService extends Service implements Tasker{
 
     private boolean addTask(int action,Object taskObj) {
         if (null==taskObj){
+            Debug.W("Can't add task while task NULL.");
             return false;
         }
         Task child=null;

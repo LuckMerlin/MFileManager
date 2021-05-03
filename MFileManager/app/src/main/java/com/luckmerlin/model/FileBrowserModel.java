@@ -234,7 +234,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
                     if (null==tasks||tasks.size()<=0){
                         toast(R.string.emptyContent);
                     }else{
-                        actionTask(Status.START,tasks);
+                        actionTask(Status.START|Status.DOING,tasks);
                     }
                 }
                 return null!=dialog.dismiss()||true;

@@ -37,10 +37,19 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
 //        NasClient client=new NasClient("http://192.168.0.6",2018,"NAS");
-        NasClient client=new NasClient("http://192.168.0.4",2019,"NAS");
+//        NasClient client=new NasClient("http://192.168.0.4",2019,"NAS");
+        NasClient client=new NasClient("http://192.168.1.6",2019,"NAS");
 //        add(new LocalClient("/sdcard",getString(R.string.local,null)).setSyncHost(client.getHostUri()),"");
         add(client,"");
         new File("/sdcard/linqiang2021.mp4").delete();
+//        sudo rm /usr/local/mysql
+//        sudo rm -rf /usr/local/mysql*
+//                sudo rm -rf /Library/StartupItems/MySQLCOM
+//        sudo rm -rf /Library/PreferencePanes/My*
+//                rm -rf ~/Library/PreferencePanes/My*
+//                sudo rm -rf /Library/Receipts/mysql*
+//                sudo rm -rf /Library/Receipts/MySQL*
+//                sudo rm -rf /var/db/receipts/com.mysql.*
         post(new Runnable() {
             @Override
             public void run() {

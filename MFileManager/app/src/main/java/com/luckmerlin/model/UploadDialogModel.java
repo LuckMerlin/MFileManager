@@ -94,17 +94,16 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
             return true;
         }else if (files instanceof Uri){
             Uri uri=(Uri)files;
-            String taskName=null;
+            String fileName=null;
             String scheme=uri.getScheme();
             if (null!=scheme&&scheme.equals(ContentResolver.SCHEME_FILE)){
                 String localFilePath=uri.getPath();
                 File localFile=null!=localFilePath&&localFilePath.length()>0?new File(localFilePath):null;
-                final String fileName=null!=localFile?localFile.getName():null;
+                fileName=null!=localFile?localFile.getName():null;
                 if (null==fileName||fileName.length()<=0){
                     Debug.W("Fail scan directory files while file name invalid.");
                     return false;
                 }
-                taskName=fileName;
                 (layers=null!=layers?layers:new LinkedList<>()).add(fileName);
                 if (null!=localFile&&localFile.isDirectory()){//Browser all files
                     String folderSep=folder.getSep();
@@ -125,18 +124,24 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
                 ContentResolver contentResolver=getContentResolver();
                 Cursor cursor = null!=contentResolver?contentResolver.query(uri, null, null,
                         null, null, null):null;
+                File contentFile=null;
                 if (null!=cursor){
                     while (cursor.moveToFirst()){
-                        taskName=cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                        String filePath=cursor.getString(cursor.getColumnIndex("_data"));
+                        contentFile=null!=filePath&&filePath.length()>0?new File(filePath):null;
                         break;
                     }
                     cursor.close();
                 }
+                if (null==contentFile){
+                    return false;
+                }
+                return prepare(contentFile,folder,layers);
             }
-            Debug.D("WWWWWWWWWW "+scheme+" "+taskName+" "+uri.getPath()+" "+uri.toString());
+//            Debug.D("WWWWWWWWWW "+scheme+" "+taskName+" "+uri.getPath()+" "+uri.toString());
 //            StreamTask task=new StreamTask(uri,null!=layers&&layers.size()>0?folder.getChildUri(layers):null);
 //            Debug.D("上传 "+task.getName()+" from="+task.getFrom()+" to="+task.getTo());
-            return addFileTask(new StreamTask(taskName,uri,null!=layers&&layers.size()>0?folder.getChildUri(layers):null));
+            return addFileTask(new StreamTask(fileName,uri,folder.getChildUri(layers)));
         }
         return false;
     }

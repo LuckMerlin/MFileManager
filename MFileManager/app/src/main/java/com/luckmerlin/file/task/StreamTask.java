@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import com.luckmerlin.core.debug.Debug;
+import com.luckmerlin.core.util.Closer;
 import com.luckmerlin.file.Path;
 import com.luckmerlin.file.api.Label;
 import com.luckmerlin.file.api.What;
@@ -15,7 +16,9 @@ import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 import java.io.Externalizable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.concurrent.TimeUnit;
@@ -70,7 +73,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
         final Uri from=getFrom();
         final Uri to=getTo();
         if (null==from||null==to){
-            Debug.W("Can't execute Uri stream task while args invalid.");
+            Debug.W("Can't execute Uri stream task while args invalid."+from+" "+to);
             return new CodeResult(What.WHAT_ARGS_INVALID);
         }
         Input streamInput=null;Output streamOutput=null;boolean hasWriteFLag=false;
@@ -83,7 +86,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
                 Debug.W("Can't execute Uri stream task while output create fail.");
                 return null!=outputResult?outputResult:new CodeResult<>(What.WHAT_FAIL);
             }
-            CodeResult<Input> inputOpenerResult=createInputOpener(from);
+            CodeResult<Input> inputOpenerResult=createInputOpener(context,from);
             Input input=streamInput=null!=inputOpenerResult?inputOpenerResult.getArg():null;
             if (null==input||null==inputOpenerResult||inputOpenerResult.getCode()!=What.WHAT_SUCCEED){
                 Debug.W("Can't execute Uri stream task while input create fail.");
@@ -98,7 +101,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
                 Debug.W("Can't execute Uri stream task while input length not match output length.");
                 return new CodeResult<>(What.WHAT_MATCH_FAIL);
             }else if (currentLength>total){
-                Debug.W("Can't execute Uri stream task while file already exist.");
+                Debug.W("File already exist,Give up execute uri stream task.");
                 return new CodeResult<>(What.WHAT_EXIST);
             }else if (currentLength==total){
                 Debug.W("Not need execute Uri stream task while file already done."+currentLength+" "+total);
@@ -198,7 +201,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
         return new CodeResult<>(What.WHAT_NOT_SUPPORT);
     }
 
-    private CodeResult<Input> createInputOpener(Uri uri){
+    private CodeResult<Input> createInputOpener(Context context,Uri uri){
         String scheme=null!=uri?uri.getScheme():null;
         scheme=null!=scheme?scheme.toLowerCase():null;
          if (null==scheme||scheme.length()<=0){
@@ -218,28 +221,8 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
         }else if (scheme.startsWith("http")){
              return new CodeResult<>(What.WHAT_SUCCEED,new NasInput(uri));
          }else if (scheme.equals(ContentResolver.SCHEME_CONTENT)){
-//            Context context=getContext();
-//            final ContentResolver resolver = null!=context?context.getContentResolver():null;
-//            if (null==resolver){
-//                Debug.W("Can't create Uri input while resolver is NULL.");
-//                return new CodeResult(What.WHAT_FAIL);
-//            }
-//            return new CodeResult<>(What.WHAT_SUCCEED, new Input("名字",0) {
-//                @Override
-//                CodeResult<InputStream> open(long seek) throws Exception {
-//                   if (seek<0){
-//                        Debug.W("Can't open Uri inputStream while seek invalid."+seek);
-//                        return new CodeResult<>(What.WHAT_FAIL);
-//                    }
-//                   InputStream inputStream=resolver.openInputStream(uri);
-//                    if (null!=inputStream&&seek>0&&inputStream.skip(seek)!=seek){
-//                        Debug.W("Can't open Uri inputStream while seek fail."+seek);
-//                        new Closer().close(inputStream);
-//                        return new CodeResult<>(What.WHAT_FAIL);
-//                    }
-//                    return new CodeResult<>(What.WHAT_SUCCEED,inputStream);
-//                }
-//            });
+            return new CodeResult<>(What.WHAT_SUCCEED, new ContentInput(uri,
+                    null!=context?context.getContentResolver():null));
          }else if (scheme.equals(ContentResolver.SCHEME_ANDROID_RESOURCE)){
 
          }
