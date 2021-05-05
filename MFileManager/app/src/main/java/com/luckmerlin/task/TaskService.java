@@ -77,17 +77,37 @@ public final class TaskService extends Service implements Tasker{
 
     @Override
     public boolean action(int action, Object... tasks) {
-        if (null!=tasks){
+        if (null!=tasks&&tasks.length>0){
             for (Object object:tasks){
                 actionTask(action,object);
             }
             return true;
         }
-        return null!=getTasks((Object o)-> actionTask(action,o)?Matchable.CONTINUE:Matchable.CONTINUE, -1);
+        return false;
     }
 
     private boolean actionTask(int action,Object task){
         if (null!=task){
+            if (task instanceof Matchable){
+                List<Task> tasks=mTasks;
+                if (null!=tasks){
+                    Matchable matchable=(Matchable)task;
+                    synchronized (tasks){
+                        Integer matched=null;
+                        final int finalAction=action;
+                        for (Task child:tasks){
+                            if (null!=(matched=matchable.onMatch(child))){
+                               if (matched==Matchable.MATCHED){
+                                   mHandler.post(()->actionTask(finalAction,child));
+                               }else if (matched==Matchable.BREAK){
+                                   break;
+                               }
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
             action=(action&Status.START)>0?(action|Status.ADD):action;
             action=(action&Status.REMOVE)>0?(action|Status.CANCEL):action;
             action=(action&Status.DELETE)>0?(action|Status.CANCEL|Status.REMOVE):action;

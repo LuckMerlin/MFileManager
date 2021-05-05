@@ -1,6 +1,7 @@
 package com.luckmerlin.file.binding;
 
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
@@ -42,7 +43,7 @@ public final class PathTextViewBinding implements CustomBinding {
             if (null!=path){
                 String pathValue=path.getPath();
                 String pathSep=path.getSep();
-                if (null!=pathSep&&pathSep.length()>0&&null!=pathValue){
+                if (null!=pathSep&&pathSep.length()>0&&null!=pathValue&&pathValue.length()>1){
                     SpannableStringBuilder builder = new SpannableStringBuilder("");
                     String[] splits=pathValue.split(pathSep);
                     int splitLength=null!=splits?splits.length:-1;
@@ -68,11 +69,12 @@ public final class PathTextViewBinding implements CustomBinding {
                                 public void updateDrawState(@NonNull TextPaint textPaint) {
                                     super.updateDrawState(textPaint);
                                     if (null != textPaint) {
+                                        textPaint.bgColor=Color.TRANSPARENT;
+                                        textPaint.linkColor=Color.TRANSPARENT;
                                         textPaint.setUnderlineText(false);
-                                        ColorStateList colorStateList = textView.getTextColors();
-                                        if (null != colorStateList) {
-                                            textPaint.setColor(colorStateList.getDefaultColor());
-                                        }
+                                        ColorStateList list = textView.getTextColors();
+                                        textPaint.setColor(null!=list?list.getDefaultColor(): Color.RED);
+                                        textPaint.clearShadowLayer();
                                     }
                                 }
                             },startIndex,end,Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
@@ -81,6 +83,8 @@ public final class PathTextViewBinding implements CustomBinding {
                     }
                     textView.setMovementMethod(LinkMovementMethod.getInstance());
                     charSequence=builder;
+                }else{
+                    charSequence=pathValue;
                 }
             }
             textView.setText(null!=charSequence?charSequence:"");

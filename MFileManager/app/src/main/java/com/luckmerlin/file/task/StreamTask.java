@@ -44,6 +44,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeLong(getCreateTime());
         out.writeUTF(getId());
         out.writeUTF(getName());
         out.writeUTF(uri2String(getFrom(),""));
@@ -52,6 +53,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
 
     @Override
     public void readExternal(ObjectInput in) throws ClassNotFoundException, IOException {
+        setCreateTime(in.readLong());
         setId(in.readUTF());
         setName(in.readUTF());
         setFrom(string2Uri(in.readUTF()));

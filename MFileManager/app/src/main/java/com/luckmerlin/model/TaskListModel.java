@@ -23,14 +23,15 @@ import com.luckmerlin.task.OnTaskUpdate;
 import com.luckmerlin.task.Status;
 import com.luckmerlin.task.Task;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class TaskListModel extends Model implements OnModelServiceResolve, OnServiceBindChange,
-        OnTaskUpdate, OnViewClick, OnItemSlideRemove {
-    private final TaskListAdapter mTaskListAdapter=new TaskListAdapter();
+        OnTaskUpdate, OnViewClick {
     private final ObservableField<Integer> mTotal=new ObservableField<>();
-    private final ObservableField<Integer> mDone=new ObservableField<>();
+    private final ObservableField<Integer> mSucceed=new ObservableField<>();
     private TaskBinder mTaskBinder;
+    private final TaskListAdapter mTaskListAdapter=new TaskListAdapter();
 
     @Override
     public List<Intent> onServiceResolved(List<Intent> list) {
@@ -58,6 +59,14 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
                return actionTask(Status.START,o)||true;
            case R.string.cancel:
                return actionTask(Status.CANCEL,o)||true;
+           case R.drawable.selector_delete:
+               return actionTask(Status.REMOVE, new Matchable() {
+                   @Override
+                   public Integer onMatch(Object o1) {
+                       return null!=o1&&o1 instanceof
+                               Task&&((Task)o1).isSucceed()?Matchable.MATCHED:Matchable.CONTINUE;
+                   }
+               })||true;
            case R.drawable.selector_remove:
                 Task task=null!=o&&o instanceof Task?(Task)o:null;
                if (null!=task&&!task.isSucceed()){
@@ -82,28 +91,19 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
         return false;
     }
 
-    @Override
-    public void onItemSlideRemove(int i, Object object, int i1, RecyclerView.ViewHolder viewHolder, Remover remover) {
-       if (null!=object&&object instanceof Task){
-           Task task=(Task)object;
-           View itemView=null!=viewHolder?viewHolder.itemView:null;
-           Debug.D("QQQQQQQQQQq  "+i+" "+object+" "+i1);
-           remover.remove(false);
-       }
-    }
-
     private boolean updateTasks(Task task,String debug){
         TaskBinder binder=mTaskBinder;
         if (null!=binder){
-            final int[] sum=new int[2];
+            final int[] sum=new int[3];
             binder.getTasks((Object o)-> {
                 if (null!=o&&o instanceof Task){
                     sum[0]+=(((Task)o).isFinished()?1:0);
                     sum[1]+=1;
+                    sum[2]+=(((Task)o).isSucceed()?1:0);
                 }
                 return Matchable.CONTINUE;
             },1);
-            mDone.set(sum[0]);
+            mSucceed.set(sum[2]);
             mTotal.set(sum[1]);
             return true;
         }
@@ -137,7 +137,7 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
         return mTotal;
     }
 
-    public ObservableField<Integer> getDone() {
-        return mDone;
+    public ObservableField<Integer> getSucceed() {
+        return mSucceed;
     }
 }

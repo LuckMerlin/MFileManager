@@ -16,9 +16,11 @@
             <TextView android:textSize="@dimen/textTitle" android:textStyle="bold" android:layout_gravity="center" android:singleLine="true"
                 android:text="@{vm.path.name??``}" android:textColor="@color/textTitle" android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:layout_marginBottom="10dp"/>
+            <include binding:menu="@{ContextMenu.create(R.string.open,vm.path)}" layout="@layout/item_context_menu" />
             <include binding:menu="@{ContextMenu.create(R.string.download,vm.path)}" android:visibility="@{vm.path instanceof NasPath?View.VISIBLE:View.GONE}" layout="@layout/item_context_menu" />
             <include binding:menu="@{ContextMenu.create(R.string.upload,vm.path)}" android:visibility="@{vm.path instanceof LocalPath?View.VISIBLE:View.GONE}" layout="@layout/item_context_menu" />
             <include binding:menu="@{ContextMenu.create(R.string.rename,vm.path)}" layout="@layout/item_context_menu" />
+            <include binding:menu="@{ContextMenu.create(R.string.delete,vm.path)}" layout="@layout/item_context_menu" />
             <include binding:menu="@{ContextMenu.create(R.string.multiChoose,vm.path)}" layout="@layout/item_context_menu" />
             <include binding:menu="@{ContextMenu.create(R.string.attr,vm.path)}" layout="@layout/item_context_menu" />
         </LinearLayout>

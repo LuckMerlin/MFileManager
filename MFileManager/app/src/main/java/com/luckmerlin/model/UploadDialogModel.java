@@ -133,10 +133,7 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
                     }
                     cursor.close();
                 }
-                if (null==contentFile){
-                    return false;
-                }
-                return prepare(contentFile,folder,layers);
+                return null!=contentFile&&prepare(contentFile,folder,layers);
             }
 //            Debug.D("WWWWWWWWWW "+scheme+" "+taskName+" "+uri.getPath()+" "+uri.toString());
 //            StreamTask task=new StreamTask(uri,null!=layers&&layers.size()>0?folder.getChildUri(layers):null);
@@ -153,9 +150,8 @@ public class UploadDialogModel extends Model implements OnModelResolve, OnViewCl
             return post(()->{
                 StringBuffer buffer=new StringBuffer();
                 buffer.append(null!=fileName&&fileName.length()>15?fileName.substring(0,14):fileName);
-                buffer.append("\n🔼\n");
                 adapter.add(task);
-                buffer.append(""+getString(R.string.summeryItemWhich,null,adapter.getDataCount()));
+                buffer.append("\n"+getString(R.string.summeryItemWhich,null,adapter.getDataCount()));
                 mMessage.set(buffer.toString());
             });
         }

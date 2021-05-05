@@ -5,7 +5,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -53,6 +56,7 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
     private final List<Client> mClients=new ArrayList<>();
     private TaskBinder mTaskBinder;
     private Runnable mNotifyAutoRemove;
+    private final Handler mHandler=new Handler(Looper.getMainLooper());
     private final FileBrowserAdapter mBrowserAdapter=new FileBrowserAdapter();
 
     protected final boolean add(Client client, String debug){
@@ -150,6 +154,12 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
             }
         },new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)).setCancelable(true).setCanceledOnTouchOutside(true);
         return null!=dialog&&dialog.show(this);
+    }
+
+    public boolean deleteFile(Object file, String debug){
+        Dialog dialog=new Dialog(getContext());
+//        return dialog.setContentView();
+        return false;
     }
 
     public final List<Client> getClients() {
@@ -262,8 +272,20 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         }else if (path.isDirectory()){
             return browserPath(pathValue,debug);
         }
-        Debug.D("打开 "+debug);
-        return false;
+        String mime=path.getMime();
+        if (null==mime||mime.length()<=0){
+            Debug.W("Can't open path while mime NULL.");
+            return toast(getString(R.string.whichFailed,null,getString(R.string.open,null)));
+        }
+        Uri uri = path.toUri();
+        if (null==uri){
+            Debug.W("Can't open path while path uri invalid.");
+            return false;
+        }
+        Intent intent = new Intent("android.intent.action.VIEW");
+        intent.setDataAndType(uri, mime);
+        Debug.D("Open file."+uri+" "+mime);
+        return startActivity(intent,null);
     }
 
     protected final boolean scanCurrentFolder(Client client,Folder folder,String debug){
@@ -343,7 +365,20 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
 
     protected boolean showNotify(CharSequence text,String debug){
         mNotifyText.set(text);
-        return true;
+        Runnable runnable=mNotifyAutoRemove;
+        if (null!=runnable){
+            mHandler.removeCallbacks(runnable);
+        }
+        return mHandler.postDelayed(mNotifyAutoRemove=new Runnable() {
+            @Override
+            public void run() {
+                Runnable current=mNotifyAutoRemove;
+                if (null!=current&&current==this){
+                    mHandler.removeCallbacks(this);
+                    mNotifyText.set(null);
+                }
+            }
+        },4000);
     }
 
     protected final boolean actionTask(int action,Object ...tasks){

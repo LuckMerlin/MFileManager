@@ -36,9 +36,9 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
     @Override
     protected void onRootAttached(View view) {
         super.onRootAttached(view);
-//        NasClient client=new NasClient("http://192.168.0.6",2018,"NAS");
+        NasClient client=new NasClient("http://192.168.0.6",2018,"NAS");
 //        NasClient client=new NasClient("http://192.168.0.4",2019,"NAS");
-        NasClient client=new NasClient("http://192.168.1.6",2019,"NAS");
+//        NasClient client=new NasClient("http://192.168.1.6",2019,"NAS");
 //        add(new LocalClient("/sdcard",getString(R.string.local,null)).setSyncHost(client.getHostUri()),"");
         add(client,"");
         new File("/sdcard/linqiang2021.mp4").delete();
@@ -72,6 +72,8 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
     @Override
     public boolean onViewClick(View view, int i, int i1, Object tag) {
         switch (i){
+            case R.string.open:
+                return openPath(null!=tag&&tag instanceof Path?(Path)tag:null,"While open view click.")||true;
             case R.drawable.selector_menu:
                 return showBrowserMenu(view,"While menu view click.");
             case R.id.fileBrowser_clientNameTV:
@@ -114,9 +116,11 @@ public class FileManagerModel extends FileBrowserModel implements OnViewClick, O
 //                        downloadFolder),"While download view click.")&&
 //                        (selectMode(null,"While download view click.")||true);
                 return false;
+            case R.string.delete:
+                return deleteFile(tag,"While delete view click.")||true;
             case R.string.cancel://Get through
             case R.drawable.selector_cancel:
-                return selectMode(null,"While cancel view click.");
+                return selectMode(null,"While cancel view click.")||true;
             case R.string.scanCurrent:
                 Client scanClient=getCurrentClient();
                 return scanCurrentFolder(scanClient,getCurrentFolder(),"While scan view click.");

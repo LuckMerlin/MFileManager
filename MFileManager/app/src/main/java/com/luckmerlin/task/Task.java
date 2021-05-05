@@ -12,6 +12,7 @@ public abstract class Task implements Status {
     private  int mStatus=Status.IDLE;
     private  Boolean mCanceled;
     private  Boolean mDeleteFailed;
+    private  long mCreateTime;
     private  long mStartTime;
     private  String mName;
     private  long mEndTime;
@@ -94,6 +95,20 @@ public abstract class Task implements Status {
         return false;
     }
 
+    protected final Task setCreateTime(long createTime) {
+        this.mCreateTime = createTime;
+        return this;
+    }
+
+    public final long getTime(){
+        long createTime=mCreateTime;
+        return createTime>0?createTime:getStartTime();
+    }
+
+    public final long getCreateTime() {
+        return mCreateTime;
+    }
+
     public int getStatusColor(){
         switch (mStatus) {
             case Status.START:
@@ -107,9 +122,6 @@ public abstract class Task implements Status {
                 }else if (isResultSucceed(result)){
                     return Color.GREEN;
                 }
-//                else if (result.getCode()==What.WHAT_ALREADY_DONE){
-//                    return Color.parseColor("#5500ff00");
-//                }
                 return Color.RED;
         }
         return Color.TRANSPARENT;
