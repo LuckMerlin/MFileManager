@@ -84,7 +84,7 @@ public final class LocalClient extends AbsClient<LocalFolder<Query>,Query,LocalP
     }
 
     @Override
-    public boolean createPath(String path, boolean createFolder, OnApiFinish<Reply<LocalPath>> callback) {
+    public boolean createPath(String folder, String name, boolean createFolder, OnApiFinish<Reply<LocalPath>> callback) {
         return false;
     }
 

@@ -83,7 +83,7 @@ import java.util.Map;
         mURLConnection=urlConnection;
         urlConnection.setDoOutput(true);
         urlConnection.setDoInput(true);
-        urlConnection.setChunkedStreamingMode(1024 * 1024);
+        urlConnection.setChunkedStreamingMode(1024 * 1024*2);
         urlConnection.setRequestProperty(Label.LABEL_PATH, mPath);
         urlConnection.setRequestProperty(Label.LABEL_POSITION, Long.toString(seek));
         urlConnection.setRequestProperty("Content-Type", "application/octet-stream");

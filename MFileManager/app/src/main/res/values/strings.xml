@@ -35,6 +35,7 @@
     <string name="executing">Executing</string>
     <string name="timeoutWhich">%1s timeout</string>
     <string name="prepare">Prepare</string>
+    <string name="wait">Wait</string>
     <string name="idle">IDle</string>
     <string name="execute">Execute</string>
     <string name="reset">Reset</string>

@@ -123,7 +123,7 @@ public final class StreamTask extends FromToTask<Uri, Uri> implements ThumbTask,
                 }
                 //Head json
                 hasWriteFLag=true;
-                byte[] buffer=new byte[1024*1024];
+                byte[] buffer=new byte[1024*1024*2];
                 int read=0;long uploaded=currentLength;float speed;
                 long startTime=System.nanoTime();
                 while ((read=input.read(buffer))>=0){

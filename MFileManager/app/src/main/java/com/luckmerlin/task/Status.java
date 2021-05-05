@@ -9,6 +9,7 @@ public interface Status {
     int PREPARE = REMOVE<<1;
     int DELETE = PREPARE<<1;
     int DOING = DELETE<<1;//0000 01000
+    int WAIT = DOING<<1;//0000 01000
     /**
      * @deprecated
      */

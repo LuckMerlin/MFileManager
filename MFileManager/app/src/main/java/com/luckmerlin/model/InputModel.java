@@ -9,7 +9,7 @@ import com.luckmerlin.file.R;
 public class InputModel extends Model implements OnModelResolve {
     private final ObservableField<String> mInput=new ObservableField<>();
     private final ObservableField<String> mHint=new ObservableField<>();
-
+    
     public InputModel(String hint){
         mHint.set(hint);
     }

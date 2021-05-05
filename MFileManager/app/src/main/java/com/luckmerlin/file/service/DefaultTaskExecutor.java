@@ -1,6 +1,5 @@
 package com.luckmerlin.file.service;
 
-import com.luckmerlin.task.Task;
 import com.luckmerlin.task.TaskExecutor;
 import com.luckmerlin.task.TaskFuture;
 

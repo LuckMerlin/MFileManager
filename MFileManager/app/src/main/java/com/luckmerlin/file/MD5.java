@@ -30,7 +30,7 @@ public final class MD5 {
         try {
             digest = MessageDigest.getInstance("MD5");
             if (null!=digest){
-                byte buffer[] = new byte[1024*1024];
+                byte buffer[] = new byte[1024*1024*2];
                 in = new FileInputStream(file);
                 float speed=0;
                 int read;long done=0;

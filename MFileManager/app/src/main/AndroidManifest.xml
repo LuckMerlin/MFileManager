@@ -30,7 +30,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".TaskListActivity"/>
+        <activity android:name=".TaskListActivity" android:autoRemoveFromRecents="true"
+            android:excludeFromRecents="true"/>
         <service android:name="com.luckmerlin.task.TaskService"></service>
         <provider android:name="androidx.core.content.FileProvider"
             android:authorities="com.luckmerlin.browser.fileProvider"

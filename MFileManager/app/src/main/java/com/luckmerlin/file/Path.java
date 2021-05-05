@@ -4,6 +4,7 @@ import android.net.Uri;
 
 import com.luckmerlin.core.debug.Debug;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class  Path implements Permission  {
@@ -63,6 +64,15 @@ public abstract class  Path implements Permission  {
     }
 
     public abstract Uri getChildUri(List<String> childNames);
+
+    public final String getChildPath(String childName){
+        if(null!=childName&&childName.length()>0){
+            ArrayList list=new ArrayList(1);
+            list.add(childName);
+            return getChildPath(list);
+        }
+        return null;
+    }
 
     public final String getChildPath(List<String> childNames){
         String path=getPath();

@@ -70,7 +70,7 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
 
         @POST("/file/create")
         @FormUrlEncoded
-        Observable<Reply<NasPath>> createPath(@Field(Label.LABEL_PATH) String path,@Field(Label.LABEL_FOLDER) boolean createFolder);
+        Observable<Reply<NasPath>> createPath(@Field(Label.LABEL_PARENT) String folder,@Field(Label.LABEL_NAME) String name,@Field(Label.LABEL_FOLDER) boolean createFolder);
 
         @POST("/file/thumb")
         @Streaming
@@ -155,8 +155,8 @@ public final class NasClient extends AbsClient<NasFolder<Query>,Query,NasPath> {
     }
 
     @Override
-    public boolean createPath(String path, boolean createFolder, OnApiFinish<Reply<NasPath>> callback) {
-        return null!=mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).createPath(path,createFolder),callback);
+    public boolean createPath(String parent,String name, boolean createFolder, OnApiFinish<Reply<NasPath>> callback) {
+        return null!=mRetrofit.call(mRetrofit.prepare(Api.class,getHostUri()).createPath(parent,name,createFolder),callback);
     }
 
     @Override

@@ -56,7 +56,7 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
            case R.drawable.selector_back:
                return onBackPressed(null);
            case R.string.start:
-               return actionTask(Status.START,o)||true;
+               return actionTask(Status.START|Status.DOING,o)||true;
            case R.string.cancel:
                return actionTask(Status.CANCEL,o)||true;
            case R.drawable.selector_delete:
@@ -124,7 +124,8 @@ public class TaskListModel extends Model implements OnModelServiceResolve, OnSer
         switch (status){
             case Task.IDLE: updateTasks(task,"While task idle status.");break;
             case Task.START: updateTasks(task,"While task started status.");break;
-            case Task.REMOVE: mTaskListAdapter.remove(task,"While task remove status.");return;
+            case Task.REMOVE: mTaskListAdapter.remove(task,"While task remove status.");
+                updateTasks(task,"While task remove status.");return;
         }
         mTaskListAdapter.replace(task,null);
     }

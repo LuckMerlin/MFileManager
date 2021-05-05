@@ -22,7 +22,7 @@ public interface Client<A extends Folder<T,V>,T,V extends Path> {
 
     boolean rename(Path path,String newName,boolean justName,OnApiFinish<Reply<V>> callback);
 
-    boolean createPath(String name,boolean createFolder,OnApiFinish<Reply<V>> callback);
+    boolean createPath(String folder,String name,boolean createFolder,OnApiFinish<Reply<V>> callback);
 
     boolean deletePath(String path,OnApiFinish<Reply<V>> callback);
 }

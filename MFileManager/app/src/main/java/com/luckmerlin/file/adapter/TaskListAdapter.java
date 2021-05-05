@@ -175,6 +175,7 @@ public class TaskListAdapter extends ListAdapter<Task> implements OnItemTouchRes
                 switch (task.getStatus()){
                     case Status.START: statusText=R.string.executing;break;
                     case Status.PREPARE: statusText=R.string.prepare;break;
+                    case Status.WAIT: statusText=R.string.wait;break;
                     case Status.IDLE: statusText=getText(task.isSucceed()?R.string.succeed:R.string.fail);break;
                 }
             }

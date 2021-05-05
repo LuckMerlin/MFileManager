@@ -14,6 +14,7 @@ import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.databinding.ObservableField;
 
@@ -103,17 +104,25 @@ public class FileBrowserModel extends Model implements OnPathSpanClick, OnActivi
         if (null==client){
             return toast(getString(R.string.whichFailed, "",title))&&false;
         }
-        InputModel inputModel=new InputModel(getString(R.string.inputWhich,null,getString(R.string.name,null)));
+        Folder folder=getCurrentFolder();
+        if (null==folder) {
+            return toast(getString(R.string.whichFailed, "",title))&&false;
+        }
+        final EditText editText=new EditText(getContext());
+        editText.setTextColor(getResources().getColor(R.color.textTitle));
+        editText.setPadding(3,3,3,3);
+        editText.setTextSize(15);
+        editText.setBackground(getResources().getDrawable(R.drawable.round_corner_gray));
         final Dialog dialog=new Dialog(getContext());
-        dialog.setContentView(new AlertDialogModel(title, null,R.string.sure,R.string.cancel,null,inputModel){
+        dialog.setContentView(new AlertDialogModel(title, null,R.string.sure,R.string.cancel,null,editText){
             @Override
             public boolean onViewClick(View view, int i, int i1, Object o) {
                 if (i==R.string.sure){
-                    String inputText=inputModel.getInputText();
+                    String inputText=editText.getEditableText().toString();
                     if (null==inputText||inputText.length()<=0){
                         return toast(R.string.inputEmpty)||true;
                     }
-                    client.createPath(inputText,directory, (OnApiFinish<Reply<Path>>) (int what, String note, Reply<Path> data, Object arg)-> {
+                    client.createPath(folder.getPath(),inputText,directory, (OnApiFinish<Reply<Path>>) (int what, String note, Reply<Path> data, Object arg)-> {
                         toast(getString(what== What.WHAT_SUCCEED&&null!=data&&data.isSuccess()?
                                 R.string.whichSucceed:R.string.whichFailed,"",getString(R.string.createFolder,"")));
                     });

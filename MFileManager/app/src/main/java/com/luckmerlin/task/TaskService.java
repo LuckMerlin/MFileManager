@@ -7,24 +7,19 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Parcelable;
-
 import com.luckmerlin.core.debug.Debug;
 import com.luckmerlin.core.match.Matchable;
 import com.luckmerlin.core.match.Matcher;
 import com.luckmerlin.core.util.Closer;
+import com.luckmerlin.file.MD5;
 import com.luckmerlin.file.service.DefaultTaskExecutor;
 import com.luckmerlin.file.service.OnTaskSyncUpdate;
-
 import java.io.Externalizable;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +33,8 @@ public final class TaskService extends Service implements Tasker{
     private final Map<OnTaskUpdate,Matchable> mUpdateMaps=new WeakHashMap<>();
     private final DefaultTaskExecutor mExecutor=new DefaultTaskExecutor();
     private final Handler mHandler=new Handler(Looper.getMainLooper());
+    private final List<Task> mQueuingTasks=new ArrayList<>();
+    private final List<Task> mDoingTasks=new ArrayList<>();
     private final OnTaskUpdate mInnerUpdate=(Task task, int status)-> notifyTaskUpdate(task, status);
 
     @Override
@@ -135,28 +132,32 @@ public final class TaskService extends Service implements Tasker{
                 return true;
             }else if (taskObj instanceof Task){
                 Task task=(Task)taskObj;
-                if (!list.contains(task)&&list.add(task)){
-                    if ((action&Status.DELETE)<=0&&task instanceof Externalizable){//Save task
-                        task=null!=task.getId()?task:task.setId(UUID.randomUUID().toString());
-                        File saveFile=getTaskSaveFile(task);
-                        if (null!=saveFile){//Save task
-                            ObjectOutputStream outputStream=null;
-                            try {
-                                outputStream=new ObjectOutputStream(new FileOutputStream(saveFile));
-                                outputStream.writeObject(task);
-                                Debug.E("Save task."+saveFile.length()+" "+saveFile);
-                            }catch (Exception e){
-                                new Closer().close(outputStream);
-                                saveFile.delete();
-                                Debug.E("Exception save task.e="+e,e);
-                                e.printStackTrace();
-                            }finally {
-                                new Closer().close(outputStream);
+                if (!list.contains(task)){
+                    if (list.add(task)){
+                        if ((action&Status.DELETE)<=0&&task instanceof Externalizable){//Save task
+                            task=null!=task.getId()?task:task.setId(UUID.randomUUID().toString());
+                            File saveFile=getTaskSaveFile(task);
+                            if (null!=saveFile){//Save task
+                                ObjectOutputStream outputStream=null;
+                                try {
+                                    outputStream=new ObjectOutputStream(new FileOutputStream(saveFile));
+                                    outputStream.writeObject(task);
+                                    Debug.E("Save task."+saveFile.length()+" "+saveFile);
+                                }catch (Exception e){
+                                    new Closer().close(outputStream);
+                                    saveFile.delete();
+                                    Debug.E("Exception save task.e="+e,e);
+                                    e.printStackTrace();
+                                }finally {
+                                    new Closer().close(outputStream);
+                                }
                             }
                         }
+                        child= task;
+                        notifyTaskUpdate(task, Status.ADD);
                     }
-                    child= task;
-                    notifyTaskUpdate(task, Status.ADD);
+                }else{
+                    child=task;
                 }
             }else{
                 child=indexTask(taskObj);
@@ -180,8 +181,35 @@ public final class TaskService extends Service implements Tasker{
             Debug.W("Can't start task while task already started.");
             return false;
         }
+        List<Task> queuingMap=mQueuingTasks;
+        List<Task> doingTasks=mDoingTasks;
+        synchronized (doingTasks){
+            if (doingTasks.size()>=2){
+                if (!doingTasks.contains(finalTask)){
+                    queuingMap.add(finalTask);
+                    notifyTaskUpdate(finalTask,Status.WAIT,mInnerUpdate);
+                }
+                return false;
+            }
+        }
         Debug.D("To start task."+this);
-        return null!=executor.submit(()->finalTask.execute(this,startTaskFlag,mInnerUpdate));
+        return null!=executor.submit(()->{
+            List<Task> doingTask=mDoingTasks;
+            synchronized (doingTask){
+                doingTask.add(finalTask);
+            }
+            finalTask.execute(this,startTaskFlag,mInnerUpdate);
+            synchronized (doingTask){
+                doingTask.remove(finalTask);
+            }
+            mHandler.post(()->{
+                List<Task> queuingTasks=mQueuingTasks;
+                Task firstQueuingTask=null!=queuingTasks&&queuingTasks.size()>0?queuingTasks.remove(0):null;
+                if (null!=firstQueuingTask){
+                    addTask(Status.DOING,firstQueuingTask);
+                }
+            });
+        });
     }
 
     public boolean remove(Object taskObj,boolean cancel,boolean deleteFail){
@@ -195,7 +223,6 @@ public final class TaskService extends Service implements Tasker{
                 if (cancel&&task.cancel(true)){
                     //Do nothing
                 }
-                Debug.D("QQQQQQQQQq  "+cancel);
                 //Delete task save
                 File saveFile=getTaskSaveFile(task);
                 if (null!=saveFile&&saveFile.exists()){

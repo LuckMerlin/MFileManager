@@ -3,6 +3,8 @@ package com.luckmerlin.task;
 import android.content.Context;
 import android.graphics.Color;
 import com.luckmerlin.core.debug.Debug;
+import com.luckmerlin.file.api.What;
+import com.luckmerlin.file.task.CodeResult;
 import com.luckmerlin.file.task.Progress;
 
 public abstract class Task implements Status {
@@ -34,17 +36,18 @@ public abstract class Task implements Status {
         mResult=null;
         String name=getName();
         Debug.D("Start execute task "+(null!=name?name:"."));
-        notifyTaskUpdate(Status.START,null,callback);
         mStartTime=System.currentTimeMillis();
         mEndTime=-1;
-        mResult=onExecute(this,context,start,(Task task1, int status)-> {
+        notifyTaskUpdate(Status.START,callback);
+        Result result=onExecute(this,context,start,(Task task1, int status)-> {
             if (Status.START!=status){
                 notifyTaskUpdate(task1,status,null,callback);
             }
         });
+        mResult=null!=result?result:new CodeResult<>(What.WHAT_ERROR);
         mEndTime=System.currentTimeMillis();
+        notifyTaskUpdate(Status.IDLE,callback);
         Debug.D("Finish execute task "+(null!=name?name:".")+" ");
-        notifyTaskUpdate(Status.IDLE,null,callback);
         return true;
     }
 
